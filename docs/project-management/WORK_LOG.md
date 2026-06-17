@@ -4,6 +4,35 @@
 
 ---
 
+## 2026-06-18 (2) — Claude Code — Phase 2A 管理画面 scaffold
+
+### 目的
+実Supabaseなしで完全検証できる管理画面の土台を、公開サイトを壊さず追加する。
+
+### 実施内容
+- `src/config/features.ts`（`ADMIN_ENABLED` 既定OFF）
+- `src/lib/admin/auth.ts`（mock認証アダプタ `ADMIN_DEV_ROLE` + `resolveAdminLocale`）
+- `src/proxy.ts`: flag OFF 時の `/[locale]/admin` を真の404（ソフト404回避）
+- `src/app/[locale]/admin/{layout,page,products/page}.tsx`（ダッシュボード/商品一覧[読取]、rbac+adminNav+辞書で制御）
+- `src/components/admin/Admin.module.css`
+- `tests/adminAuth.test.ts`
+
+### コマンド / テスト
+- typecheck/lint OK、test 51 passed、build clean、db:validate OK
+- 実機: OFF→admin 404 & 公開導線維持 / ON+owner→表示 / ON+inventory_staff→権限なし(漏れなし) / ON+未ログイン→サインイン
+
+### 問題 / 解決
+- `notFound()` がソフト404(200)になる挙動 → proxy で flag OFF の /admin をルーティング前に真404化（KNOWN_ISSUES I-010）。
+- `pkill -f next` がGit Bashで効かず EADDRINUSE → PowerShell `Stop-Process`（port 3000）で確実停止。
+
+### 残課題
+- CRUD書込フォーム、Supabase Auth差替、残メニュー実装、admin metadata(I-008)、admin専用クローム(I-009)。
+
+### commit hash
+- `f745444` feat(phase2a): feature-flagged admin scaffold
+
+---
+
 ## 2026-06-18 — Claude Code — Phase 2A 基盤
 
 ### 目的

@@ -18,13 +18,14 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 - ドメインロジック `src/lib/commerce/`（money/orderStatus/inventoryStatus/rbac/sourcingAcceptance/adminNav）+ テスト45件
 - データ基盤: `DATA_BACKEND` 切替（既定mock）、Supabase adapterスタブ、`.env.example`
 - `supabase/migrations` 0001-0004 + seed + ER.md + README、`npm run db:validate`
-- 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ（ルート未実装）
+- 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ
+- 管理画面 **scaffold**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`、ダッシュボード/商品一覧[読取]、権限ガード確認済み）
 
 ## 作業途中 / 未着手（次の具体的作業）
 1. **`@supabase/supabase-js` 導入**し `src/lib/supabase/{client,server}.ts` を作成（client=anon, server=service role はサーバー専用）。
 2. **`SupabaseCommerceRepository` 実装**: `supabaseCommerceRepository.ts` の各メソッドを 0001 スキーマに対するクエリで実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すことを確認。
 3. **Supabase Auth + セッション保護**: `/[locale]/admin` layout（server）で session 確認、`user_roles` から role 取得、`rbac.ts`/`adminNav.ts` でメニュー制御。未ログインは公開トップへ。
-4. **管理画面 CRUD UI**: `adminNav` の各キー（products/inventory/customers/inquiries/orders/sourcing/journal/media/settings/audit）。`getAdminDictionary(adminLocale)` を使用、ラベル直書き禁止。feature flag（例 `ADMIN_ENABLED`）で既定無効にし、半完成を公開へ出さない。
+4. **管理画面 CRUD UI**（scaffold は実装済み。残りを継続）: `adminNav` の各キー（inventory/customers/inquiries/orders/sourcing/journal/media/settings/audit）の書込フォームを追加。`getAdminDictionary(adminLocale)` を使用しラベル直書き禁止。各ページで `can()` による権限ガードを継続。`ADMIN_ENABLED` は既定OFFのまま。`/[locale]/admin/products` は読取の例として実装済み。残: admin metadata(title, I-008)・専用adminクローム(I-009)。
 5. **migration 実適用検証**: Supabase/psql で `supabase db reset` → `db lint`（I-002）。
 6. Phase 2B 以降は ROADMAP 参照。
 

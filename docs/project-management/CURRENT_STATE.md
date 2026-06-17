@@ -13,7 +13,7 @@
 ## 現在Phase
 
 - Phase 1（公開サイト）: **完了**＋仕上げ継続中
-- Phase 2A（販売・運用管理基盤）: **基盤実装中**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n は完了。管理画面UI・実Supabaseクエリ・認証ランタイムは未着手）
+- Phase 2A（販売・運用管理基盤）: **基盤実装中**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n/管理画面scaffold[読取] は完了。CRUD書込・実Supabaseクエリ・Supabase認証は未着手）
 - Phase 2B / 3 / 4: 未着手（スキーマの一部とロードマップのみ）
 
 ## 完了済み
@@ -28,7 +28,7 @@
 
 ## 実装中 / 未着手（次の作業）
 
-- 管理画面ルート（`/[locale]/admin` 配下）と Supabase Auth セッション保護（**未着手**）
+- 管理画面 **scaffold 完了**（`/[locale]/admin`: レイアウト/ダッシュボード/商品一覧[読取]、feature flag `ADMIN_ENABLED` 既定OFF→真の404、mock認証アダプタ `ADMIN_DEV_ROLE`）。**残: CRUD書込フォーム・Supabase Auth差替・各メニュー実装・admin metadata(title)・専用adminクローム分離**
 - `SupabaseCommerceRepository` の実クエリ（**スタブ**）
 - 利益分析ビュー、原価配賦の実運用フロー、抹茶ロットFIFO/賞味期限アラート、陶器個体管理UI
 - Phase 3 adapter（cart/checkout/payment/通知/SNS下書き）interface
@@ -41,8 +41,8 @@
 
 ## 公開サイト状態 / 管理画面状態
 
-- 公開サイト: 動作（build 79ページ、起動・リダイレクト・404 確認済み）
-- 管理画面: **UI未実装**（型・権限・i18n・スキーマのみ）
+- 公開サイト: 動作（起動・リダイレクト・404・OG 確認済み）
+- 管理画面: **scaffold動作**（flag OFF=404で公開無影響、ON+devロールでダッシュボード/商品一覧[読取]表示、権限ガード確認済み）。書込CRUD・実Auth・実Supabaseは未
 
 ## migration状態
 
@@ -52,7 +52,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `fcd791f`（admin i18n scaffold）※実行時に `git log -1` で再確認
+- 最新 commit: `f745444`（admin scaffold）※実行時に `git log -1` で再確認
 - tag: なし（Phase 2A 未完了のため `v0.2.0-phase2a` は未付与）
 - リモート: なし（push しない）
 
