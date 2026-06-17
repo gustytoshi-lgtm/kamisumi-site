@@ -4,6 +4,15 @@ Standalone Phase 1 public site for KAMISUMI, operated by KAGURAKOJI and structur
 
 This project is intentionally separate from the existing `maomao-fansite` files.
 
+> **プロジェクト管理文書（正規）**: `docs/project-management/`
+> ([CURRENT_STATE](docs/project-management/CURRENT_STATE.md) /
+> [HANDOFF](docs/project-management/HANDOFF.md) /
+> [ROADMAP](docs/project-management/ROADMAP.md) /
+> [WORK_LOG](docs/project-management/WORK_LOG.md) /
+> [DECISIONS](docs/project-management/DECISIONS.md) /
+> [KNOWN_ISSUES](docs/project-management/KNOWN_ISSUES.md))。
+> 引き継ぎ・現状確認はまずここを読むこと。ルート直下の `HANDOFF.md` 等は Phase 1 初期セット。
+
 ## Stack
 
 - Next.js App Router

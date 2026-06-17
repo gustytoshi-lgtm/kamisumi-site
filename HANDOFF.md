@@ -1,5 +1,8 @@
 # HANDOFF — KAMISUMI Site
 
+> **注意**: 最新・正規の引き継ぎは [docs/project-management/HANDOFF.md](docs/project-management/HANDOFF.md)。
+> 本ファイルは Phase 1 引き継ぎ時の初期版（内容は有効、ただし Phase 2A 以降は上記を参照）。
+
 最終更新: 2026-06-18 / 更新者: Claude Code（Codexからの一時引き継ぎ）
 
 このファイルは、Codex ⇄ Claude Code 間で作業を引き継ぐための要約です。
