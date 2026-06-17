@@ -1,0 +1,57 @@
+.footer {
+  border-top: 1px solid var(--color-soft-ash);
+  background: var(--color-sumi);
+  color: var(--color-paper);
+  padding: var(--space-12) 0;
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.72fr);
+  gap: var(--space-8);
+}
+
+.brand {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.brandName {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.muted {
+  color: rgb(255 253 248 / 72%);
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-6);
+}
+
+.links a {
+  min-height: 36px;
+  color: rgb(255 253 248 / 88%);
+}
+
+.finePrint {
+  margin-top: var(--space-8);
+  border-top: 1px solid rgb(255 253 248 / 18%);
+  padding-top: var(--space-4);
+  color: rgb(255 253 248 / 68%);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 760px) {
+  .inner {
+    grid-template-columns: 1fr;
+  }
+
+  .links {
+    grid-template-columns: 1fr;
+  }
+}
+

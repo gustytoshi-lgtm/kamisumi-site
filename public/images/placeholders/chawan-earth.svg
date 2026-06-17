@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Earth toned handmade tea bowl">
+  <rect width="900" height="675" fill="#ECE5D8"/>
+  <rect x="90" y="90" width="720" height="500" rx="8" fill="#FFFDF8"/>
+  <path d="M210 310c36 160 444 160 480 0 8-84-488-84-480 0z" fill="#A47A5C"/>
+  <ellipse cx="450" cy="305" rx="250" ry="95" fill="#C7A184"/>
+  <ellipse cx="450" cy="304" rx="178" ry="56" fill="#F6F2E9"/>
+  <path d="M252 345c112 52 278 64 395 8" stroke="#7A614F" stroke-width="14" stroke-linecap="round" opacity=".36"/>
+  <path d="M320 250c38 22 72 20 106-5M510 255c50-18 88-14 118 10" stroke="#F6F2E9" stroke-width="12" stroke-linecap="round" opacity=".55"/>
+</svg>
+

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Archived pale tea bowl">
+  <rect width="900" height="675" fill="#F6F2E9"/>
+  <rect x="90" y="90" width="720" height="500" rx="8" fill="#ECE5D8"/>
+  <path d="M230 330c45 138 395 138 440 0 4-86-444-86-440 0z" fill="#D3CCBF"/>
+  <ellipse cx="450" cy="318" rx="222" ry="86" fill="#FFFDF8"/>
+  <ellipse cx="450" cy="318" rx="160" ry="45" fill="#E5D7CC"/>
+  <path d="M300 375h300" stroke="#A58A55" stroke-width="12" stroke-linecap="round" opacity=".48"/>
+  <path d="M252 222h396" stroke="#A47A5C" stroke-width="8" stroke-linecap="round" stroke-dasharray="18 18" opacity=".55"/>
+</svg>
+

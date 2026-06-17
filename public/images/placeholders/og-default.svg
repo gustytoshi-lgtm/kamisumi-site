@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="KAMISUMI Japanese Tea and Craft">
+  <rect width="1200" height="630" fill="#F6F2E9"/>
+  <rect x="80" y="80" width="1040" height="470" rx="8" fill="#ECE5D8" stroke="#D3CCBF"/>
+  <circle cx="820" cy="315" r="128" fill="#44513B"/>
+  <circle cx="820" cy="315" r="92" fill="#F6F2E9"/>
+  <circle cx="820" cy="315" r="62" fill="#6A7459"/>
+  <path d="M250 365c80-92 192-92 272 0" fill="none" stroke="#A47A5C" stroke-width="22" stroke-linecap="round"/>
+  <path d="M310 260h150v110H310z" fill="#FFFDF8" stroke="#252522" stroke-width="8"/>
+  <path d="M340 230h90v30h-90z" fill="#44513B"/>
+  <text x="250" y="460" fill="#252522" font-family="Georgia, serif" font-size="64" font-weight="700">KAMISUMI</text>
+</svg>
+

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Bamboo whisk and tea scoop">
+  <rect width="900" height="675" fill="#F6F2E9"/>
+  <rect x="90" y="90" width="720" height="500" rx="8" fill="#FFFDF8" stroke="#D3CCBF"/>
+  <path d="M260 150c20 130 20 260 0 390M290 150c18 130 18 260 0 390M320 150c14 130 14 260 0 390M350 150c8 130 8 260 0 390M380 150c2 130 2 260 0 390" stroke="#C8A96B" stroke-width="10" stroke-linecap="round"/>
+  <rect x="240" y="438" width="170" height="92" rx="16" fill="#A58A55"/>
+  <path d="M545 155c-28 116-34 232-18 348" stroke="#A47A5C" stroke-width="22" stroke-linecap="round"/>
+  <path d="M545 155c44 28 82 28 112 0" stroke="#A47A5C" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="642" cy="458" r="42" fill="#44513B"/>
+</svg>
+

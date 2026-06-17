@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Ash glaze tea cup">
+  <rect width="900" height="675" fill="#ECE5D8"/>
+  <rect x="95" y="95" width="710" height="485" rx="8" fill="#FFFDF8"/>
+  <path d="M315 190h270l-32 305H347z" fill="#D3CCBF"/>
+  <ellipse cx="450" cy="190" rx="135" ry="48" fill="#8E907F"/>
+  <ellipse cx="450" cy="190" rx="94" ry="28" fill="#F6F2E9"/>
+  <path d="M340 270c68 34 150 34 220 0M352 365c62 24 132 24 195-2" stroke="#6A7459" stroke-width="12" stroke-linecap="round" opacity=".42"/>
+  <rect x="382" y="492" width="136" height="34" rx="17" fill="#A47A5C" opacity=".62"/>
+</svg>
+

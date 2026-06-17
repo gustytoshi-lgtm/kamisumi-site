@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Whisked matcha in a ceramic bowl">
+  <rect width="900" height="675" fill="#F6F2E9"/>
+  <rect x="70" y="70" width="760" height="535" rx="8" fill="#B78B66" opacity=".28"/>
+  <ellipse cx="450" cy="348" rx="265" ry="165" fill="#A47A5C"/>
+  <ellipse cx="450" cy="318" rx="235" ry="140" fill="#FFFDF8"/>
+  <ellipse cx="450" cy="318" rx="180" ry="96" fill="#44513B"/>
+  <path d="M320 305c75-32 170-32 258 8M350 345c68 20 138 20 205-2" fill="none" stroke="#DDE5CA" stroke-width="12" stroke-linecap="round" opacity=".85"/>
+  <path d="M645 160l120 180" stroke="#A58A55" stroke-width="18" stroke-linecap="round"/>
+  <path d="M642 160l-28 70M660 160l-14 76M678 162l2 78M696 168l16 72" stroke="#C8A96B" stroke-width="8" stroke-linecap="round"/>
+</svg>
+

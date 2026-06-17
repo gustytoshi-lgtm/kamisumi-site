@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Matcha starter gift set concept">
+  <rect width="900" height="675" fill="#ECE5D8"/>
+  <rect x="115" y="125" width="670" height="420" rx="8" fill="#FFFDF8" stroke="#D3CCBF"/>
+  <rect x="165" y="175" width="570" height="320" rx="8" fill="#F6F2E9" stroke="#A58A55" stroke-width="10"/>
+  <circle cx="330" cy="335" r="92" fill="#44513B"/>
+  <circle cx="330" cy="335" r="58" fill="#F6F2E9"/>
+  <rect x="470" y="250" width="95" height="160" rx="14" fill="#6A7459"/>
+  <ellipse cx="517" cy="250" rx="48" ry="18" fill="#899374"/>
+  <path d="M630 220c16 72 16 142 0 214M650 220c16 72 16 142 0 214M670 220c16 72 16 142 0 214" stroke="#C8A96B" stroke-width="9" stroke-linecap="round"/>
+  <path d="M190 175l545 320M735 175L190 495" stroke="#A47A5C" stroke-width="10" opacity=".32"/>
+</svg>

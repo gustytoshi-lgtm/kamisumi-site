@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Japanese street sourcing route">
+  <rect width="900" height="675" fill="#F6F2E9"/>
+  <rect x="80" y="90" width="740" height="500" rx="8" fill="#BFC6BE"/>
+  <path d="M80 420h740v170H80z" fill="#6A7459"/>
+  <path d="M135 220h250v200H135z" fill="#ECE5D8" stroke="#252522" stroke-width="8"/>
+  <path d="M385 270h240v150H385z" fill="#A47A5C" opacity=".82"/>
+  <path d="M135 210h250l-35-70H170z" fill="#44513B"/>
+  <path d="M430 250h165l-20-56H450z" fill="#252522"/>
+  <path d="M150 442c155-40 345-40 590 10" stroke="#FFFDF8" stroke-width="14" stroke-linecap="round" opacity=".85"/>
+  <circle cx="690" cy="360" r="36" fill="#FFFDF8"/>
+  <path d="M678 360h24M690 348v24" stroke="#44513B" stroke-width="8" stroke-linecap="round"/>
+</svg>
+

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 675" role="img" aria-label="Matcha tin and bamboo whisk">
+  <rect width="900" height="675" fill="#ECE5D8"/>
+  <rect x="80" y="90" width="740" height="500" rx="8" fill="#FFFDF8" stroke="#D3CCBF"/>
+  <ellipse cx="305" cy="390" rx="130" ry="58" fill="#44513B"/>
+  <path d="M175 360h260v-130H175z" fill="#6A7459"/>
+  <ellipse cx="305" cy="230" rx="130" ry="58" fill="#879070"/>
+  <ellipse cx="305" cy="230" rx="82" ry="32" fill="#F6F2E9"/>
+  <path d="M555 150c22 142 22 274 0 396M580 150c22 142 22 274 0 396M605 150c22 142 22 274 0 396M630 150c22 142 22 274 0 396M655 150c22 142 22 274 0 396" stroke="#A58A55" stroke-width="10" stroke-linecap="round"/>
+  <rect x="548" y="455" width="120" height="78" rx="14" fill="#C8A96B"/>
+  <circle cx="305" cy="230" r="36" fill="#44513B" opacity=".16"/>
+</svg>
+
