@@ -83,4 +83,5 @@
   - 方針: public UI を保ったまま `SupabaseCommerceRepository` を同一契約で追加し、factoryで切替。
 - [ ] `en`（英語版）の公開タイミング判断。
 - [ ] `npm audit` moderate 2件（postcss経由 / `No fix available`）の再監査。
-- [ ] **Git初期化**（現状 `.git` なし。引き継ぎ品質のため履歴管理を推奨）。
+- [x] **Git初期化**（2026-06-18 完了。`main` ブランチでローカル初期化＋ベースラインコミット）。
+  - 残: 必要に応じてリモート（GitHub等）の設定と運用ルール（ブランチ戦略・コミット規約）の確定。

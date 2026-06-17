@@ -54,7 +54,7 @@
 - **hero画像が約2.1MB**: `public/images/placeholders/hero-tea-table.png` が重くLCPに影響。
 - `stripLocale`（`src/lib/routes.ts`）がlocaleを直書きしており `supportedLocales` と二重管理。
 - `npm audit`: postcss経由のmoderate 2件（`No fix available`、docs記載）。
-- **Git未初期化**: このフォルダは `.git` を持たない。変更履歴が残らない。
+- **Git**: 2026-06-18 にローカル初期化済み（`main` ブランチ、初回コミットあり）。リモートは未設定。`node_modules` / `.next` / `.claude/settings.local.json` は除外。
 
 ## 7. 未完了作業 / 8. 次の作業
 
