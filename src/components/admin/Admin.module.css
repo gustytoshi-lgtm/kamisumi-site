@@ -1,0 +1,93 @@
+.shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+  padding: var(--space-12) 0;
+}
+
+.nav {
+  display: grid;
+  gap: var(--space-1);
+  position: sticky;
+  top: var(--space-8);
+}
+
+.navLink {
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-ink-muted);
+  font-weight: 600;
+}
+
+.navLink:hover {
+  background: var(--color-warm-ivory);
+  color: var(--color-sumi);
+}
+
+.navLinkActive {
+  background: var(--color-deep-matcha);
+  color: var(--color-paper);
+}
+
+.panel {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  border: 1px solid var(--color-soft-ash);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  padding: var(--space-5, 20px);
+}
+
+.card strong {
+  font-size: 1.6rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid var(--color-soft-ash);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.signin {
+  max-width: 480px;
+  margin: var(--space-16) auto;
+  display: grid;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: var(--radius-sm);
+  background: var(--color-warm-ivory);
+  padding: 2px var(--space-2);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 760px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .nav {
+    position: static;
+    grid-auto-flow: column;
+    overflow-x: auto;
+  }
+}
