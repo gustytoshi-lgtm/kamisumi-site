@@ -39,11 +39,11 @@
   - 確認: `/icon.svg` が 200、`<link rel="icon">` がhead注入されることを確認済み。
   - 残: 正式ロゴ確定後にデザインを差し替え。必要なら `apple-icon` / OG用PNGも追加。
 
-- [ ] **OG画像をPNG/JPG化**
-  - 対象: `src/lib/seo.ts`（`image = "/images/placeholders/og-default.svg"`）/ `public/images/placeholders/`
-  - 問題: OGP画像がSVGのため多くのSNSで描画されない。
-  - 推奨対応: 1200×630 のPNG/JPGを用意するか、Next.jsの `opengraph-image`（ImageResponse）で生成。
-  - 完了条件: 主要SNSのOGプレビューに画像が表示される。
+- [x] **OG画像をPNG/JPG化（サイト既定）**（2026-06-18 適用）
+  - 対象: `src/app/api/og/route.tsx`（新規, `next/og` の `ImageResponse` で1200×630 PNGを生成）, `src/lib/seo.ts`（既定画像を `/api/og` に変更）
+  - 対応: 既定OGP画像をSVG→動的生成PNGに変更。`/api/og` 配下にしたのは `proxy.ts` のlocaleリダイレクト対象外（matcherが `api` を除外）にするため。
+  - 確認: `/api/og` が 200 / image/png（約49KB）、`og:image` がPNGを指す。画像描画も目視確認済み。
+  - 残: **商品ページのOG画像は商品個別のプレースホルダSVGのまま**（`products.ts` の `images[].src`）。実商品写真への差し替え時にPNG/JPG化される（下記「実商品データ」項目に含む）。`og-default.svg` は現在未使用（削除可だが保持）。
 
 - [ ] **hero画像の軽量化**
   - 対象: `public/images/placeholders/hero-tea-table.png`（約2.1MB）, `src/components/ui/UI.module.css`

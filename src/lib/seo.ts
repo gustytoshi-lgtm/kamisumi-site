@@ -22,7 +22,7 @@ export function buildMetadata({
   path = "/",
   title,
   description,
-  image = "/images/placeholders/og-default.svg",
+  image = "/api/og",
 }: MetadataInput): Metadata {
   const localizedTitle = `${title} | ${siteConfig.brand.name}`;
   const imageUrl = new URL(image, siteConfig.siteUrl).toString();

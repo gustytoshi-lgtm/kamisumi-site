@@ -66,6 +66,14 @@
 - **影響範囲**: リポジトリ運用のみ。アプリ動作・ソース内容に影響なし。リモートは未設定（pushしていない）。
 - **確認結果**: `git log` に初回コミット、`git status` クリーン、追跡109ファイル。
 
+### OG画像のPNG化（サイト既定）
+
+- **変更ファイル**: `src/app/api/og/route.tsx`（新規）, `src/lib/seo.ts`
+- **内容**: `next/og` の `ImageResponse` でブランド配色の1200×630 PNGを生成するエンドポイント `/api/og` を追加し、`buildMetadata` の既定OGP画像を `/images/placeholders/og-default.svg` → `/api/og` に変更。
+- **理由**: OGP画像がSVGだと多くのSNSで描画されないため。`/api/og`（`api` 配下）にしたのは、`proxy.ts` のlocaleリダイレクト対象外にするため（最初 `/og` に置いたところ `/zh-tw/og` へ307された）。フォント読込回避のため描画テキストはラテン文字のみ。
+- **影響範囲**: サイト既定OGのみPNG化。商品ページは引き続き商品個別画像（現状プレースホルダSVG）を使用。レイアウト・文章は不変。
+- **確認結果**: typecheck/lint クリーン、clean build成功、`/api/og` が 200 image/png（約49KB）、`og:image`/`twitter:image` が `/api/og` を指すことと画像描画を確認。回帰なし（`/`→307、未知slug→404 維持）。
+
 ### 注記（環境）
 
 - `next build` 実行時に OneDrive のファイルロックで `EPERM unlink .next/static/...` が一度発生。`.next` を削除して再ビルドし解消（OneDrive同期競合。ソースには無関係）。
