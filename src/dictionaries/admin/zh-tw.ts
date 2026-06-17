@@ -1,0 +1,35 @@
+import type { AdminDictionary } from "./types";
+
+export const adminZhTw: AdminDictionary = {
+  adminLocaleName: "繁體中文",
+  nav: {
+    dashboard: "儀表板",
+    products: "商品管理",
+    inventory: "庫存",
+    inventoryMovements: "庫存異動紀錄",
+    customers: "顧客",
+    inquiries: "詢問",
+    provisionalOrders: "預訂單",
+    orders: "訂單",
+    sourcingRequests: "採買委託",
+    sourcingSchedules: "採買排程",
+    journal: "文章",
+    media: "媒體",
+    purchases: "進貨",
+    settings: "設定",
+    auditLogs: "操作紀錄",
+  },
+  common: {
+    save: "儲存",
+    cancel: "取消",
+    create: "新增",
+    edit: "編輯",
+    delete: "刪除",
+    search: "搜尋",
+    status: "狀態",
+    actions: "操作",
+    signedInAs: "登入身分",
+    languageLabel: "後台語言",
+    noPermission: "您沒有此操作的權限。",
+  },
+};

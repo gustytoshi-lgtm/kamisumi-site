@@ -1,0 +1,35 @@
+import type { AdminDictionary } from "./types";
+
+export const adminJa: AdminDictionary = {
+  adminLocaleName: "日本語",
+  nav: {
+    dashboard: "ダッシュボード",
+    products: "商品管理",
+    inventory: "在庫",
+    inventoryMovements: "在庫移動履歴",
+    customers: "顧客",
+    inquiries: "問い合わせ",
+    provisionalOrders: "仮注文",
+    orders: "注文",
+    sourcingRequests: "買付依頼",
+    sourcingSchedules: "買付予定",
+    journal: "読み物",
+    media: "メディア",
+    purchases: "仕入",
+    settings: "設定",
+    auditLogs: "操作履歴",
+  },
+  common: {
+    save: "保存",
+    cancel: "キャンセル",
+    create: "新規作成",
+    edit: "編集",
+    delete: "削除",
+    search: "検索",
+    status: "状態",
+    actions: "操作",
+    signedInAs: "ログイン中",
+    languageLabel: "管理画面の言語",
+    noPermission: "この操作の権限がありません。",
+  },
+};
