@@ -11,7 +11,8 @@ supabase/
 │  ├ 0001_core_catalog.sql   組織構造 + 商品カタログ + 公開コンテンツ（journal/sourcing/faq）
 │  ├ 0002_operations.sql     profiles/roles, 顧客, 問い合わせ, 仮注文, 在庫, 買付依頼, メディア, 設定, 監査
 │  ├ 0003_procurement.sql    仕入/原価/為替/入金/配送/抹茶ロット/陶器個体（Phase 2B）
-│  └ 0004_rls.sql            RLS ポリシー
+│  ├ 0004_rls.sql            RLS ポリシー
+│  └ 0005_write_support.sql  在庫 reserved/held 列・冪等テーブル・原子的 apply_inventory_movement()
 ├ seed.sql                   公開可能な開発サンプルのみ
 ├ ER.md                      ER 図（mermaid）
 └ README.md
@@ -50,6 +51,16 @@ npm run db:validate   # 連番・括弧/クォート/セミコロンの静的チ
    ```
 4. Storage バケット作成: `public`（商品/Journal/ブランド画像）, `private`（レシート/仕入証明/顧客関連/内部資料）。
 5. アプリ側で `DATA_BACKEND=supabase` を設定し、`src/repositories/supabase/supabaseCommerceRepository.ts` の各メソッドを実装する。
+
+## 書込・トランザクション方針（Phase 2A）
+
+- 書込は `CommerceWriteRepository` 契約経由。mock（`mockCommerceWriteRepository`）と Supabase（`supabaseCommerceWriteRepository`、実装待ち）が同一契約を満たす。
+- 業務ルール（RBAC・状態遷移・購入可否）は `src/lib/commerce/commerceService.ts` に集約。repository は永続レベルの不変条件のみ担う。
+- **原子性**: 複数テーブル更新（在庫移動・予約・注文状態変更・操作履歴）は DB function / 単一 RPC で1トランザクション実行し、途中状態を残さない。在庫は `apply_inventory_movement()`（0005）を使用。
+- **冪等**: `idempotency_keys` で二重実行を防止（在庫二重減算防止）。アプリ層は idempotencyKey を渡す。
+- **エラー変換**: Postgres errcode（P0001=業務違反 / P0002=not_found 等）→ `CommerceError(code)` に変換し、UI が i18n マッピング。
+- **権限**: service の RBAC と RLS の二重防御。`service_role` key はサーバー専用（ブラウザへ出さない）。
+- Supabase 実装後は `tests/writeContract.test.ts` の `runWriteContract` を Supabase 実装に対しても実行し、mock と同一挙動を保証する。
 
 ## マイグレーション運用ルール
 

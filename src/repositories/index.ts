@@ -5,6 +5,7 @@ import { createCommerceService, type CommerceService } from "@/lib/commerce/comm
 import { mockCommerceRepository } from "./kamisumi/mockCommerceRepository";
 import { mockCommerceWriteRepository } from "./mock/mockCommerceWriteRepository";
 import { supabaseCommerceRepository } from "./supabase/supabaseCommerceRepository";
+import { supabaseCommerceWriteRepository } from "./supabase/supabaseCommerceWriteRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -34,8 +35,8 @@ export function getCommerceWriteRepository(): CommerceWriteRepository {
         "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
       );
     }
-    // Supabase 書込 repository は別途実装予定（HANDOFF 参照）。未実装のため明示エラー。
-    throw new Error("SupabaseCommerceWriteRepository is not implemented yet. Use mock mode.");
+    // 契約は確定済み。各メソッドは実装待ち（呼ぶと NotImplemented）。HANDOFF 参照。
+    return supabaseCommerceWriteRepository;
   }
   return mockCommerceWriteRepository;
 }
