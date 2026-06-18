@@ -21,7 +21,10 @@
 | ├ 純ロジック（原価配賦/抹茶FIFO/利益/状態機械） | Completed | costAllocation/matchaLot/profit/payment・shipmentStatus。整数最小単位・通貨不一致拒否・決定的丸め |
 | ├ 仕入先データ層 + migration 0007 | Completed | ProcurementRepository(mock/supabase)+service(purchase:manage)+contract。公開投影で非公開を遮断 |
 | ├ 会計 export interface | Completed | management-accounting の入口 IF + 冪等 mock。法定会計/税務は対象外（§4） |
-| ├ 買付/仕入/陶器/経費 repository・永続化・管理UI・ダッシュボード | Not Started | 次の作業単位 |
+| ├ 配送永続化（0008, FulfillmentRepository） | Completed | shipments.status + 履歴 + RLS。状態機械強制（member）。送料差額 |
+| ├ 入金永続化（0009, PaymentRepository） | Completed | payment_type/expected/matching/paid_at。状態機械 + owner 限定 |
+| ├ 仕入記録+原価配賦 永続化 | Completed | purchases/items/cost_allocations。allocateCost 適用・合計保存 |
+| ├ 陶器個体/経費 repository・利益/会計の永続化・管理UI・ダッシュボード | Not Started | 次の作業単位 |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
 | 本番公開準備 | Blocked | 連絡先・法務・配送・支払い・実商品 確定が前提 |

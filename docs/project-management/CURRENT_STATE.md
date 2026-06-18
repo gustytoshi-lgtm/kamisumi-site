@@ -14,7 +14,7 @@
 
 - Phase 1（公開サイト）: **完了**＋仕上げ継続中
 - Phase 2A（販売・運用管理基盤）: **Implementation Complete / Real Supabase Validation Pending**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n/管理画面scaffold/書込レイヤ/管理CRUD全接続/Supabase SSR/Supabase read+write repository 実クエリ/mock⇄Supabase 認証切替/注文メモ永続化(0006) 完了。**実 DB 検証が残るため `v0.2.0-phase2a` タグは未付与**）
-- Phase 2B（仕入・原価・在庫・採算）: **データ層/純ロジック実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・**仕入先データ層（repo/mock/supabase/service/contract, migration 0007）**・**入金/配送 状態機械 + 送料差額**・**利益計算**・**会計 export interface（冪等 mock）**。未着手: 買付/仕入記録/陶器個体/経費の repository、入金/配送/利益の永続化、**全ドメインの管理UI**、ダッシュボード
+- Phase 2B（仕入・原価・在庫・採算）: **データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・入金/配送 状態機械+送料差額・利益計算・会計 export interface・**配送永続化(0008, FulfillmentRepository)**・**入金永続化(0009, PaymentRepository)**・**仕入記録+原価配賦永続化(purchases/items/cost_allocations)**。未着手: 陶器個体/経費 repository、利益/会計の永続化、**全ドメイン管理UI**、ダッシュボード
 - Phase 3 / 4: 未着手（スキーマの一部とロードマップのみ）
 
 ## 完了済み
@@ -52,20 +52,20 @@
 
 ## migration状態
 
-- `supabase/migrations` 0001-0007 作成済み（0006=注文メモ列, 0007=仕入先詳細列）。**実DBへは未適用**（Supabase project なし）。
-- 静的検証 `npm run db:validate` は OK（7 files）。実SQL妥当性は未検証（Postgres 必要、KNOWN_ISSUES I-002）。
+- `supabase/migrations` 0001-0009 作成済み（0006=注文メモ, 0007=仕入先詳細, 0008=配送状態, 0009=入金詳細）。**実DBへは未適用**（Supabase project なし）。
+- 静的検証 `npm run db:validate` は OK（9 files）。実SQL妥当性は未検証（Postgres 必要、KNOWN_ISSUES I-002）。
 
 ## Git
 
 - branch: `main`
-- 最新 commit: `2356696`（実行時に `git log -1` で再確認）
+- 最新 commit: `2c1cdf2`（実行時に `git log -1` で再確認。docs commit が最新の場合あり）
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / **test(146 passed・1 skipped)** / build / db:validate(7): **成功**（supabase 契約テストは実 DB 必須で skip）
+- lint / typecheck / **test(全緑・1 skipped, 終了前 full gate で確定)** / build / db:validate(9): **成功**（supabase 契約テストは実 DB 必須で skip）
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）
 
 ## 再開コマンド

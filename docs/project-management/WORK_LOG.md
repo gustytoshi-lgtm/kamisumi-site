@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-06-18 (11) — Claude Code — Phase 2B 永続化（配送/入金/仕入記録）
+
+### 目的
+Phase 2B の状態機械・純ロジックを実 DB スキーマへ接続する。配送・入金・仕入記録（原価配賦）を
+migration + repository(mock/supabase) + service + contract test の縦スライスで実装。
+
+### 実施内容（小さな完結単位ごとにコミット）
+1. **配送永続化**（`68ef272`）: migration **0008**（shipments.status + CHECK / status_updated_at・by / `shipment_status_events` + index + member RLS）。`FulfillmentRepository`（mock/supabase）+ `fulfillmentService`（shipmentStatus 状態機械強制、`order:update_status` RBAC）。送料差額は kamisumiBorneFreight。contract + service テスト（不正遷移/権限）。
+2. **入金永続化**（`7718f0d`）: migration **0009**（payments に payment_type/expected_amount_minor/matching_number/paid_at。実口座番号なし）。`PaymentRepository`（mock/supabase）+ `paymentService`（paymentStatus 状態機械、**owner 限定 `purchase:manage`**=payments_owner RLS と整合、front_staff 遮断）。recordReceipt で受領額+確認者。テスト（遷移/RBAC/検証）。
+3. **仕入記録 + 原価配賦永続化**（`2c1cdf2`）: `ProcurementRepository` を purchases/purchase_items/cost_allocations へ拡張（mock/supabase）。`allocatePurchaseCosts` が costAllocation.allocateCost を明細へ適用し cost_allocations を置換（合計保存、method は toDbMethod で amount へ）。contract テスト（配賦合計一致・再配賦置換・論理削除/復元）。
+
+### 重要な前提・残課題
+- **I-016 解決**: shipments に status 列を 0008 で追加。
+- 残: 陶器個体・経費の repository、利益レポート/会計 export の永続化、**全ドメイン管理UI(ja/zh-tw)**、ダッシュボード。
+- 責務分離維持: procurement（仕入・owner）/ fulfillment（配送・member）/ payment（入金・owner）を別 repository に分離（PM-026/027）。
+
+### コマンド / テスト
+- typecheck OK / lint OK（warning 0）/ db:validate **9 files**。各 unit/contract test 緑（終了前に full gate 実施）。
+
+### commit hashes
+- `68ef272` 配送永続化(0008) / `7718f0d` 入金永続化(0009) / `2c1cdf2` 仕入記録+原価配賦永続化
+
+---
+
 ## 2026-06-18 (10) — Claude Code — Phase 2B データ層・状態機械・利益・会計IF
 
 ### 目的

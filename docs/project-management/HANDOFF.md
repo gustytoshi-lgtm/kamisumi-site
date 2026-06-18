@@ -1,10 +1,10 @@
 # HANDOFF (Codex 移管用)
 
-最終更新: 2026-06-18 (10) / 更新者: Claude Code
+最終更新: 2026-06-18 (11) / 更新者: Claude Code
 
 > **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
-> **Phase 2B: データ層/純ロジック実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・入金/配送 状態機械+送料差額・利益計算・会計 export interface。
-> 残: 買付/仕入記録/陶器個体/経費 repository、入金/配送/利益の永続化（shipments status 列=I-016）、**全ドメイン管理UI(ja/zh-tw)**、ダッシュボード。
+> **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
+> 残: 陶器個体/経費 repository、利益レポート/会計 export の永続化、**全ドメイン管理UI(ja/zh-tw)**、ダッシュボード。
 
 ## 概要
 KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
@@ -50,12 +50,11 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 2. ~~**Supabase Auth 差替**~~: **完了（session 8, Step C）**。`getAdminSession()` が `ADMIN_AUTH_MODE`（既定 `DATA_BACKEND` 追従）で mock/Supabase を切替。supabase は Cookie セッション→`user_roles`/`profiles`（self-read RLS）。残るは実 project 接続でのログイン疎通確認のみ。
 3. ~~**setOrderNotes 恒久対応**~~: **完了（session 9, migration 0006）**。`provisional_orders` に customer_note/internal_note/notes_updated_by/notes_updated_at を追加し write repo を列 UPDATE に変更。
 4. **migration 実適用検証**（I-002、0001-0006）。
-5. **Phase 2B 続き**（純ロジック・仕入先データ層・状態機械・利益・会計IF は実装済み）。次の具体作業:
-   - repository 実装: purchases/purchase_items/cost_allocations、matcha_lots、ceramic_units、payments、shipments、expenses（suppliers と同じ ProcurementRepository パターン or 新 interface）。
-   - 永続化: 入金/配送の状態を repo+service で記録（配送は I-016 の status 列 migration 0008 が前提）。原価配賦は costAllocation.ts を purchase 保存時に適用し cost_allocations へ（method は to/fromDbMethod）。
-   - 管理UI(ja/zh-tw): 仕入先/買付/仕入/抹茶ロット/陶器個体/経費/入金/配送/原価配賦/利益分析/ダッシュボード。actions.ts + client form パターン、adminNav + 辞書追加。RBAC は purchase:manage / profit:view 等。
-   - 利益分析ビュー: profit.ts を実データ（注文/仕入/送料/為替）に接続。front_staff へ原価/利益を出さない。
-   - 会計 export: accountingExport.ts の本番 adapter（Phase 4）。
+5. **Phase 2B 続き**（純ロジック・仕入先/仕入記録/配送/入金 の永続化は実装済み）。次の具体作業:
+   - repository 実装の残: matcha_lots、ceramic_units、expenses（既存パターン: core 型 + interface + mock + supabase + service + contract）。matcha は I-015 の on-hand 供給を確定。
+   - 利益レポート/会計 export の永続化: profit.ts / accountingExport.ts を実データ（注文/仕入/送料/為替）へ接続。front_staff へ原価/利益を出さない。
+   - 管理UI(ja/zh-tw): 仕入先→仕入・買付→入金→配送→抹茶→陶器→経費→利益分析→ダッシュボード→会計export の順に画面追加。actions.ts + client form パターン、adminNav + 辞書追加。RBAC は purchase:manage（仕入/入金=owner）/ order:update_status（配送=member）。
+   - 既存の getProcurementService / getFulfillmentService / getPaymentService を UI から呼ぶ（UI から DB 直書きしない）。
 
 > ✅ **並行作業（I-014）Resolved**: session 8 で並行ライター停止を確認・診断（損失/競合コピーなし）。以後**単一エージェント**で作業する。再開時も 1 ブランチ 1 作業者を厳守。
 
@@ -78,7 +77,7 @@ npm run build && npm run start     # http://localhost:3000
 `DATA_BACKEND`(既定mock), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`。秘密値・実口座・顧客情報はコミットしない。
 
 ## migration状態
-0001-0007 作成済み（0006=注文メモ列, 0007=仕入先詳細列）・**実DB未適用**。`db:validate` OK（7 files）。実SQL妥当性は未検証（I-002）。配送 status 列は未追加（I-016, 永続化時に 0008+）。
+0001-0009 作成済み（0006=注文メモ, 0007=仕入先詳細, 0008=配送状態+履歴, 0009=入金詳細）・**実DB未適用**。`db:validate` OK（9 files）。実SQL妥当性は未検証（I-002）。
 
 ## mock / Supabase 切替
 `src/config/dataBackend.ts` → `getDataBackend()`。`src/repositories/index.ts` の factory が mock/supabase を選択。Supabase 未設定で `DATA_BACKEND=supabase` にすると factory が明示エラー（誤設定検知）。
@@ -95,8 +94,8 @@ npm run build && npm run start     # http://localhost:3000
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-18 session 10）
-typecheck/lint OK（warning 0）、**test 146 passed・1 skipped**（supabase 契約は実 DB 必須で skip）、build clean、db:validate(7) OK、E2E timeout(I-001)。
+## テスト結果（2026-06-18 session 11）
+typecheck/lint OK（warning 0）、**test 全緑・3 skipped**（supabase 契約 3 種は実 DB 必須で skip）、build clean、db:validate(9) OK、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```

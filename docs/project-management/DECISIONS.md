@@ -30,3 +30,5 @@
 | PM-024 | 2026-06-18 | 利益率は整数ベーシスポイント（bp）で決定的丸め。金額は整数最小単位のみ | 「金額に float を使わない」を維持しつつ比率を表現。Math.round で決定的 | float の比率を保持 | — | profit.ts |
 | PM-025 | 2026-06-18 | 会計連携は export **interface + 冪等 mock** のみ。法定会計/税務帳簿は自作しない | spec §4 の境界。外部会計ソフトの責務を侵さない。二重計上を idempotencyKey で防止 | 自前で総勘定元帳/申告を実装 | 本番会計ソフト選定時に adapter 追加 | accountingExport.ts |
 | PM-026 | 2026-06-18 | 調達ドメインは別 repository/service（ProcurementRepository）に分離 | 仕入/原価は機微・bounded context。CommerceWriteRepository を肥大化させない | CommerceWriteRepository へ追加 | — | repositories/*procurement*, procurementService |
+| PM-027 | 2026-06-18 | 配送=FulfillmentRepository（member, order:update_status）/ 入金=PaymentRepository（owner, purchase:manage）を別 repository に分離 | 物流（member RLS）と finance（owner RLS）で責務・権限が異なる。巨大 repo を避ける | 1 つの fulfillment repo に統合 | — | fulfillment*/payment* repo+service |
+| PM-028 | 2026-06-18 | 付帯費用の再配賦は purchase 単位で既存 cost_allocations を全置換 | 二重計上を防ぎ再計算を冪等に。method 変更も同経路 | 差分更新 | 配賦履歴が必要なら別テーブル | allocatePurchaseCosts (mock/supabase) |
