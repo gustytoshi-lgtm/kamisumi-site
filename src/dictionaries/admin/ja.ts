@@ -206,6 +206,16 @@ export const adminJa: AdminDictionary = {
     empty: "エクスポート履歴はまだありません。",
     boundaryNote: "※ 税務申告・総勘定元帳・決算は外部会計ソフトの責務です（ここでは行いません）。実APIキー・口座は保持しません。",
   },
+  auditLog: {
+    title: "操作履歴",
+    intro: "商品・在庫・注文・買付・読み物の書込操作の履歴です（owner のみ）。個人情報は要約のみ。",
+    actor: "操作者",
+    action: "操作",
+    entity: "対象",
+    summary: "概要",
+    at: "日時",
+    empty: "操作履歴はまだありません。",
+  },
   dashboard: {
     bestBeforeAlerts: "賞味期限の警告",
     suppliers: "仕入先",

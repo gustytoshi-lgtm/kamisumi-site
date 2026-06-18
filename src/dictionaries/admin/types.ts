@@ -194,6 +194,17 @@ export type AdminDictionary = {
     empty: string;
     boundaryNote: string;
   };
+  /** 操作履歴（監査ログ）画面のラベル。 */
+  auditLog: {
+    title: string;
+    intro: string;
+    actor: string;
+    action: string;
+    entity: string;
+    summary: string;
+    at: string;
+    empty: string;
+  };
   /** ダッシュボード指標ラベル。 */
   dashboard: {
     bestBeforeAlerts: string;

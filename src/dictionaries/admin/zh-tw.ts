@@ -206,6 +206,16 @@ export const adminZhTw: AdminDictionary = {
     empty: "尚無匯出紀錄。",
     boundaryNote: "※ 報稅・總帳・結算為外部會計軟體之責（此處不執行）。不保存實際 API 金鑰・帳號。",
   },
+  auditLog: {
+    title: "操作紀錄",
+    intro: "商品・庫存・訂單・採買・文章的寫入操作紀錄（僅 owner）。個資僅摘要。",
+    actor: "操作者",
+    action: "操作",
+    entity: "對象",
+    summary: "摘要",
+    at: "時間",
+    empty: "尚無操作紀錄。",
+  },
   dashboard: {
     bestBeforeAlerts: "賞味期限警示",
     suppliers: "供應商",

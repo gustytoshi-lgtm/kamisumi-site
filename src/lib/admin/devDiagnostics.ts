@@ -112,6 +112,8 @@ export async function getDevDiagnostics(): Promise<DevDiagnostics> {
       "accounting",
       "media",
       "sns-drafts",
+      "audit-logs",
+      "notifications",
     ],
     pendingAdmin: [
       "cart-checkout-ui",
