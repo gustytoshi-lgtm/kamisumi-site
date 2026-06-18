@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-06-18 (5) — Claude Code — Phase 2A 管理CRUD仕上げ + I-008 解決
+
+### 目的
+管理画面 CRUD をフル実装し Phase 2A の UI 部分を完成させる。I-008（admin metadata）を解決。
+
+### 実施内容
+1. **I-008 解決**: 全管理ページ（dashboard/products/inventory/orders/sourcing/journal）に `generateMetadata` を追加（`<title>: {nav.label} | KAMISUMI Admin`）。
+2. **作成フォーム追加**: `CreateInventoryItemForm` / `CreateOrderForm` / `CreateSourcingRequestForm` / `CreateJournalDraftForm`（各ページ上部に配置）。
+3. **商品管理完結**: `softDeleteProductAction` / `restoreProductAction` + `ProductManageForm`。products ページに `includeDeleted: true` で論理削除品も表示・復元可能に。
+4. **Journal 翻訳**: `JournalTranslationForm`（ja/zh-tw 各列 inline 入力）を journal ページに追加。
+5. **注文再開**: `reopenOrderAction`（cancelled → inquiry_received、service.reopenOrder）+ `ReopenOrderForm`（cancelled 時のみ表示）。
+6. `AdminDictionary` に `common.reopen` 追加（ja: 再開 / zh-tw: 重啟）。
+
+### 完成した admin 操作マトリクス
+| 対象 | 操作 | 状態 |
+|---|---|---|
+| 商品 | ステータス変更 / 論理削除 / 復元 | ✅ |
+| 在庫 | アイテム作成 / 移動（全10理由）/ ステータス変更 | ✅ |
+| 注文 | 作成 / 状態変更 / メモ / 再開 | ✅ |
+| 買付依頼 | 作成 / 状態変更 | ✅ |
+| Journal | 下書き作成 / 翻訳（ja+zh-tw）/ 公開・非公開 / 削除 | ✅ |
+
+### Phase 2A 残課題（env 待ちで blocked）
+- Supabase Auth `getAdminSession` 差替（HANDOFF 手順 2）
+- SupabaseCommerceRepository 実クエリ（HANDOFF 手順 1）
+- migration 実 DB 適用（I-002）
+- admin 専用クローム（I-009, Low severity, Phase 1 変更リスクあり）
+
+### コマンド / テスト
+- typecheck/lint OK（warning 0）、test **72 passed**、build clean、db:validate(5) OK
+
+### commit hashes
+- `7968245` fix(admin): generateMetadata (I-008)
+- `eb5f623` feat(admin): create forms
+- `07af2de` feat(admin): product manage + journal translation
+- `cb39cd9` feat(admin): reopen order
+
+---
+
 ## 2026-06-18 (4) — Claude Code — Phase 2A Supabase基盤 + 管理CRUD拡張
 
 ### 目的

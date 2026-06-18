@@ -12,7 +12,7 @@
 | ├ 管理画面 i18n + ナビ権限マップ | Completed | ルート未実装 |
 | ├ 管理画面 scaffold（flag/auth adapter/dashboard/products[読取]） | Completed | `ADMIN_ENABLED` 既定OFF→真の404。mock認証 `ADMIN_DEV_ROLE` |
 | ├ 書込レイヤ（interface/service/mock/テスト） | Completed | RBAC+状態遷移+在庫整合性+冪等+監査。test 72 |
-| ├ 管理画面 CRUD 接続（書込） | Completed | 商品/在庫/注文/買付/Journal を server action + client form パターンで接続。権限ガード・辞書・notify 全対応 |
+| ├ 管理画面 CRUD 接続（書込） | Completed | 商品[status/delete/restore]/在庫[create/move/status]/注文[create/status/notes/reopen]/買付[create/status]/Journal[draft/translation/publish/delete]。I-008(metadata)解決 |
 | ├ Supabase クライアント基盤 | Completed | `@supabase/supabase-js` 2.108.2 + `src/lib/supabase/{client,server}.ts`（env guard + server-only） |
 | ├ Supabase Auth / セッション保護 | Not Started | `getAdminSession` を Supabase Auth session+user_roles へ差替（呼び出し側不変） |
 | ├ SupabaseCommerceRepository（読取/書込）実装 | Not Started | スタブ/スケルトンあり。0001-0005 と同契約で実装、contract test 流用（実 DB 環境待ち） |

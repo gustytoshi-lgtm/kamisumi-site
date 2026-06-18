@@ -28,8 +28,8 @@
 
 ## 実装中 / 未着手（次の作業）
 
-- 管理画面 **scaffold + 主要CRUD接続完了**（`/[locale]/admin`: dashboard/products/inventory/orders/sourcing/journal。feature flag `ADMIN_ENABLED` 既定OFF→真の404、mock認証 `ADMIN_DEV_ROLE`）。**残: Supabase Auth差替・admin metadata(I-008)・専用adminクローム分離(I-009)**
-- `SupabaseCommerceRepository` の実クエリ（**スタブ**、実DB待ち I-012）
+- 管理画面 **全主要CRUD完了**（`/[locale]/admin`: dashboard/products[status/delete/restore]/inventory[create/movement/status]/orders[create/status/notes/reopen]/sourcing[create/status]/journal[draft/translation/publish/delete]。`ADMIN_ENABLED` 既定OFF）。**残: Supabase Auth差替・専用adminクローム分離(I-009, Low)**
+- `SupabaseCommerceRepository` の実クエリ（**スタブ**、実Supabase project待ち I-012）
 - 利益分析ビュー、原価配賦の実運用フロー、抹茶ロットFIFO/賞味期限アラート、陶器個体管理UI
 - Phase 3 adapter（cart/checkout/payment/通知/SNS下書き）interface
 - 公開サイト仕上げ（hero画像軽量化、reserved/sold_out/restock_request の実例データ 等）
@@ -54,7 +54,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `ed849f2`（実行時に `git log -1` で再確認）
+- 最新 commit: `cb39cd9`（実行時に `git log -1` で再確認）
 - tag: なし（Phase 2A 未完了のため `v0.2.0-phase2a` は未付与）
 - リモート: なし（push しない）
 

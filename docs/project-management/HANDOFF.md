@@ -1,6 +1,6 @@
 # HANDOFF (Codex 移管用)
 
-最終更新: 2026-06-18 (4) / 更新者: Claude Code
+最終更新: 2026-06-18 (5) / 更新者: Claude Code
 
 ## 概要
 KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
@@ -21,7 +21,12 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 - 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ（新フィールド追加済み: quantity/reason/note/restore/publish/unpublish 等）
 - 管理画面 **scaffold + 主要CRUD**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`）。dashboard/products/inventory/orders/sourcing/journal の各ページ + 権限ガード確認済み
 - **書込レイヤ**: `CommerceWriteRepository` 契約 + `commerceService`（RBAC/状態遷移/在庫整合性/冪等/監査）+ mock 書込 repo（in-memory, reset/seed）+ テスト72
-- **管理CRUD接続**: 商品ステータス/在庫移動/在庫ステータス/注文ステータス/注文メモ/買付依頼/Journal公開・削除 を server action + client form（useActionState）で接続。全操作が RBAC チェック・CommerceError → notify 辞書変換を行う
+- **管理CRUD接続（フル）**: 全 server action + client form パターン（useActionState + confirm + notify 辞書）
+  - 商品: status change / soft delete / restore / `generateMetadata`（I-008 解決）
+  - 在庫: create item / apply movement（全10理由）/ set status
+  - 注文: create / status change / notes / reopen（cancel→inquiry_received）
+  - 買付依頼: create / status change
+  - Journal: create draft / translation（ja+zh-tw inline）/ publish / unpublish / soft delete
 - **Supabase クライアント基盤**: `@supabase/supabase-js` 2.108.2 + `src/lib/supabase/client.ts`（anon）+ `src/lib/supabase/server.ts`（service role、server-only）
 
 ## 作業途中 / 未着手（次の具体的作業）
@@ -68,7 +73,7 @@ npm run build && npm run start     # http://localhost:3000
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-18 session 4）
+## テスト結果（2026-06-18 session 5）
 typecheck/lint OK（warning 0）、test 72 passed、build clean、db:validate(5) OK、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
