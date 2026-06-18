@@ -265,18 +265,19 @@ HANDOFF の次優先を縦スライス（migration→core→repo→mock→supaba
 - `8b2d834` 経費永続化＋UI `/admin/expenses`（migration 0012, owner 限定 RLS）
 - `b279c28` 利益分析（読取）`/admin/profit`（profitAnalysis.ts, profit:view=owner）
 - `0ca7ca5` 経営ダッシュボード（/admin をロール別指標へ拡張）
+- `fb1e6b5` 会計エクスポート `/admin/accounting`（migration 0013, 冪等 exporter, owner 限定。税務/帳簿は自作しない境界を明記）
 
 ### 各スライス共通
 core型+repository interface+mock(reset/seed)+supabase スケルトン+service(RBAC)+contract/service test+server action(AdminActionForm)+ja/zh-tw 辞書+adminNav+layout ルート+smoke+dev-check。
 
 ### テスト
-test 188 passed(3 skip)、db:validate(12)、build、verify:quick 全✅（新画面を smoke に追加）。
+test 192 passed(3 skip)、db:validate(13)、build、verify:quick 全✅（新画面を smoke に追加）。
 
 ### 設計判断
 PM-022（陶器個体: cost は cost:view 保持者にのみ service が返す=front_staff/inventory に原価非表示）/ PM-023（経費・利益は owner 限定の機微情報）/ PM-024（利益分析は記録済みデータからの概算。為替差損益・注文単位原価対応は未連携、UIに明記）。新規 Supabase repo は全てスケルトン（実装待ち）で mock 既定。
 
 ### 残（次優先）
-会計export永続化＋UI / 画像管理基盤 / Phase 3 interface・mock・adapter。Supabase 各 repo の実クエリ実装と実DB検証。
+画像管理基盤 / Phase 3 interface・mock・adapter。Supabase 各 repo の実クエリ実装と実DB検証。
 
 ---
 

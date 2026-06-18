@@ -4,7 +4,7 @@
 
 > **session 12 追加（人間向け運用基盤）**: 役割別 .cmd ランチャー / `verify:*` スモーク / dev-check ページ / 開発モードバー / mock reset API / `docs/LOCAL_VERIFICATION_GUIDE.md`。本番では dev 機能を無効化（`isDevToolsEnabled`）。非技術者が PowerShell なしで起動・確認・初期化できる。
 > **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`・仕入先 `/admin/suppliers`・仕入記録 `/admin/purchases`（原価配賦）・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。
-> **session 14 追加（Phase 2B 永続化+分析）**: 抹茶ロット `/admin/matcha-lots`(0010)・陶器個体 `/admin/ceramic-units`(0011,原価=owner)・経費 `/admin/expenses`(0012,owner)・利益分析 `/admin/profit`(owner)・経営ダッシュボード(ロール別)。test 188・全ゲート＋verify:quick 緑。新 Supabase repo は全てスケルトン（mock 既定）。
+> **session 14 追加（Phase 2B 永続化+分析+会計）**: 抹茶ロット `/admin/matcha-lots`(0010)・陶器個体 `/admin/ceramic-units`(0011,原価=owner)・経費 `/admin/expenses`(0012,owner)・利益分析 `/admin/profit`(owner)・経営ダッシュボード(ロール別)・会計エクスポート `/admin/accounting`(0013,冪等,owner)。test 192・全ゲート＋verify:quick 緑。新 Supabase repo は全てスケルトン（mock 既定）。
 
 > **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
 > **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
@@ -60,7 +60,7 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
    - 管理UI(ja/zh-tw): 仕入先→仕入・買付→入金→配送→抹茶→陶器→経費→利益分析→ダッシュボード→会計export の順に画面追加。actions.ts + client form パターン、adminNav + 辞書追加。RBAC は purchase:manage（仕入/入金=owner）/ order:update_status（配送=member）。
    - 既存の getProcurementService / getFulfillmentService / getPaymentService を UI から呼ぶ（UI から DB 直書きしない）。
 6. ~~編集可能な業務設定 UI（§8）~~: **完了（session 13）**。残: 設定値の公開サイト反映 + `supabaseSettingsRepository` 実装（site_settings + 履歴表）。I-017。
-7. **Phase 2B 管理UI**: purchases/抹茶ロット/陶器個体/経費/利益分析/ダッシュボード **完了(session 13-14)**。残り: **会計export永続化+UI**（accountingExport.ts は IF/冪等mock 有 → repo+migration+UI 化）、**画像管理基盤**（mock→Supabase Storage）。
+7. **Phase 2B 管理UI**: purchases/抹茶ロット/陶器個体/経費/利益分析/ダッシュボード/会計export **完了(session 13-14)**。残り: **画像管理基盤**（§9, I-018, mock→Supabase Storage public/private, MIME/サイズ/寸法検証）、**Phase 3 interface・mock・adapter**（cart/checkout/payment/通知/SNS下書き）。
    - **Supabase repo 実クエリ実装の残**: matcha/ceramic/expense/settings は現状スケルトン（NotImplemented）。実 DB 接続時に procurement/payment/fulfillment と同様 PostgREST/RPC で実装し contract test を流用。
    - mock 永続は in-memory（再起動で消える）。原価/利益/経費は owner 限定（front_staff/inventory に非表示）を維持すること。
 8. **画像管理 UI（§9, I-018）**: mock 画像管理 → Supabase Storage（public/private, MIME/サイズ/寸法検証）。レシート等は private。
@@ -91,7 +91,7 @@ Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRO
 `DATA_BACKEND`(既定mock), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`。秘密値・実口座・顧客情報はコミットしない。
 
 ## migration状態
-0001-0012 作成済み（0006=注文メモ, 0007=仕入先詳細, 0008=配送状態+履歴, 0009=入金詳細, 0010=抹茶ロット quantity, 0011=陶器個体 status/lifecycle, 0012=経費）・**実DB未適用**。`db:validate` OK（12 files）。実SQL妥当性は未検証（I-002）。
+0001-0013 作成済み（…0010=抹茶ロット quantity, 0011=陶器個体 status/lifecycle, 0012=経費, 0013=会計export）・**実DB未適用**。`db:validate` OK（13 files）。実SQL妥当性は未検証（I-002）。
 
 ## mock / Supabase 切替
 `src/config/dataBackend.ts` → `getDataBackend()`。`src/repositories/index.ts` の factory が mock/supabase を選択。Supabase 未設定で `DATA_BACKEND=supabase` にすると factory が明示エラー（誤設定検知）。
@@ -109,7 +109,7 @@ Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRO
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
 ## テスト結果（2026-06-19 session 14）
-typecheck/lint OK（warning 0）、**test 188 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(12) OK、build clean、`verify:quick` 全✅（管理画面 全11 画面含む）、E2E timeout(I-001)。
+typecheck/lint OK（warning 0）、**test 192 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(13) OK、build clean、`verify:quick` 全✅（管理画面 全12 画面含む）、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```

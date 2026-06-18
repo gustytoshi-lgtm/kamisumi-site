@@ -69,14 +69,14 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `0ca7ca5`（経営ダッシュボード。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
+- 最新 commit: `fb1e6b5`（会計エクスポート。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / **test 188 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(12) / verify:quick: **成功**
+- lint / typecheck / **test 192 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(13) / verify:quick: **成功**
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
 
 ## 再開コマンド
