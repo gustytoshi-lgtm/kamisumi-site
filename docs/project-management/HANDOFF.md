@@ -5,7 +5,8 @@
 > **session 12 追加（人間向け運用基盤）**: 役割別 .cmd ランチャー / `verify:*` スモーク / dev-check ページ / 開発モードバー / mock reset API / `docs/LOCAL_VERIFICATION_GUIDE.md`。本番では dev 機能を無効化（`isDevToolsEnabled`）。非技術者が PowerShell なしで起動・確認・初期化できる。
 > **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`・仕入先 `/admin/suppliers`・仕入記録 `/admin/purchases`（原価配賦）・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。
 > **session 14 追加（Phase 2B 永続化+分析+会計）**: 抹茶ロット(0010)・陶器個体(0011)・経費(0012)・利益分析・ダッシュボード・会計エクスポート(0013)。
-> **session 15 追加**: メディア管理 `/admin/media`(0014, MIME/サイズ/寸法検証・private=owner)・SNS下書き `/admin/sns-drafts`(承認フロー・自動公開なし)。Phase 3 lib: cart/checkout(手動振込mock・sandbox skeleton)・notifications(mock)。test 211・全ゲート＋verify:quick 緑。本番決済/送信/自動投稿なし。
+> **session 15 追加**: メディア管理 `/admin/media`(0014)・SNS下書き `/admin/sns-drafts`(承認フロー・自動公開なし)。Phase 3 lib: cart/checkout(手動振込mock・sandbox skeleton)・notifications(mock)。
+> **session 16 追加**: Phase 2B 全 Supabase repo の実クエリ実装（matcha/ceramic/expense/media/settings）+ migration 0015(setting_history)。test 211・全ゲート緑。実 DB 検証は I-002/I-020 で残。本番決済/送信/自動投稿なし。
 
 > **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
 > **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
@@ -62,8 +63,8 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
    - 既存の getProcurementService / getFulfillmentService / getPaymentService を UI から呼ぶ（UI から DB 直書きしない）。
 6. ~~編集可能な業務設定 UI（§8）~~: **完了（session 13）**。残: 設定値の公開サイト反映 + `supabaseSettingsRepository` 実装（site_settings + 履歴表）。I-017。
 7. **Phase 2B/3 管理UI**: purchases/抹茶/陶器/経費/利益/ダッシュボード/会計export/メディア/SNS下書き **完了(session 13-15)**。Phase 3 lib（cart/checkout/通知）も interface+mock 完了。
-   - 残り **最優先 = #2 Supabase 実クエリ完成**: settings/matcha/ceramic/expense/media の各 `supabase*Repository` はスケルトン（NotImplemented）。commerce read/write・procurement・payment・fulfillment と同様に PostgREST/RPC で実装し、`tests/*.supabase.test.ts` パターンの contract test を追加（実 DB 必須・既定 skip）。migration 0010-0014 を実 DB へ適用して検証。
-   - 残り: 顧客マイページ基盤・複数通貨/国別配送UI・再入荷/注文通知の配線（通知 mock を service へ接続）・cart/checkout の公開UI（Phase 3）。
+   - **#2 Supabase 実クエリ完成（session 16）**: settings/matcha/ceramic/expense/media を実装済み。**残るは実 DB 検証**（I-002/I-020）: migration 0001-0015 を実 DB へ適用 + 各ドメインに `*.supabase.test.ts`（実 DB 必須・既定 skip）contract test を追加し mock と同挙動を確認。
+   - 残り: 顧客マイページ基盤・複数通貨/国別配送UI・再入荷/注文通知の配線（通知 mock を service へ接続）・cart/checkout の公開UI（Phase 3）・matcha adjustQuantity の DB function 化（原子性, PM-028 注記）。
    - **Supabase repo 実クエリ実装の残**: matcha/ceramic/expense/settings は現状スケルトン（NotImplemented）。実 DB 接続時に procurement/payment/fulfillment と同様 PostgREST/RPC で実装し contract test を流用。
    - mock 永続は in-memory（再起動で消える）。原価/利益/経費は owner 限定（front_staff/inventory に非表示）を維持すること。
 8. **画像管理 UI（§9, I-018）**: mock 画像管理 → Supabase Storage（public/private, MIME/サイズ/寸法検証）。レシート等は private。
@@ -94,7 +95,7 @@ Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRO
 `DATA_BACKEND`(既定mock), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`。秘密値・実口座・顧客情報はコミットしない。
 
 ## migration状態
-0001-0014 作成済み（…0010=抹茶ロット quantity, 0011=陶器個体, 0012=経費, 0013=会計export, 0014=メディアメタ）・**実DB未適用**。`db:validate` OK（14 files）。実SQL妥当性は未検証（I-002）。
+0001-0015 作成済み（…0012=経費, 0013=会計export, 0014=メディアメタ, 0015=設定履歴）・**実DB未適用**。`db:validate` OK（15 files）。実SQL妥当性は未検証（I-002）。
 
 ## mock / Supabase 切替
 `src/config/dataBackend.ts` → `getDataBackend()`。`src/repositories/index.ts` の factory が mock/supabase を選択。Supabase 未設定で `DATA_BACKEND=supabase` にすると factory が明示エラー（誤設定検知）。
@@ -111,8 +112,8 @@ Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRO
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-19 session 15）
-typecheck/lint OK（warning 0）、**test 211 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(14) OK、build clean、`verify:quick` 全✅（管理画面 全14 画面含む）、E2E timeout(I-001)。
+## テスト結果（2026-06-19 session 16）
+typecheck/lint OK（warning 0）、**test 211 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(15) OK、build clean、`verify:quick` 全✅（管理画面 全14 画面含む）、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```

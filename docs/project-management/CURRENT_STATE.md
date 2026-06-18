@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-19 (session 15) / 更新者: Claude Code
+最終更新: 2026-06-19 (session 16) / 更新者: Claude Code
 
 > このディレクトリ `docs/project-management/` が今後の正規プロジェクト管理文書。
 > ルート直下の `HANDOFF.md` / `DECISIONS.md` / `TODO.md` / `CHANGELOG.md` / `PROJECT_MAP.md` は
@@ -51,7 +51,7 @@
 - 既定 **mock**（`DATA_BACKEND` 未設定）。公開サイトは Phase 1 と同一挙動。
 - 読取: `getCommerceRepository()` / 書込: `getCommerceWriteRepository()` + `getCommerceService()`（既定 mock）。
 - **mock 書込は in-memory（reset/seed、fixture非破壊、再起動で消える）。public read(fixture) とは別ストア**（Supabase 化で統合）。
-- Supabase は env と `DATA_BACKEND=supabase` 設定時のみ。**read/write とも実クエリ実装済み**（実 DB 接続で検証）。
+- Supabase は env と `DATA_BACKEND=supabase` 設定時のみ。**read/write + Phase 2B 全 repo（procurement/payment/fulfillment/settings/matcha/ceramic/expense/media）の実クエリ実装済み**（実 DB 接続で検証＝I-002/I-020）。
 
 ## 公開サイト状態 / 管理画面状態
 
@@ -70,14 +70,14 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `be0c9d1`（Phase 3 通知/SNS下書き。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
+- 最新 commit: `ca37dac`（Supabase settings 実装 + 0015。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / **test 211 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(14) / verify:quick: **成功**
+- lint / typecheck / **test 211 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(15) / verify:quick: **成功**
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
 
 ## 再開コマンド
