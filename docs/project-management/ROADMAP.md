@@ -1,10 +1,11 @@
 # ROADMAP
 
 状態: Not Started / In Progress / Blocked / Completed / Deferred
-最終更新: 2026-06-18 (session 9)
+最終更新: 2026-06-19 (session 12)
 
 | 項目 | 状態 | 備考 |
 |---|---|---|
+| **人間向け運用基盤（起動/確認/dev-check）** | Completed | 役割別 .cmd ランチャー / verify スモーク / dev-check / 開発バー / mock reset / LOCAL_VERIFICATION_GUIDE。本番ガード（PM-015） |
 | **Phase 1 公開サイト** | Completed | 全15ルート、SEO/JSON-LD、OG PNG、favicon、soft-404修正 |
 | **Phase 2A 販売・運用管理基盤** | Impl Complete / Validation Pending | コード完了（基盤/管理UI CRUD/SSR/read+write repo/認証切替/注文メモ0006）。実 Supabase 接続での検証が残（タグ未付与） |
 | ├ データ基盤（migration/seed/RLS/ER/切替） | Completed | 実DB適用は env 待ち |

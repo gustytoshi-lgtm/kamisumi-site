@@ -19,4 +19,8 @@
 | I-015 | Low | `matcha_lots` に明示的な on-hand 数量列がない | Phase 2B 抹茶在庫 | ロット別の物理数量を DB から直接取れない（reserved/incoming はあり） | 純ロジックは数量をドメイン入力で受ける（matchaLot.ts） | inventory_items とロットを紐付ける or 数量列を追加する migration（0008 以降） | 2B | Open |
 | I-016 | Low | `shipments` に status 列がない | Phase 2B 配送 | 配送状態を DB に永続化できない（純ロジックは実装済） | 状態機械 shipmentStatus.ts は列なしで検証可 | 配送 repository 実装時に status 列の追加 migration（0008+, PM-023） | 2B | **Resolved**（migration 0008 で status 列 + shipment_status_events 追加） |
 
+| I-017 | Low | 編集可能な業務設定（§8）の管理UIが未実装 | 管理画面 | ブランド名/連絡先/SNS/取り置き時間等は現状コード（site.ts/env）でのみ変更 | site.ts / .env.local で変更 | site_settings テーブル + 設定編集UI（検証・履歴・権限・ja/zh-tw）を追加 | 2B/運用 | Open |
+| I-018 | Low | 管理画面からの画像管理（§9）が未実装 | 管理画面 | 商品/Journal 画像はコード・fixture でのみ変更 | placeholder 差し替えはファイルで | mock 画像管理 + Supabase Storage（public/private, MIME/サイズ/寸法検証） | 2B/運用 | Open |
+| I-019 | Low | 在ブラウザのロール切替は未実装（役割別ランチャーで代替） | 管理画面 | ロール変更は .cmd 再起動が必要 | START_KAMISUMI_{OWNER,FRONT_STAFF,INVENTORY}.cmd | 任意で cookie ベースの dev 専用ロール切替（PM-016） | 運用 | Open(by design) |
+
 深刻度: Critical / High / Medium / Low

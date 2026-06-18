@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-18 (session 8) / 更新者: Claude Code
+最終更新: 2026-06-19 (session 12) / 更新者: Claude Code
 
 > このディレクトリ `docs/project-management/` が今後の正規プロジェクト管理文書。
 > ルート直下の `HANDOFF.md` / `DECISIONS.md` / `TODO.md` / `CHANGELOG.md` / `PROJECT_MAP.md` は
@@ -37,6 +37,15 @@
 - Phase 3 adapter（cart/checkout/payment/通知/SNS下書き）interface
 - 公開サイト仕上げ（hero画像軽量化、reserved/sold_out/restock_request の実例データ 等）
 
+## 人間向け運用基盤（session 12 で追加）
+
+- **ワンクリック起動**（ダブルクリック）: `START_KAMISUMI_{MOCK,OWNER,FRONT_STAFF,INVENTORY,PUBLIC_ONLY}.cmd` / `STOP_KAMISUMI.cmd` / `CHECK_KAMISUMI.cmd` / `RESET_MOCK_DATA.cmd`。
+- **npm scripts**: `dev:{mock,owner,front,inventory,public}` / `verify:{public,admin,mock,quick,full}` / `mock:reset` / `stop`（cross-env 使用）。
+- **dev-check**: `/[locale]/admin/dev-check`（本番 404）+ 開発モードバー + mock リセット API `/api/dev/reset`。
+- 安全ガード `isDevToolsEnabled()`（非本番 かつ ADMIN 有効 かつ mock のみ）。本番では dev 機能を出さず、mock へ fallback しない。
+- 人間向けガイド `docs/LOCAL_VERIFICATION_GUIDE.md`。
+- ロール別の見え方は役割別ランチャーで確認（§6 の代替・PM-016）。
+
 ## データモード
 
 - 既定 **mock**（`DATA_BACKEND` 未設定）。公開サイトは Phase 1 と同一挙動。
@@ -65,15 +74,16 @@
 
 ## テスト状態
 
-- lint / typecheck / **test(全緑・1 skipped, 終了前 full gate で確定)** / build / db:validate(9): **成功**（supabase 契約テストは実 DB 必須で skip）
-- E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）
+- lint / typecheck / **test 166 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(9): **成功**
+- E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
 
 ## 再開コマンド
 
 ```bash
 cd "C:/Users/tkats/OneDrive/01_HTML_CSS/kamisumi-site"
-npm install            # 必要時のみ
-npm run typecheck && npm run lint && npm run test && npm run db:validate
-npm run build && npm run start   # http://localhost:3000
+npm install                 # 必要時のみ
+npm run verify:full         # typecheck+lint+test+db:validate+build
+npm run verify:quick        # 公開/管理の軽量スモーク（別ポート3100）
 git log --oneline | head -5
+# 人間向け: START_KAMISUMI_MOCK.cmd をダブルクリック（dev-check が開く）
 ```
