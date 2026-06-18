@@ -3,7 +3,7 @@
 最終更新: 2026-06-19 (12) / 更新者: Claude Code
 
 > **session 12 追加（人間向け運用基盤）**: 役割別 .cmd ランチャー / `verify:*` スモーク / dev-check ページ / 開発モードバー / mock reset API / `docs/LOCAL_VERIFICATION_GUIDE.md`。本番では dev 機能を無効化（`isDevToolsEnabled`）。非技術者が PowerShell なしで起動・確認・初期化できる。
-> **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`（履歴/検証/編集不可キー保護）・仕入先 `/admin/suppliers`・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。test 172・全ゲート＋verify:quick 緑。
+> **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`（履歴/検証/編集不可キー保護）・仕入先 `/admin/suppliers`・仕入記録 `/admin/purchases`（原価配賦）・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。test 172・全ゲート＋verify:quick 緑。
 
 > **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
 > **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
@@ -59,7 +59,7 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
    - 管理UI(ja/zh-tw): 仕入先→仕入・買付→入金→配送→抹茶→陶器→経費→利益分析→ダッシュボード→会計export の順に画面追加。actions.ts + client form パターン、adminNav + 辞書追加。RBAC は purchase:manage（仕入/入金=owner）/ order:update_status（配送=member）。
    - 既存の getProcurementService / getFulfillmentService / getPaymentService を UI から呼ぶ（UI から DB 直書きしない）。
 6. ~~編集可能な業務設定 UI（§8）~~: **完了（session 13）**。残: 設定値の公開サイト反映 + `supabaseSettingsRepository` 実装（site_settings + 履歴表）。I-017。
-7. **次の Phase 2B 管理UI（優先順）**: 仕入・買付（purchases）UI → 抹茶ロットUI → 陶器個体 repo+UI → 経費 repo+UI → 利益分析 → 経営ダッシュボード → 会計export UI。既存 service（getProcurementService 等）を AdminActionForm パターンで UI 接続。陶器個体/経費は core 型+interface+mock+supabase+service+contract から（既存パターン踏襲）。
+7. **次の Phase 2B 管理UI（優先順）**: ~~仕入・買付（purchases）UI~~ **完了(session 13, `8a43eef`)** → 抹茶ロットUI（matchaLot は純ロジック有、永続 repo は要追加 I-015）→ 陶器個体 repo+UI → 経費 repo+UI → 利益分析（profit 純ロジック有）→ 経営ダッシュボード → 会計export UI。既存 service を AdminActionForm パターンで UI 接続。陶器個体/経費は core 型+interface+mock+supabase+service+contract から（既存パターン踏襲）。
 8. **画像管理 UI（§9, I-018）**: mock 画像管理 → Supabase Storage（public/private, MIME/サイズ/寸法検証）。レシート等は private。
 9. （任意）在ブラウザの dev 専用ロール切替（cookie ベース、I-019）。現状は役割別ランチャー + `ADMIN_DEV_LOCALE` で代替。
 
