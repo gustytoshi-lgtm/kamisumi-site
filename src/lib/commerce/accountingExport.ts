@@ -46,6 +46,8 @@ export interface AccountingExporter {
   exportBatch(batch: ExportBatch): Promise<ExportResult>;
   /** 既存 export の状態取得（未 export は null）。 */
   getExport(idempotencyKey: string): Promise<ExportResult | null>;
+  /** export 済みバッチ一覧（新しい順）。 */
+  listExports(): Promise<ExportResult[]>;
 }
 
 function validateBatch(batch: ExportBatch): void {
@@ -88,5 +90,11 @@ export function createMockAccountingExporter(): AccountingExporter {
     async getExport(idempotencyKey) {
       return exported.get(idempotencyKey) ?? null;
     },
+    async listExports() {
+      return [...exported.values()].sort((a, b) => (a.exportedAt < b.exportedAt ? 1 : -1));
+    },
   };
 }
+
+/** アプリ既定の mock exporter（in-memory・dev 用。再起動で消える）。 */
+export const mockAccountingExporter: AccountingExporter = createMockAccountingExporter();

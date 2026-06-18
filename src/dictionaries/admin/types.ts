@@ -142,6 +142,19 @@ export type AdminDictionary = {
     empty: string;
     noBankNote: string;
   };
+  /** 会計 export（§12）画面のラベル。 */
+  accounting: {
+    title: string;
+    intro: string;
+    idempotencyKey: string;
+    runExport: string;
+    pendingEntries: string;
+    status: string;
+    entryCount: string;
+    exportedAt: string;
+    empty: string;
+    boundaryNote: string;
+  };
   /** ダッシュボード指標ラベル。 */
   dashboard: {
     bestBeforeAlerts: string;

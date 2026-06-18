@@ -109,10 +109,11 @@ export async function getDevDiagnostics(): Promise<DevDiagnostics> {
       "ceramic-units",
       "expenses",
       "profit",
+      "accounting",
     ],
     pendingAdmin: [
-      "accounting-export",
-      "dashboard-metrics",
+      "image-management",
+      "phase3-interfaces",
     ],
   };
 }

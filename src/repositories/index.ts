@@ -40,6 +40,11 @@ import type { ExpenseRepository } from "./core/expenseRepository";
 import { createExpenseService, type ExpenseService } from "@/lib/commerce/expenseService";
 import { mockExpenseRepository } from "./mock/mockExpenseRepository";
 import { supabaseExpenseRepository } from "./supabase/supabaseExpenseRepository";
+import {
+  createAccountingExportService,
+  type AccountingExportService,
+} from "@/lib/commerce/accountingExportService";
+import { mockAccountingExporter } from "@/lib/commerce/accountingExport";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -198,4 +203,12 @@ export function getExpenseRepository(): ExpenseRepository {
 
 export function getExpenseService(): ExpenseService {
   return createExpenseService(getExpenseRepository());
+}
+
+/**
+ * 会計 export サービス。現状は in-memory mock exporter（dev・再起動で消える）。
+ * 本番は同 interface の adapter に差し替える（Phase 4）。
+ */
+export function getAccountingExportService(): AccountingExportService {
+  return createAccountingExportService(mockAccountingExporter);
 }

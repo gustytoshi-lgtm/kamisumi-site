@@ -26,6 +26,7 @@ export const ADMIN_NAV_KEYS = [
   "shipments",
   "expenses",
   "profit",
+  "accountingExport",
   "settings",
   "auditLogs",
 ] as const;
@@ -53,6 +54,7 @@ export const ADMIN_NAV_PERMISSIONS: Record<AdminNavKey, Permission[]> = {
   shipments: ["order:update_status"],
   expenses: ["purchase:manage"],
   profit: ["profit:view"],
+  accountingExport: ["purchase:manage"],
   settings: ["settings:manage"],
   auditLogs: ["audit_log:view"],
 };
