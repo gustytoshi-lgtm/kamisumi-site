@@ -36,7 +36,7 @@
 - migration 実 DB 適用検証（I-002）
 
 ### commit hash
-（このセッション末に追記）
+- `ac9e7b1` feat(phase2a): supabase client base + admin CRUD (inventory/order/sourcing/journal)
 
 ---
 
