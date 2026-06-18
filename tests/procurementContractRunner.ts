@@ -69,5 +69,60 @@ export function runProcurementContract(name: string, makeRepo: () => Procurement
         code: "not_found",
       });
     });
+
+    it("creates a purchase with items and lists it", async () => {
+      const repo = makeRepo();
+      const purchase = await repo.createPurchase(
+        {
+          organizationId: "org-test",
+          purchasedOn: "2026-06-18",
+          currency: "JPY",
+          transportMinor: 1000,
+          items: [
+            { quantity: 2, unitPriceMinor: 500 },
+            { quantity: 1, unitPriceMinor: 1500 },
+          ],
+        },
+        ctx,
+      );
+      expect(purchase.items).toHaveLength(2);
+      expect((await repo.listPurchases()).some((p) => p.id === purchase.id)).toBe(true);
+    });
+
+    it("allocates ancillary cost across items and preserves the total", async () => {
+      const repo = makeRepo();
+      const purchase = await repo.createPurchase(
+        {
+          organizationId: "org-test",
+          purchasedOn: "2026-06-18",
+          currency: "JPY",
+          transportMinor: 900,
+          items: [
+            { quantity: 1, unitPriceMinor: 100 },
+            { quantity: 2, unitPriceMinor: 100 },
+          ],
+        },
+        ctx,
+      );
+      const allocations = await repo.allocatePurchaseCosts(purchase.id, "quantity", ctx);
+      // 900 を数量 1:2 で配賦 → 300 / 600。
+      expect(allocations.map((a) => a.allocatedAmountMinor).sort((a, b) => a - b)).toEqual([300, 600]);
+      expect(allocations.reduce((s, a) => s + a.allocatedAmountMinor, 0)).toBe(900);
+      // 再配賦は置き換え（重複しない）。
+      const again = await repo.allocatePurchaseCosts(purchase.id, "purchase_value", ctx);
+      expect(again).toHaveLength(2);
+    });
+
+    it("soft-deletes and restores a purchase", async () => {
+      const repo = makeRepo();
+      const purchase = await repo.createPurchase(
+        { organizationId: "org-test", purchasedOn: "2026-06-18", currency: "JPY" },
+        ctx,
+      );
+      await repo.softDeletePurchase(purchase.id, ctx);
+      expect((await repo.listPurchases()).some((p) => p.id === purchase.id)).toBe(false);
+      await repo.restorePurchase(purchase.id, ctx);
+      expect((await repo.listPurchases()).some((p) => p.id === purchase.id)).toBe(true);
+    });
   });
 }

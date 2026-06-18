@@ -75,3 +75,98 @@ export function toPublicSupplier(record: SupplierRecord): PublicSupplier {
     brandId: record.brandId,
   };
 }
+
+// ============ 仕入記録（買付） ============
+
+export type PurchaseItemInput = {
+  productId?: string;
+  description?: string;
+  quantity: number;
+  unitPriceMinor: number;
+  taxMinor?: number;
+  discountMinor?: number;
+};
+
+export type PurchaseItemRecord = {
+  id: string;
+  purchaseId: string;
+  productId?: string;
+  description?: string;
+  quantity: number;
+  unitPriceMinor: number;
+  taxMinor: number;
+  discountMinor: number;
+};
+
+/** 明細の正味額（最小通貨単位整数）= 単価*数量 + 税 - 値引。 */
+export function purchaseItemNetMinor(item: {
+  unitPriceMinor: number;
+  quantity: number;
+  taxMinor?: number;
+  discountMinor?: number;
+}): number {
+  return item.unitPriceMinor * item.quantity + (item.taxMinor ?? 0) - (item.discountMinor ?? 0);
+}
+
+export type PurchaseCreateInput = {
+  organizationId?: string;
+  supplierId?: string;
+  scheduleId?: string;
+  purchasedOn: string; // ISO date
+  currency: CurrencyCode;
+  exchangeRate?: number;
+  domesticShippingMinor?: number;
+  transportMinor?: number;
+  parkingMinor?: number;
+  highwayMinor?: number;
+  otherExpenseMinor?: number;
+  note?: string;
+  items?: PurchaseItemInput[];
+};
+
+/** 付帯費用合計（最小通貨単位整数）。原価配賦の対象額。 */
+export function purchaseAncillaryTotalMinor(input: {
+  domesticShippingMinor?: number;
+  transportMinor?: number;
+  parkingMinor?: number;
+  highwayMinor?: number;
+  otherExpenseMinor?: number;
+}): number {
+  return (
+    (input.domesticShippingMinor ?? 0) +
+    (input.transportMinor ?? 0) +
+    (input.parkingMinor ?? 0) +
+    (input.highwayMinor ?? 0) +
+    (input.otherExpenseMinor ?? 0)
+  );
+}
+
+export type CostAllocationRecord = {
+  id: string;
+  purchaseId: string;
+  purchaseItemId?: string;
+  method: string; // DB enum（quantity/amount/weight/volume/manual/none）
+  allocatedCurrency: CurrencyCode;
+  allocatedAmountMinor: number;
+};
+
+export type PurchaseRecord = {
+  id: string;
+  organizationId: string;
+  supplierId?: string;
+  scheduleId?: string;
+  purchasedOn: string;
+  currency: CurrencyCode;
+  exchangeRate?: number;
+  domesticShippingMinor: number;
+  transportMinor: number;
+  parkingMinor: number;
+  highwayMinor: number;
+  otherExpenseMinor: number;
+  note?: string;
+  items: PurchaseItemRecord[];
+  allocations: CostAllocationRecord[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
+};

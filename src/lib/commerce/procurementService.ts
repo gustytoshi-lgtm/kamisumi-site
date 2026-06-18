@@ -2,10 +2,12 @@ import { siteConfig } from "@/config/site";
 import type { ProcurementRepository } from "@/repositories/core/procurementRepository";
 import {
   isSupplierPublicLevel,
+  type PurchaseCreateInput,
   type SupplierCreateInput,
   type SupplierUpdateInput,
 } from "@/repositories/core/procurementModels";
 import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
+import type { AllocationMethod } from "./costAllocation";
 import { can, type Permission } from "./rbac";
 
 /**
@@ -74,6 +76,54 @@ export function createProcurementService(repo: ProcurementRepository) {
     /** 公開投影（権限不要・内部情報なし）。 */
     async listPublicSuppliers() {
       return repo.listPublicSuppliers();
+    },
+
+    // ---- 仕入記録（買付） ----
+    async createPurchase(
+      ctx: ActorContext,
+      input: Omit<PurchaseCreateInput, "organizationId"> & { organizationId?: string },
+    ) {
+      assertCan(ctx, "purchase:manage");
+      if (!input.purchasedOn) {
+        throw new CommerceError("validation", "purchasedOn is required");
+      }
+      for (const item of input.items ?? []) {
+        if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+          throw new CommerceError("validation", "purchase item quantity must be a positive integer");
+        }
+        if (!Number.isInteger(item.unitPriceMinor) || item.unitPriceMinor < 0) {
+          throw new CommerceError("validation", "purchase item unit price must be a non-negative integer");
+        }
+      }
+      return repo.createPurchase(
+        { ...input, organizationId: input.organizationId ?? siteConfig.organization.id },
+        ctx,
+      );
+    },
+
+    async getPurchase(ctx: ActorContext, id: string) {
+      assertCan(ctx, "purchase:manage");
+      return repo.getPurchase(id);
+    },
+
+    async listPurchases(ctx: ActorContext, options?: { includeDeleted?: boolean }) {
+      assertCan(ctx, "purchase:manage");
+      return repo.listPurchases(options);
+    },
+
+    async deletePurchase(ctx: ActorContext, id: string) {
+      assertCan(ctx, "purchase:manage");
+      return repo.softDeletePurchase(id, ctx);
+    },
+
+    async restorePurchase(ctx: ActorContext, id: string) {
+      assertCan(ctx, "purchase:manage");
+      return repo.restorePurchase(id, ctx);
+    },
+
+    async allocatePurchaseCosts(ctx: ActorContext, id: string, method: AllocationMethod) {
+      assertCan(ctx, "purchase:manage");
+      return repo.allocatePurchaseCosts(id, method, ctx);
     },
   };
 }

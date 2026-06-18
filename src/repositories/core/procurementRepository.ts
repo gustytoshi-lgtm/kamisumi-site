@@ -1,10 +1,14 @@
 import type { ActorContext } from "./writeModels";
 import type {
+  CostAllocationRecord,
   PublicSupplier,
+  PurchaseCreateInput,
+  PurchaseRecord,
   SupplierCreateInput,
   SupplierRecord,
   SupplierUpdateInput,
 } from "./procurementModels";
+import type { AllocationMethod } from "@/lib/commerce/costAllocation";
 
 /**
  * Phase 2B 調達ドメインの書込/読取契約。mock / Supabase が同一契約を満たす（contract test で保証）。
@@ -30,4 +34,20 @@ export interface ProcurementRepository {
   listSuppliers(options?: { includeDeleted?: boolean }): Promise<SupplierRecord[]>;
   /** 公開用一覧（public_level='public' のみ・内部情報を落とす）。非公開を漏らさない。 */
   listPublicSuppliers(): Promise<PublicSupplier[]>;
+
+  // ---- 仕入記録（買付） ----
+  createPurchase(input: PurchaseCreateInput, ctx: ActorContext): Promise<PurchaseRecord>;
+  getPurchase(id: string): Promise<PurchaseRecord | null>;
+  listPurchases(options?: { includeDeleted?: boolean }): Promise<PurchaseRecord[]>;
+  softDeletePurchase(id: string, ctx: ActorContext): Promise<PurchaseRecord>;
+  restorePurchase(id: string, ctx: ActorContext): Promise<PurchaseRecord>;
+  /**
+   * 付帯費用を method で明細へ配賦して cost_allocations を置き換える。
+   * allocations の合計は付帯費用合計に一致する（none を除く）。
+   */
+  allocatePurchaseCosts(
+    id: string,
+    method: AllocationMethod,
+    ctx: ActorContext,
+  ): Promise<CostAllocationRecord[]>;
 }

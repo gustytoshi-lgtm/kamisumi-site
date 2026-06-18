@@ -1,11 +1,17 @@
 import { siteConfig } from "@/config/site";
 import type { ProcurementRepository } from "@/repositories/core/procurementRepository";
 import {
+  purchaseAncillaryTotalMinor,
+  purchaseItemNetMinor,
   toPublicSupplier,
+  type CostAllocationRecord,
   type PublicSupplier,
+  type PurchaseItemRecord,
+  type PurchaseRecord,
   type SupplierRecord,
 } from "@/repositories/core/procurementModels";
 import { CommerceError, type ActorContext, type AuditEntry } from "@/repositories/core/writeModels";
+import { allocateCost, toDbMethod, type AllocationBasis } from "@/lib/commerce/costAllocation";
 
 const ORG = siteConfig.organization.id;
 
@@ -21,12 +27,13 @@ export type MockProcurementRepository = ProcurementRepository & {
 
 type Store = {
   suppliers: Map<string, SupplierRecord>;
+  purchases: Map<string, PurchaseRecord>;
   audit: AuditEntry[];
   counter: number;
 };
 
 function emptyStore(): Store {
-  return { suppliers: new Map(), audit: [], counter: 0 };
+  return { suppliers: new Map(), purchases: new Map(), audit: [], counter: 0 };
 }
 
 export function createMockProcurementRepository(): MockProcurementRepository {
@@ -38,12 +45,13 @@ export function createMockProcurementRepository(): MockProcurementRepository {
     action: string,
     entityId: string,
     summary?: string,
+    entityType = "supplier",
   ): void => {
     store.audit.push({
       id: `audit-${store.audit.length + 1}`,
       actorId: ctx.userId,
       action,
-      entityType: "supplier",
+      entityType,
       entityId,
       summary,
       createdAt: now(),
@@ -161,6 +169,95 @@ export function createMockProcurementRepository(): MockProcurementRepository {
         .filter((s) => !s.deletedAt && s.publicLevel === "public")
         .sort((a, b) => a.name.localeCompare(b.name))
         .map(toPublicSupplier);
+    },
+
+    async createPurchase(input, ctx) {
+      const ts = now();
+      const purchaseId = id("purchase");
+      const items: PurchaseItemRecord[] = (input.items ?? []).map((item) => ({
+        id: id("purchase-item"),
+        purchaseId,
+        productId: item.productId,
+        description: item.description,
+        quantity: item.quantity,
+        unitPriceMinor: item.unitPriceMinor,
+        taxMinor: item.taxMinor ?? 0,
+        discountMinor: item.discountMinor ?? 0,
+      }));
+      const record: PurchaseRecord = {
+        id: purchaseId,
+        organizationId: input.organizationId || ORG,
+        supplierId: input.supplierId,
+        scheduleId: input.scheduleId,
+        purchasedOn: input.purchasedOn,
+        currency: input.currency,
+        exchangeRate: input.exchangeRate,
+        domesticShippingMinor: input.domesticShippingMinor ?? 0,
+        transportMinor: input.transportMinor ?? 0,
+        parkingMinor: input.parkingMinor ?? 0,
+        highwayMinor: input.highwayMinor ?? 0,
+        otherExpenseMinor: input.otherExpenseMinor ?? 0,
+        note: input.note,
+        items,
+        allocations: [],
+        createdAt: ts,
+        updatedAt: ts,
+      };
+      store.purchases.set(purchaseId, record);
+      audit(ctx, "create", purchaseId, input.supplierId, "purchase");
+      return record;
+    },
+
+    async getPurchase(purchaseId) {
+      return store.purchases.get(purchaseId) ?? null;
+    },
+
+    async listPurchases(options) {
+      const all = [...store.purchases.values()];
+      const filtered = options?.includeDeleted ? all : all.filter((p) => !p.deletedAt);
+      return filtered.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    },
+
+    async softDeletePurchase(purchaseId, ctx) {
+      const purchase = store.purchases.get(purchaseId);
+      if (!purchase) throw new CommerceError("not_found", `purchase ${purchaseId} not found`);
+      const next = { ...purchase, deletedAt: now(), updatedAt: now() };
+      store.purchases.set(purchaseId, next);
+      audit(ctx, "delete", purchaseId, undefined, "purchase");
+      return next;
+    },
+
+    async restorePurchase(purchaseId, ctx) {
+      const purchase = store.purchases.get(purchaseId);
+      if (!purchase) throw new CommerceError("not_found", `purchase ${purchaseId} not found`);
+      const next = { ...purchase, deletedAt: undefined, updatedAt: now() };
+      store.purchases.set(purchaseId, next);
+      audit(ctx, "restore", purchaseId, undefined, "purchase");
+      return next;
+    },
+
+    async allocatePurchaseCosts(purchaseId, method, ctx) {
+      const purchase = store.purchases.get(purchaseId);
+      if (!purchase) throw new CommerceError("not_found", `purchase ${purchaseId} not found`);
+      const totalMinor = purchaseAncillaryTotalMinor(purchase);
+      const total = { currency: purchase.currency, amountMinor: totalMinor };
+      const lines: AllocationBasis[] = purchase.items.map((item) => ({
+        quantity: item.quantity,
+        purchaseValueMinor: purchaseItemNetMinor(item),
+      }));
+      const allocated = allocateCost(total, method, lines);
+      const records: CostAllocationRecord[] = allocated.map((amount, index) => ({
+        id: id("cost-alloc"),
+        purchaseId,
+        purchaseItemId: purchase.items[index]?.id,
+        method: toDbMethod(method),
+        allocatedCurrency: amount.currency,
+        allocatedAmountMinor: amount.amountMinor,
+      }));
+      const next = { ...purchase, allocations: records, updatedAt: now() };
+      store.purchases.set(purchaseId, next);
+      audit(ctx, "cost_allocation", purchaseId, method, "purchase");
+      return records;
     },
   };
 }
