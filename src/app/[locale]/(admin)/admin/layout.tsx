@@ -23,6 +23,7 @@ const IMPLEMENTED_ROUTES: Partial<Record<AdminNavKey, string>> = {
   orders: "/admin/orders",
   sourcingRequests: "/admin/sourcing",
   journal: "/admin/journal",
+  snsDrafts: "/admin/sns-drafts",
   matchaLots: "/admin/matcha-lots",
   ceramicUnits: "/admin/ceramic-units",
   media: "/admin/media",

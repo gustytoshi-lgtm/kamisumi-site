@@ -142,6 +142,23 @@ export type AdminDictionary = {
     empty: string;
     noBankNote: string;
   };
+  /** SNS 投稿下書き（§Phase3）画面のラベル。 */
+  snsDrafts: {
+    title: string;
+    intro: string;
+    platform: string;
+    draftTitle: string;
+    shortDescription: string;
+    body: string;
+    approve: string;
+    reject: string;
+    status: string;
+    pending: string;
+    approved: string;
+    rejected: string;
+    empty: string;
+    noAutoPublishNote: string;
+  };
   /** メディア管理（§9）画面のラベル。 */
   media: {
     title: string;

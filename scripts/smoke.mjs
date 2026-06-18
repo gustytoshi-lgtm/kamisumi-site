@@ -36,6 +36,7 @@ const OWNER_BOOT = {
     { name: "注文", path: "/ja/admin/orders", status: 200 },
     { name: "買付", path: "/ja/admin/sourcing", status: 200 },
     { name: "Journal", path: "/ja/admin/journal", status: 200 },
+    { name: "SNS下書き", path: "/ja/admin/sns-drafts", status: 200 },
     { name: "抹茶ロット", path: "/ja/admin/matcha-lots", status: 200 },
     { name: "陶器個体", path: "/ja/admin/ceramic-units", status: 200 },
     { name: "メディア", path: "/ja/admin/media", status: 200 },

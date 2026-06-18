@@ -49,6 +49,8 @@ import type { MediaRepository } from "./core/mediaRepository";
 import { createMediaService, type MediaService } from "@/lib/commerce/mediaService";
 import { mockMediaRepository } from "./mock/mockMediaRepository";
 import { supabaseMediaRepository } from "./supabase/supabaseMediaRepository";
+import { createSnsDraftService, type SnsDraftService } from "@/lib/commerce/snsDraftService";
+import { mockSnsDraftRepository } from "@/lib/commerce/snsDraft";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -232,4 +234,9 @@ export function getMediaRepository(): MediaRepository {
 
 export function getMediaService(): MediaService {
   return createMediaService(getMediaRepository());
+}
+
+/** SNS 下書きサービス（Phase 3・dev mock。承認しても自動公開しない）。 */
+export function getSnsDraftService(): SnsDraftService {
+  return createSnsDraftService(mockSnsDraftRepository);
 }
