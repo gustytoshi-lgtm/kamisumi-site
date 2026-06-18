@@ -24,6 +24,9 @@
 | PM-018 | 2026-06-19 | 管理フォームは汎用 `AdminActionForm`（フィールド定義駆動）に統一 | スライスごとの client form 重複を排除し、確認/i18n通知/useActionState を共通化 | 画面ごとに個別フォーム | — | components/admin/AdminActionForm.tsx, 各管理画面 |
 | PM-019 | 2026-06-19 | 編集可能設定はホワイトリスト（EDITABLE_SETTINGS）方式 | API鍵/service role/口座/RLS/migration を構造的に編集不可にする（§14）。サービスがリスト外キーを forbidden | 全キー編集可+個別禁止リスト | 設定追加時に定義を足す | settingsModels.ts, settingsService.ts |
 | PM-020 | 2026-06-19 | 金額入力は UI で主要単位→service へ渡す前に最小通貨単位の整数へ変換 | 人間が「980.50」等で入力でき、内部は整数最小単位（PM-002）を維持 | UI で最小単位を直接入力 | — | payments/shipping actions, currencyMinorUnits |
+| PM-022 | 2026-06-19 | 陶器個体の原価(cost)は service が cost:view 保持者にのみ返す（stripCost 投影）| front_staff/inventory に原価を出さない（§14）。read 自体は inventory:view_public で可 | cost を全ロールに返す | — | ceramicUnitService, ceramicUnitModels.stripCost |
+| PM-023 | 2026-06-19 | 経費・利益分析は owner 限定（purchase:manage / profit:view）| 原価・採算の機微情報。expenses は RLS も owner | 全管理者に開放 | — | expenseService, profit ページ, RLS 0012 |
+| PM-024 | 2026-06-19 | 利益分析は記録済みデータ（入金/仕入/配送/経費）からの概算。為替差損益・注文単位の厳密原価対応は未連携 | 実在しない厳密な財務対応を捏造しない。UI に概算である旨を明記 | 厳密な原価対応を仮実装 | 注文⇔仕入⇔入金の関連付けを将来実装 | profitAnalysis.ts, /admin/profit |
 | PM-021 | 2026-06-19 | mock 管理 UI 言語は `ADMIN_DEV_LOCALE`(ja/zh-tw) で切替（dev専用） | 管理言語は本来 profiles.admin_locale。mock 固定 ja だと繁體中文 UI を人間確認できないため | URL locale を admin 言語に流用 | Supabase Auth では profiles.admin_locale | lib/admin/auth.ts（mock 分岐のみ）, .env.example |
 | PM-014 | 2026-06-18 | `@supabase/ssr` 導入し Cookie ベース SSR セッション構成（client/server/middleware）。クライアントは関数内遅延生成 | 公式推奨の RSC/Server Action セッション。module-load で生成しない＝env 未設定でも起動可（PM-009 を更新） | `@supabase/supabase-js` のみで自前 Cookie 処理 | — | `src/lib/supabase/*`, `proxy.ts` |
 | PM-015 | 2026-06-18 | Supabase read/write repository を実クエリで実装。実 DB 検証は `RUN_SUPABASE_CONTRACT=1`+env で skip 制御 | §4「実 Supabase がなくても止まらない」。コードは完成させ、実 DB 必須テストのみ skip | スタブのまま据え置き | 実 project 接続時に contract test 実行 | `repositories/supabase/*`, `tests/writeContract.supabase.test.ts` |

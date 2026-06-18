@@ -25,8 +25,11 @@
 | ├ 配送永続化（0008, FulfillmentRepository） | Completed | shipments.status + 履歴 + RLS。状態機械強制（member）。送料差額 |
 | ├ 入金永続化（0009, PaymentRepository） | Completed | payment_type/expected/matching/paid_at。状態機械 + owner 限定 |
 | ├ 仕入記録+原価配賦 永続化 | Completed | purchases/items/cost_allocations。allocateCost 適用・合計保存 |
-| ├ 管理UI: 業務設定/仕入先/入金/配送/仕入記録 | Completed | session 13。AdminActionForm + service 経由。両言語・RBAC・mock 確認済み（settings 公開反映と Supabase 設定 repo は残） |
-| ├ 抹茶ロットUI/陶器個体 repo+UI/経費 repo+UI・利益分析/会計export UI・ダッシュボード | Not Started | 次の作業単位（抹茶/利益は純ロジック有、陶器/経費は repo から） |
+| ├ 管理UI: 業務設定/仕入先/入金/配送/仕入記録 | Completed | session 13。AdminActionForm + service 経由 |
+| ├ 抹茶ロット(0010)/陶器個体(0011)/経費(0012) 永続化+UI | Completed | session 14。core+repo+mock+supabaseスケルトン+service+test。原価/経費/利益は owner 限定 |
+| ├ 利益分析 + 経営ダッシュボード | Completed | session 14。記録済みデータからの概算（profit:view=owner）。ダッシュボードはロール別指標 |
+| ├ 会計export永続化+UI / 画像管理基盤 | Not Started | 次の作業単位（accountingExport.ts は IF/冪等mock 有） |
+| ├ 各 Supabase repo 実クエリ実装（matcha/ceramic/expense/settings 等） | Not Started | 現状スケルトン。実 DB 接続時に実装＋contract test |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
 | 本番公開準備 | Blocked | 連絡先・法務・配送・支払い・実商品 確定が前提 |
