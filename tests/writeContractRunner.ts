@@ -42,5 +42,22 @@ export function runWriteContract(name: string, makeRepo: () => CommerceWriteRepo
       const updated = await repo.changeOrderStatus(order.id, "quote_preparing", ctx);
       expect(updated.status).toBe("quote_preparing");
     });
+
+    it("persists order notes and leaves unspecified notes untouched (0006)", async () => {
+      const repo = makeRepo();
+      const order = await repo.createOrder({ brandId: "b", storeId: "s", currency: "TWD" }, ctx);
+
+      const withCustomer = await repo.setOrderNotes(order.id, { customerNote: "発送は来週希望" }, ctx);
+      expect(withCustomer.customerNote).toBe("発送は来週希望");
+
+      // internalNote のみ更新しても customerNote は据え置き（undefined は上書きしない）。
+      const withInternal = await repo.setOrderNotes(order.id, { internalNote: "入金確認待ち" }, ctx);
+      expect(withInternal.internalNote).toBe("入金確認待ち");
+      expect(withInternal.customerNote).toBe("発送は来週希望");
+
+      const reloaded = await repo.getOrder(order.id);
+      expect(reloaded?.customerNote).toBe("発送は来週希望");
+      expect(reloaded?.internalNote).toBe("入金確認待ち");
+    });
   });
 }

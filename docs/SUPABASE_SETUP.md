@@ -47,7 +47,7 @@ Supabase バックエンドへ切り替えられる。**秘密情報・実キー
 
 ---
 
-## 3. migration 0001〜0005 の適用
+## 3. migration 0001〜0006 の適用
 
 ### 3-A. Supabase CLI（ローカル開発 DB を作り直す場合）
 
@@ -65,6 +65,7 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0002_operations.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0003_procurement.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0004_rls.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0005_write_support.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0006_order_notes.sql
 ```
 
 適用前に静的検証:
@@ -217,7 +218,7 @@ npm run test -- writeContract.supabase
 
 すべて実 DB で確認できるまで Phase 2A 完了扱いにせず、タグ `v0.2.0-phase2a` も付けない。
 
-- [ ] migration 0001-0005 適用（`supabase db lint` パス, I-002 クローズ）
+- [ ] migration 0001-0006 適用（`supabase db lint` パス, I-002 クローズ）
 - [ ] Supabase Auth ログイン → `getAdminSession()` が session+user_roles を返す
 - [ ] owner / front_staff の認可差（機微の遮断）
 - [ ] RLS（anon 公開のみ / メンバー限定 / owner 限定）

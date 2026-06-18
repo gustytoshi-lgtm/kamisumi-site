@@ -96,10 +96,11 @@ function mapOrder(row: Record<string, unknown>, items: Record<string, unknown>[]
             }
           : undefined,
     })),
-    customerNote: undefined,
-    internalNote: undefined,
+    customerNote: (row.customer_note as string | null) ?? undefined,
+    internalNote: (row.internal_note as string | null) ?? undefined,
     createdAt: (row.created_at as string) ?? nowIso(),
     updatedAt: (row.updated_at as string) ?? nowIso(),
+    deletedAt: (row.deleted_at as string | null) ?? undefined,
   };
 }
 
@@ -477,14 +478,27 @@ export const supabaseCommerceWriteRepository: CommerceWriteRepository = {
   },
 
   async setOrderNotes(id, notes, ctx) {
-    // 注: 現行スキーマ(0002)の provisional_orders には note 列がない。
-    // 顧客メモ/内部メモは customer_notes / audit_logs での扱いを別 migration で整備する想定。
-    // ここでは監査のみ記録し、注文レコードを返す（書込契約を満たす）。
+    // customer_note / internal_note 列は 0006 で追加。指定された項目のみ更新する
+    //（undefined は据え置き）。更新者/更新日時を注文行に記録し、監査も残す。
     const client = db();
+    const update: Record<string, unknown> = {
+      notes_updated_by: ctx.userId,
+      notes_updated_at: nowIso(),
+    };
+    if (notes.customerNote !== undefined) update.customer_note = notes.customerNote;
+    if (notes.internalNote !== undefined) update.internal_note = notes.internalNote;
+    const { data, error } = await client
+      .from("provisional_orders")
+      .update(update)
+      .eq("id", id)
+      .select("organization_id")
+      .maybeSingle();
+    if (error) throwCommerce(error);
+    if (!data) throw new CommerceError("not_found", `order ${id} not found`);
+    await writeAudit(client, ctx, data.organization_id as string, "note_update", "order", id);
     const order = await this.getOrder(id);
     if (!order) throw new CommerceError("not_found", `order ${id} not found`);
-    await writeAudit(client, ctx, order.organizationId, "note_update", "order", id);
-    return { ...order, customerNote: notes.customerNote, internalNote: notes.internalNote };
+    return order;
   },
 
   async getOrder(id) {
