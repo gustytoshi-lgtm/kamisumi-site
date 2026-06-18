@@ -2,6 +2,7 @@ import type { CommerceRepository } from "./core/commerceRepository";
 import type { CommerceWriteRepository } from "./core/commerceWriteRepository";
 import type { ProcurementRepository } from "./core/procurementRepository";
 import type { FulfillmentRepository } from "./core/fulfillmentRepository";
+import type { PaymentRepository } from "./core/paymentRepository";
 import { getDataBackend, isSupabaseConfigured } from "@/config/dataBackend";
 import { createCommerceService, type CommerceService } from "@/lib/commerce/commerceService";
 import {
@@ -12,6 +13,7 @@ import {
   createFulfillmentService,
   type FulfillmentService,
 } from "@/lib/commerce/fulfillmentService";
+import { createPaymentService, type PaymentService } from "@/lib/commerce/paymentService";
 import { mockCommerceRepository } from "./kamisumi/mockCommerceRepository";
 import { mockCommerceWriteRepository } from "./mock/mockCommerceWriteRepository";
 import { mockProcurementRepository } from "./mock/mockProcurementRepository";
@@ -20,6 +22,8 @@ import { supabaseCommerceRepository } from "./supabase/supabaseCommerceRepositor
 import { supabaseCommerceWriteRepository } from "./supabase/supabaseCommerceWriteRepository";
 import { supabaseProcurementRepository } from "./supabase/supabaseProcurementRepository";
 import { supabaseFulfillmentRepository } from "./supabase/supabaseFulfillmentRepository";
+import { mockPaymentRepository } from "./mock/mockPaymentRepository";
+import { supabasePaymentRepository } from "./supabase/supabasePaymentRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -93,4 +97,21 @@ export function getFulfillmentRepository(): FulfillmentRepository {
 
 export function getFulfillmentService(): FulfillmentService {
   return createFulfillmentService(getFulfillmentRepository());
+}
+
+/** Phase 2B 入金 repository factory。既定 mock。owner 限定の業務は paymentService 経由。 */
+export function getPaymentRepository(): PaymentRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabasePaymentRepository;
+  }
+  return mockPaymentRepository;
+}
+
+export function getPaymentService(): PaymentService {
+  return createPaymentService(getPaymentRepository());
 }
