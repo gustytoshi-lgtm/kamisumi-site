@@ -21,7 +21,8 @@
 | I-016 | Low | `shipments` に status 列がない | Phase 2B 配送 | 配送状態を DB に永続化できない（純ロジックは実装済） | 状態機械 shipmentStatus.ts は列なしで検証可 | 配送 repository 実装時に status 列の追加 migration（0008+, PM-023） | 2B | **Resolved**（migration 0008 で status 列 + shipment_status_events 追加） |
 
 | I-017 | Low | 業務設定（§8）管理UIは実装済だが公開サイト未反映 / Supabase 設定 repo 未実装 | `/admin/settings` | 設定値は mock に保存・編集/履歴可だが、公開サイト（site.ts）へは未反映。supabase 設定 repo はスケルトン | mock で編集・確認可 | 設定値を公開サイト読取へ接続 + supabaseSettingsRepository 実装（site_settings + 履歴表） | 2B/運用 | UI実装済・連携残 |
-| I-018 | Low | 管理画面からの画像管理（§9）が未実装 | 管理画面 | 商品/Journal 画像はコード・fixture でのみ変更 | placeholder 差し替えはファイルで | mock 画像管理 + Supabase Storage（public/private, MIME/サイズ/寸法検証） | 2B/運用 | Open |
+| I-018 | Low | 画像管理は mock 実装済・Supabase Storage 連携が残 | `/admin/media` | メタデータ管理は可（mock）。実ファイル保管（Storage）と商品画像への紐付けは未 | mock でメタ管理 | supabaseMediaRepository + Storage(public/private, 署名付きURL) を実装 | 2B/運用 | UI実装済・Storage残 |
+| I-020b | Low | Phase 3 は interface+mock のみ（本番決済/送信/自動投稿なし） | cart/checkout/通知/SNS | 本番連携は未（設計上の境界） | mock/sandbox で開発・確認 | 本番契約後に adapter 実装 | 3 | Open(by design) |
 | I-019 | Low | 在ブラウザのロール切替は未実装（役割別ランチャーで代替） | 管理画面 | ロール変更は .cmd 再起動が必要 | START_KAMISUMI_{OWNER,FRONT_STAFF,INVENTORY}.cmd | 任意で cookie ベースの dev 専用ロール切替（PM-016） | 運用 | Open(by design) |
 
 深刻度: Critical / High / Medium / Low

@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-19 (session 14) / 更新者: Claude Code
+最終更新: 2026-06-19 (session 15) / 更新者: Claude Code
 
 > このディレクトリ `docs/project-management/` が今後の正規プロジェクト管理文書。
 > ルート直下の `HANDOFF.md` / `DECISIONS.md` / `TODO.md` / `CHANGELOG.md` / `PROJECT_MAP.md` は
@@ -57,6 +57,7 @@
 
 - 管理UI（mock 動作確認済み）: **業務設定 `/admin/settings` / 仕入先 `/admin/suppliers` / 仕入記録 `/admin/purchases`（原価配賦）/ 入金 `/admin/payments` / 配送 `/admin/shipping` / 抹茶ロット `/admin/matcha-lots`（賞味期限アラート）/ 陶器個体 `/admin/ceramic-units`（原価は owner のみ）/ 経費 `/admin/expenses`（owner）/ 利益分析 `/admin/profit`（owner）/ 経営ダッシュボード（ロール別指標）**。両言語・権限ガード・管理クローム確認済み。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語を ja/zh-tw 切替可。
 - 永続レイヤ追加（session 14, migration 0010-0012）: 抹茶ロット / 陶器個体(status/lifecycle) / 経費。各 core型+repo+mock+supabaseスケルトン+service+test。Supabase 実クエリは実装待ち。
+- session 15 追加: メディア管理 `/admin/media`(migration 0014, MIME/サイズ/寸法検証・private=owner) / SNS下書き `/admin/sns-drafts`（承認フロー・自動公開なし）。Phase 3 lib: cart/checkout（手動振込mock・sandbox skeleton）/ notifications（mock・本番送信なし）。管理画面 全14。
 - 公開サイト: 動作（起動・リダイレクト・404・OG 確認済み）
 - 管理画面: **scaffold + 全CRUD動作**（flag OFF=404で公開無影響、ON+devロールで各管理ページ・権限ガード確認済み）。**route group `(admin)` で公開Header/Footerを持たない専用クローム化済（I-009 解決）**。**認証は mock⇄Supabase 切替可（Step C）**。実 Supabase 接続のみ未
 - レイアウト構成: `[locale]/layout.tsx`=html/body+locale のみ / `(public)/layout.tsx`=site-shell+Header+main+Footer / `(admin)/admin/layout.tsx`=admin専用main（route group は URL に影響しない）
@@ -69,14 +70,14 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `fb1e6b5`（会計エクスポート。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
+- 最新 commit: `be0c9d1`（Phase 3 通知/SNS下書き。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / **test 192 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(13) / verify:quick: **成功**
+- lint / typecheck / **test 211 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(14) / verify:quick: **成功**
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
 
 ## 再開コマンド

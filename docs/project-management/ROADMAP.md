@@ -28,10 +28,10 @@
 | ├ 管理UI: 業務設定/仕入先/入金/配送/仕入記録 | Completed | session 13。AdminActionForm + service 経由 |
 | ├ 抹茶ロット(0010)/陶器個体(0011)/経費(0012) 永続化+UI | Completed | session 14。core+repo+mock+supabaseスケルトン+service+test。原価/経費/利益は owner 限定 |
 | ├ 利益分析 + 経営ダッシュボード | Completed | session 14。記録済みデータからの概算（profit:view=owner）。ダッシュボードはロール別指標 |
-| ├ 会計export永続化+UI | Completed | session 14。冪等 exporter + /admin/accounting（owner）。migration 0013。税務/帳簿は外部責務 |
-| ├ 画像管理基盤 | Not Started | 次の作業単位（mock→Supabase Storage, public/private, MIME/サイズ/寸法検証） |
+| ├ 会計export永続化+UI | Completed | session 14。冪等 exporter + /admin/accounting（owner）。migration 0013 |
+| ├ 画像管理基盤 + Media UI | Completed | session 15。migration 0014。MIME/サイズ/寸法検証・パス正規化・private=owner。Supabase Storage 連携は実装待ち |
+| **Phase 3 販売機能拡張** | In Progress | cart/checkout(手動振込mock,sandbox skeleton)/通知(mock)/SNS下書き+承認 完了。本番決済/送信/自動投稿なし。残: 顧客マイページ・複数通貨UI・再入荷通知配線 |
 | ├ 各 Supabase repo 実クエリ実装（matcha/ceramic/expense/settings 等） | Not Started | 現状スケルトン。実 DB 接続時に実装＋contract test |
-| **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
 | 本番公開準備 | Blocked | 連絡先・法務・配送・支払い・実商品 確定が前提 |
 | 実データ移行 | Not Started | mock → Supabase seed の完全化 |
