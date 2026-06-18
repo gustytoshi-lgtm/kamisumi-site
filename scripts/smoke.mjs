@@ -48,6 +48,7 @@ const OWNER_BOOT = {
     { name: "経費", path: "/ja/admin/expenses", status: 200 },
     { name: "利益分析", path: "/ja/admin/profit", status: 200 },
     { name: "会計export", path: "/ja/admin/accounting", status: 200 },
+    { name: "通知ビューア(dev)", path: "/ja/admin/notifications", status: 200 },
   ],
 };
 

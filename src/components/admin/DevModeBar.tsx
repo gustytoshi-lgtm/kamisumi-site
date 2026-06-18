@@ -39,6 +39,12 @@ export function DevModeBar({ backend, authMode, role, locale }: Props) {
       >
         動作確認
       </Link>
+      <Link
+        href={localizePath(locale, "/admin/notifications")}
+        style={{ textDecoration: "underline" }}
+      >
+        通知
+      </Link>
     </div>
   );
 }
