@@ -224,6 +224,27 @@ export async function changeOrderStatusAction(
   }
 }
 
+export async function reopenOrderAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const actor = actorFromSession();
+  if (!actor) return { ok: false, code: "forbidden" };
+
+  const orderId = String(formData.get("orderId") ?? "").trim();
+  const locale = String(formData.get("locale") ?? "zh-tw");
+
+  if (!orderId) return { ok: false, code: "validation" };
+
+  try {
+    await getCommerceService().reopenOrder(actor, orderId);
+    revalidatePath(`/${locale}/admin/orders`);
+    return { ok: true };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 export async function setOrderNotesAction(
   _prev: ActionState,
   formData: FormData,

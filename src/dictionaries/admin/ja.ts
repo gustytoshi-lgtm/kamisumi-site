@@ -46,6 +46,7 @@ export const adminJa: AdminDictionary = {
     title: "タイトル",
     excerpt: "抜粋",
     viewHistory: "履歴",
+    reopen: "再開",
   },
   notify: {
     success: "更新しました。",

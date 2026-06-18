@@ -46,6 +46,7 @@ export const adminZhTw: AdminDictionary = {
     title: "標題",
     excerpt: "摘要",
     viewHistory: "歷史紀錄",
+    reopen: "重啟",
   },
   notify: {
     success: "已更新。",

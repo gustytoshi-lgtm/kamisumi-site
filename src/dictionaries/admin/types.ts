@@ -33,6 +33,7 @@ export type AdminDictionary = {
     title: string;
     excerpt: string;
     viewHistory: string;
+    reopen: string;
   };
   /** CommerceErrorCode と success に対応する通知文言。 */
   notify: {

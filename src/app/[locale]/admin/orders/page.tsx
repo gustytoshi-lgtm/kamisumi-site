@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CreateOrderForm } from "@/components/admin/CreateOrderForm";
 import { OrderNotesForm } from "@/components/admin/OrderNotesForm";
 import { OrderStatusForm } from "@/components/admin/OrderStatusForm";
+import { ReopenOrderForm } from "@/components/admin/ReopenOrderForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { nextOrderStatuses } from "@/lib/commerce/orderStatus";
@@ -91,13 +92,23 @@ export default async function AdminOrdersPage({ params }: LocaleParams) {
                 <td>{order.brandId}</td>
                 <td>
                   {canUpdateStatus ? (
-                    <OrderStatusForm
-                      common={dictionary.common}
-                      locale={locale}
-                      nextStatuses={nextOrderStatuses(order.status)}
-                      notify={dictionary.notify}
-                      orderId={order.id}
-                    />
+                    <div style={{ display: "grid", gap: "4px" }}>
+                      <OrderStatusForm
+                        common={dictionary.common}
+                        locale={locale}
+                        nextStatuses={nextOrderStatuses(order.status)}
+                        notify={dictionary.notify}
+                        orderId={order.id}
+                      />
+                      {order.status === "cancelled" && (
+                        <ReopenOrderForm
+                          common={dictionary.common}
+                          locale={locale}
+                          notify={dictionary.notify}
+                          orderId={order.id}
+                        />
+                      )}
+                    </div>
                   ) : (
                     <span className="muted">-</span>
                   )}
