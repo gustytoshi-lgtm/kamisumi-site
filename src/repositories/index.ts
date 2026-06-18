@@ -28,6 +28,10 @@ import type { SettingsRepository } from "./core/settingsRepository";
 import { createSettingsService, type SettingsService } from "@/lib/commerce/settingsService";
 import { mockSettingsRepository } from "./mock/mockSettingsRepository";
 import { supabaseSettingsRepository } from "./supabase/supabaseSettingsRepository";
+import type { MatchaLotRepository } from "./core/matchaLotRepository";
+import { createMatchaLotService, type MatchaLotService } from "@/lib/commerce/matchaLotService";
+import { mockMatchaLotRepository } from "./mock/mockMatchaLotRepository";
+import { supabaseMatchaLotRepository } from "./supabase/supabaseMatchaLotRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -135,4 +139,21 @@ export function getSettingsRepository(): SettingsRepository {
 
 export function getSettingsService(): SettingsService {
   return createSettingsService(getSettingsRepository());
+}
+
+/** 抹茶ロット repository factory。既定 mock。Supabase はスケルトン（実装待ち）。 */
+export function getMatchaLotRepository(): MatchaLotRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseMatchaLotRepository;
+  }
+  return mockMatchaLotRepository;
+}
+
+export function getMatchaLotService(): MatchaLotService {
+  return createMatchaLotService(getMatchaLotRepository());
 }

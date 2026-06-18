@@ -70,6 +70,25 @@ export type AdminDictionary = {
     empty: string;
     confidentialNote: string;
   };
+  /** 抹茶ロット管理（§12）画面のラベル。 */
+  matchaLots: {
+    title: string;
+    intro: string;
+    productId: string;
+    lotCode: string;
+    teaHouse: string;
+    bestBefore: string;
+    purchasedOn: string;
+    storageLocation: string;
+    quantity: string;
+    available: string;
+    adjust: string;
+    delta: string;
+    empty: string;
+    alertExpired: string;
+    alertApproaching: string;
+    alertOk: string;
+  };
   /** 仕入・買付管理（§12）画面のラベル。 */
   purchases: {
     title: string;
