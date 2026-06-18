@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-19 (session 12) / 更新者: Claude Code
+最終更新: 2026-06-19 (session 13) / 更新者: Claude Code
 
 > このディレクトリ `docs/project-management/` が今後の正規プロジェクト管理文書。
 > ルート直下の `HANDOFF.md` / `DECISIONS.md` / `TODO.md` / `CHANGELOG.md` / `PROJECT_MAP.md` は
@@ -55,6 +55,7 @@
 
 ## 公開サイト状態 / 管理画面状態
 
+- 管理UI（session 13 追加・mock 動作確認済み）: **業務設定 `/admin/settings`（履歴・検証・編集不可キー保護）/ 仕入先 `/admin/suppliers` / 入金 `/admin/payments` / 配送 `/admin/shipping`**。両言語・権限ガード・管理クローム確認済み。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語を ja/zh-tw 切替可。
 - 公開サイト: 動作（起動・リダイレクト・404・OG 確認済み）
 - 管理画面: **scaffold + 全CRUD動作**（flag OFF=404で公開無影響、ON+devロールで各管理ページ・権限ガード確認済み）。**route group `(admin)` で公開Header/Footerを持たない専用クローム化済（I-009 解決）**。**認証は mock⇄Supabase 切替可（Step C）**。実 Supabase 接続のみ未
 - レイアウト構成: `[locale]/layout.tsx`=html/body+locale のみ / `(public)/layout.tsx`=site-shell+Header+main+Footer / `(admin)/admin/layout.tsx`=admin専用main（route group は URL に影響しない）
@@ -67,14 +68,14 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `2c1cdf2`（実行時に `git log -1` で再確認。docs commit が最新の場合あり）
+- 最新 commit: `bff4eae`（Phase 2B 管理UI: settings/suppliers/payments/shipping。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / **test 166 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(9): **成功**
+- lint / typecheck / **test 172 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(9) / verify:quick: **成功**
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
 
 ## 再開コマンド

@@ -3,6 +3,7 @@
 最終更新: 2026-06-19 (12) / 更新者: Claude Code
 
 > **session 12 追加（人間向け運用基盤）**: 役割別 .cmd ランチャー / `verify:*` スモーク / dev-check ページ / 開発モードバー / mock reset API / `docs/LOCAL_VERIFICATION_GUIDE.md`。本番では dev 機能を無効化（`isDevToolsEnabled`）。非技術者が PowerShell なしで起動・確認・初期化できる。
+> **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`（履歴/検証/編集不可キー保護）・仕入先 `/admin/suppliers`・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。test 172・全ゲート＋verify:quick 緑。
 
 > **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
 > **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
@@ -57,9 +58,10 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
    - 利益レポート/会計 export の永続化: profit.ts / accountingExport.ts を実データ（注文/仕入/送料/為替）へ接続。front_staff へ原価/利益を出さない。
    - 管理UI(ja/zh-tw): 仕入先→仕入・買付→入金→配送→抹茶→陶器→経費→利益分析→ダッシュボード→会計export の順に画面追加。actions.ts + client form パターン、adminNav + 辞書追加。RBAC は purchase:manage（仕入/入金=owner）/ order:update_status（配送=member）。
    - 既存の getProcurementService / getFulfillmentService / getPaymentService を UI から呼ぶ（UI から DB 直書きしない）。
-6. **編集可能な業務設定 UI（§8, I-017）**: `site_settings` テーブル＋設定編集画面（入力検証・変更履歴・操作者・ja/zh-tw・権限・危険変更の警告）。API鍵/service role/DB接続/口座番号/RLS/migration は管理UIから変更させない。
-7. **画像管理 UI（§9, I-018）**: mock 画像管理（プレビュー/並び替え/alt ja・zh-tw/削除確認）→ Supabase Storage（public/private, MIME/サイズ/寸法検証）。レシート等は private。
-8. （任意）在ブラウザの dev 専用ロール切替（cookie ベース、I-019）。現状は役割別ランチャーで代替。
+6. ~~編集可能な業務設定 UI（§8）~~: **完了（session 13）**。残: 設定値の公開サイト反映 + `supabaseSettingsRepository` 実装（site_settings + 履歴表）。I-017。
+7. **次の Phase 2B 管理UI（優先順）**: 仕入・買付（purchases）UI → 抹茶ロットUI → 陶器個体 repo+UI → 経費 repo+UI → 利益分析 → 経営ダッシュボード → 会計export UI。既存 service（getProcurementService 等）を AdminActionForm パターンで UI 接続。陶器個体/経費は core 型+interface+mock+supabase+service+contract から（既存パターン踏襲）。
+8. **画像管理 UI（§9, I-018）**: mock 画像管理 → Supabase Storage（public/private, MIME/サイズ/寸法検証）。レシート等は private。
+9. （任意）在ブラウザの dev 専用ロール切替（cookie ベース、I-019）。現状は役割別ランチャー + `ADMIN_DEV_LOCALE` で代替。
 
 > 運用基盤メモ: 開発専用機能は `src/config/devtools.ts` の `isDevToolsEnabled()`（非本番 かつ ADMIN 有効 かつ mock）で一元ガード。dev-check=`/[locale]/admin/dev-check`、mock 初期化=`/api/dev/reset`（POST, 本番404）。停止は `.dev-server.pid` 記録分のみ（無差別 kill しない）。
 
@@ -103,8 +105,8 @@ Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRO
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-19 session 12）
-typecheck/lint OK（warning 0）、**test 166 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(9) OK、build clean、`verify:quick` 全✅、E2E timeout(I-001)。
+## テスト結果（2026-06-19 session 13）
+typecheck/lint OK（warning 0）、**test 172 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(9) OK、build clean、`verify:quick` 全✅（新4管理画面含む）、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```
