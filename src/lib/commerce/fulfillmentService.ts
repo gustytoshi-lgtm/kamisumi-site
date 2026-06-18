@@ -6,6 +6,8 @@ import type {
 import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
 import { canTransitionShipment, isShipmentStatus, type ShipmentStatus } from "./shipmentStatus";
 import { can, type Permission } from "./rbac";
+import type { Notifier } from "./notifications";
+import { notifyBestEffort } from "./notify";
 
 /**
  * フルフィルメント（配送）業務サービス。RBAC と配送状態機械を強制し、検証後に repository へ委譲する。
@@ -20,7 +22,7 @@ function assertCan(ctx: ActorContext, permission: Permission): void {
   }
 }
 
-export function createFulfillmentService(repo: FulfillmentRepository) {
+export function createFulfillmentService(repo: FulfillmentRepository, notifier?: Notifier) {
   return {
     async createShipment(ctx: ActorContext, input: ShipmentCreateInput) {
       assertCan(ctx, SHIPMENT_PERMISSION);
@@ -51,7 +53,14 @@ export function createFulfillmentService(repo: FulfillmentRepository) {
           { from: shipment.status, to: toStatus },
         );
       }
-      return repo.changeShipmentStatus(id, toStatus, ctx, note);
+      const updated = await repo.changeShipmentStatus(id, toStatus, ctx, note);
+      await notifyBestEffort(notifier, {
+        channel: "in_app",
+        kind: "shipment_update",
+        to: updated.orderId ?? `shipment:${updated.id}`,
+        body: `shipment ${updated.id}: ${shipment.status} -> ${toStatus}`,
+      });
+      return updated;
     },
 
     async getShipment(ctx: ActorContext, id: string) {

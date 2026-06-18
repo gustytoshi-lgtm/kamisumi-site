@@ -80,6 +80,9 @@ export function createMockNotifier(): MockNotifier {
   };
 }
 
+/** アプリ既定の mock notifier（dev・in-memory。listSent で確認可）。 */
+export const mockNotifier: MockNotifier = createMockNotifier();
+
 /** 本番メール送信 adapter の sandbox スケルトン（本番契約後に実装）。 */
 export function createSandboxEmailNotifier(): Notifier {
   return {

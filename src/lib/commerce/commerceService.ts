@@ -11,11 +11,14 @@ import { canTransitionInventory } from "./inventoryStatus";
 import { canTransitionOrder, type OrderStatus } from "./orderStatus";
 import { can, type Permission } from "./rbac";
 import { isPurchasableStatus } from "@/lib/status";
+import type { Notifier } from "./notifications";
+import { notifyBestEffort } from "./notify";
 
 /**
  * 業務サービス層。RBAC と状態遷移・購入可否などの業務ルールを一元的に強制し、
  * 検証後に書込 repository（mock / Supabase 共通契約）へ委譲する。
  * repository は永続レベルの不変条件（在庫非負・冪等・監査）を担う。
+ * 状態変化時は notifier（任意）へ best-effort で通知を enqueue する（失敗は業務処理を止めない）。
  */
 function assertCan(ctx: ActorContext, permission: Permission): void {
   if (!can(ctx.role, permission)) {
@@ -23,7 +26,7 @@ function assertCan(ctx: ActorContext, permission: Permission): void {
   }
 }
 
-export function createCommerceService(repo: CommerceWriteRepository) {
+export function createCommerceService(repo: CommerceWriteRepository, notifier?: Notifier) {
   return {
     // ===== 商品 =====
     async createProduct(ctx: ActorContext, input: ProductCreateInput) {
@@ -154,7 +157,14 @@ export function createCommerceService(repo: CommerceWriteRepository) {
           to: toStatus,
         });
       }
-      return repo.changeOrderStatus(id, toStatus, ctx, note);
+      const updated = await repo.changeOrderStatus(id, toStatus, ctx, note);
+      await notifyBestEffort(notifier, {
+        channel: "in_app",
+        kind: "order_status",
+        to: updated.customerId ?? `order:${updated.id}`,
+        body: `order ${updated.id}: ${order.status} -> ${toStatus}`,
+      });
+      return updated;
     },
     async cancelOrder(ctx: ActorContext, id: string, note?: string) {
       return this.changeOrderStatus(ctx, id, "cancelled", note);

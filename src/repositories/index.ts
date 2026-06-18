@@ -51,6 +51,8 @@ import { mockMediaRepository } from "./mock/mockMediaRepository";
 import { supabaseMediaRepository } from "./supabase/supabaseMediaRepository";
 import { createSnsDraftService, type SnsDraftService } from "@/lib/commerce/snsDraftService";
 import { mockSnsDraftRepository } from "@/lib/commerce/snsDraft";
+import { mockNotifier } from "@/lib/commerce/notifications";
+import type { Notifier } from "@/lib/commerce/notifications";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -87,7 +89,7 @@ export function getCommerceWriteRepository(): CommerceWriteRepository {
 }
 
 export function getCommerceService(): CommerceService {
-  return createCommerceService(getCommerceWriteRepository());
+  return createCommerceService(getCommerceWriteRepository(), getNotifier());
 }
 
 /**
@@ -123,7 +125,7 @@ export function getFulfillmentRepository(): FulfillmentRepository {
 }
 
 export function getFulfillmentService(): FulfillmentService {
-  return createFulfillmentService(getFulfillmentRepository());
+  return createFulfillmentService(getFulfillmentRepository(), getNotifier());
 }
 
 /** Phase 2B 入金 repository factory。既定 mock。owner 限定の業務は paymentService 経由。 */
@@ -140,7 +142,7 @@ export function getPaymentRepository(): PaymentRepository {
 }
 
 export function getPaymentService(): PaymentService {
-  return createPaymentService(getPaymentRepository());
+  return createPaymentService(getPaymentRepository(), getNotifier());
 }
 
 /** 業務設定 repository factory。既定 mock。Supabase は実装待ち（スケルトン）。 */
@@ -239,4 +241,12 @@ export function getMediaService(): MediaService {
 /** SNS 下書きサービス（Phase 3・dev mock。承認しても自動公開しない）。 */
 export function getSnsDraftService(): SnsDraftService {
   return createSnsDraftService(mockSnsDraftRepository);
+}
+
+/**
+ * 通知 notifier（Phase 3・dev mock。本番送信なし）。状態変化サービスへ注入され best-effort で enqueue。
+ * 本番は同 interface のメール/配信 adapter へ差し替える。
+ */
+export function getNotifier(): Notifier {
+  return mockNotifier;
 }

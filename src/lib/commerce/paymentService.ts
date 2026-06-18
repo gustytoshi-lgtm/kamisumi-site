@@ -7,6 +7,8 @@ import type {
 import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
 import { canTransitionPayment, isPaymentStatus, type PaymentStatus } from "./paymentStatus";
 import { can, type Permission } from "./rbac";
+import type { Notifier } from "./notifications";
+import { notifyBestEffort } from "./notify";
 
 /**
  * 入金業務サービス。RBAC（owner 限定）と入金状態機械を強制する。
@@ -21,7 +23,7 @@ function assertCan(ctx: ActorContext, permission: Permission): void {
   }
 }
 
-export function createPaymentService(repo: PaymentRepository) {
+export function createPaymentService(repo: PaymentRepository, notifier?: Notifier) {
   return {
     async createPayment(ctx: ActorContext, input: PaymentCreateInput) {
       assertCan(ctx, PAYMENT_PERMISSION);
@@ -55,7 +57,14 @@ export function createPaymentService(repo: PaymentRepository) {
       if (!Number.isInteger(receipt.amountMinor) || receipt.amountMinor < 0) {
         throw new CommerceError("validation", "receipt amount must be a non-negative integer");
       }
-      return repo.recordReceipt(id, receipt, ctx);
+      const updated = await repo.recordReceipt(id, receipt, ctx);
+      await notifyBestEffort(notifier, {
+        channel: "in_app",
+        kind: "payment_received",
+        to: updated.orderId ?? `payment:${updated.id}`,
+        body: `payment ${updated.id} receipt recorded: ${updated.amount.currency} ${updated.amount.amountMinor}`,
+      });
+      return updated;
     },
 
     async getPayment(ctx: ActorContext, id: string) {
