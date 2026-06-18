@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
@@ -5,6 +6,13 @@ import { getCommerceRepository } from "@/repositories";
 import styles from "@/components/admin/Admin.module.css";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
+  const locale = await getLocaleFromParams(params);
+  const session = getAdminSession();
+  const d = getAdminDictionary(resolveAdminLocale(locale, session));
+  return { title: `${d.nav.dashboard} | KAMISUMI Admin` };
+}
 
 export default async function AdminDashboardPage({ params }: LocaleParams) {
   const locale = await getLocaleFromParams(params);

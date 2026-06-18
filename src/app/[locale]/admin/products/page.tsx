@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ProductStatusForm } from "@/components/admin/ProductStatusForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
@@ -8,6 +9,13 @@ import { getCommerceWriteRepository } from "@/repositories";
 import styles from "@/components/admin/Admin.module.css";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
+  const locale = await getLocaleFromParams(params);
+  const session = getAdminSession();
+  const d = getAdminDictionary(resolveAdminLocale(locale, session));
+  return { title: `${d.nav.products} | KAMISUMI Admin` };
+}
 
 export default async function AdminProductsPage({ params }: LocaleParams) {
   const locale = await getLocaleFromParams(params);
