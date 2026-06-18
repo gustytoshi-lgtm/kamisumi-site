@@ -89,6 +89,23 @@ export type AdminDictionary = {
     alertApproaching: string;
     alertOk: string;
   };
+  /** 陶器個体管理（§12）画面のラベル。 */
+  ceramicUnits: {
+    title: string;
+    intro: string;
+    productId: string;
+    unitCode: string;
+    cost: string;
+    costHidden: string;
+    dimensions: string;
+    glaze: string;
+    condition: string;
+    boxIncluded: string;
+    inspection: string;
+    status: string;
+    empty: string;
+    statuses: { available: string; reserved: string; sold: string; archived: string };
+  };
   /** 仕入・買付管理（§12）画面のラベル。 */
   purchases: {
     title: string;

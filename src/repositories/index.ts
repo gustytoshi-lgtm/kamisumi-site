@@ -32,6 +32,10 @@ import type { MatchaLotRepository } from "./core/matchaLotRepository";
 import { createMatchaLotService, type MatchaLotService } from "@/lib/commerce/matchaLotService";
 import { mockMatchaLotRepository } from "./mock/mockMatchaLotRepository";
 import { supabaseMatchaLotRepository } from "./supabase/supabaseMatchaLotRepository";
+import type { CeramicUnitRepository } from "./core/ceramicUnitRepository";
+import { createCeramicUnitService, type CeramicUnitService } from "@/lib/commerce/ceramicUnitService";
+import { mockCeramicUnitRepository } from "./mock/mockCeramicUnitRepository";
+import { supabaseCeramicUnitRepository } from "./supabase/supabaseCeramicUnitRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -156,4 +160,21 @@ export function getMatchaLotRepository(): MatchaLotRepository {
 
 export function getMatchaLotService(): MatchaLotService {
   return createMatchaLotService(getMatchaLotRepository());
+}
+
+/** 陶器個体 repository factory。既定 mock。Supabase はスケルトン（実装待ち）。 */
+export function getCeramicUnitRepository(): CeramicUnitRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseCeramicUnitRepository;
+  }
+  return mockCeramicUnitRepository;
+}
+
+export function getCeramicUnitService(): CeramicUnitService {
+  return createCeramicUnitService(getCeramicUnitRepository());
 }
