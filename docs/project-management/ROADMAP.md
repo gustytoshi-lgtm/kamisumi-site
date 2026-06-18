@@ -17,7 +17,11 @@
 | ├ Supabase Auth / セッション保護 | Impl Complete / Validation Pending | `getAdminSession` を `ADMIN_AUTH_MODE` で mock⇄Supabase 切替（user_roles/profiles self-read RLS）。実ログイン疎通は実 DB 接続後 |
 | ├ SupabaseCommerceRepository（読取/書込）実装 | Impl Complete / Validation Pending | 実クエリ実装完了（write: RPC/原子/冪等、read: 埋め込み select、エラー変換 + 単体テスト）。**実 DB 検証待ち**（contract test skip, docs/SUPABASE_SETUP.md） |
 | ├ 注文メモ恒久化（migration 0006） | Completed | provisional_orders に customer/internal note 列。write repo 列 UPDATE。contract test 追加 |
-| **Phase 2B 仕入・原価・在庫・利益** | In Progress | schema(0003)あり。**純ロジック完了**: 原価配賦(quantity/value/weight/volume/manual/none)・抹茶ロット FIFO/賞味期限アラート。残: repository/管理UI/入金・配送ステートマシン/利益分析/会計 export interface |
+| **Phase 2B 仕入・原価・在庫・利益** | In Progress | schema(0003)あり。**完了**: 原価配賦/抹茶FIFO・賞味期限/仕入先データ層(repo/mock/supabase/service/contract, 0007)/入金・配送 状態機械+送料差額/利益計算/会計 export interface(冪等mock)。**残**: 買付・仕入記録・陶器個体・経費 repository、入金/配送/利益の永続化、全ドメイン管理UI、ダッシュボード |
+| ├ 純ロジック（原価配賦/抹茶FIFO/利益/状態機械） | Completed | costAllocation/matchaLot/profit/payment・shipmentStatus。整数最小単位・通貨不一致拒否・決定的丸め |
+| ├ 仕入先データ層 + migration 0007 | Completed | ProcurementRepository(mock/supabase)+service(purchase:manage)+contract。公開投影で非公開を遮断 |
+| ├ 会計 export interface | Completed | management-accounting の入口 IF + 冪等 mock。法定会計/税務は対象外（§4） |
+| ├ 買付/仕入/陶器/経費 repository・永続化・管理UI・ダッシュボード | Not Started | 次の作業単位 |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
 | 本番公開準備 | Blocked | 連絡先・法務・配送・支払い・実商品 確定が前提 |

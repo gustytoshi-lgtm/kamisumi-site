@@ -25,3 +25,8 @@
 | PM-019 | 2026-06-18 | 注文メモは provisional_orders に列追加（migration 0006）。別テーブル化しない | 1:1 の単純メモ。注文行と同じ RLS/論理削除に自然に追従。監査は audit_logs | customer_notes 別テーブル | 履歴要件が出れば別テーブル化 | 0006, order write repo |
 | PM-020 | 2026-06-18 | 原価配賦 method はドメインで `purchase_value`、DB は `amount`。`to/fromDbMethod` で橋渡し | spec §3.D の語彙と既存 DB enum(0003) の差を、適用済み migration を書き換えずに吸収 | 0003 を書き換え / 名称を統一 | 次の schema 改訂時に統一検討 | costAllocation.ts, cost_allocations |
 | PM-021 | 2026-06-18 | 抹茶ロットの FIFO/賞味期限は純ロジック（DB非依存）。on-hand 数量はドメイン入力で受ける | 物理数量は inventory_items が持つ。ロット順序/警告のみを純関数化しテスト容易に | matcha_lots に数量列を即追加 | I-015 で供給経路を確定 | matchaLot.ts |
+| PM-022 | 2026-06-18 | 入金状態の値は DB enum(0003)準拠（unbilled/billed/...）。spec の not_requested/requested は unbilled/billed に対応 | 適用済み 0003 の CHECK を書き換えないため。永続値と一致 | 0003 を書き換えて改名 | 次の schema 改訂で統一検討 | paymentStatus.ts, payments.status |
+| PM-023 | 2026-06-18 | 配送状態は純ロジックで先行。`shipments` の status 列は永続化時に追加 migration（0008+） | 0003 に status 列がない。状態機械の検証は列なしでも可能。永続化は後続で安全に追加 | 即 status 列追加 | 配送 repository 実装時（I-016） | shipmentStatus.ts |
+| PM-024 | 2026-06-18 | 利益率は整数ベーシスポイント（bp）で決定的丸め。金額は整数最小単位のみ | 「金額に float を使わない」を維持しつつ比率を表現。Math.round で決定的 | float の比率を保持 | — | profit.ts |
+| PM-025 | 2026-06-18 | 会計連携は export **interface + 冪等 mock** のみ。法定会計/税務帳簿は自作しない | spec §4 の境界。外部会計ソフトの責務を侵さない。二重計上を idempotencyKey で防止 | 自前で総勘定元帳/申告を実装 | 本番会計ソフト選定時に adapter 追加 | accountingExport.ts |
+| PM-026 | 2026-06-18 | 調達ドメインは別 repository/service（ProcurementRepository）に分離 | 仕入/原価は機微・bounded context。CommerceWriteRepository を肥大化させない | CommerceWriteRepository へ追加 | — | repositories/*procurement*, procurementService |

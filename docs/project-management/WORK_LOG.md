@@ -4,6 +4,34 @@
 
 ---
 
+## 2026-06-18 (10) — Claude Code — Phase 2B データ層・状態機械・利益・会計IF
+
+### 目的
+Phase 2B を実装順（interface→mock→supabase→service→状態機械→contract test）に沿って、
+安全にテストできる範囲で連続実装。管理UI（step 7）の前段となるデータ層・純ロジックを確立。
+
+### 実施内容
+1. **仕入先データ層**（`033bf02`）: `ProcurementRepository` 契約 + mock（reset/seed）+ supabase（RLS owner）+ `procurementService`（書込/内部閲覧は `purchase:manage`=owner 限定、front_staff 遮断）。
+   - migration **0007**: suppliers に contact/default_currency/country_code/brand_id 追加（追加 migration、RLS は既存 suppliers_owner）。
+   - `listPublicSuppliers` は public_level='public' のみ・note/contact を落とした公開投影（非公開を漏らさない）。
+   - factory `getProcurementRepository/Service`（既定 mock）。contract runner（mock + skip supabase）+ service RBAC テスト。
+2. **入金/配送 状態機械**（`7ac6446`）: `paymentStatus.ts`（DB enum 準拠。not_requested/requested ≈ unbilled/billed）、`shipmentStatus.ts`（preparing→shipped→delivered/returned/reshipped/cancelled）+ `freightDifference`/`kamisumiBorneFreight`（subtractMoney で通貨不一致拒否）。不正遷移拒否テスト 24。
+3. **利益計算**（`2356696`）: `profit.ts`（粗利/貢献利益、利益率は整数 bp で決定的丸め、aggregate/groupProfit で商品・ブランド・買付・月次グルーピング）。通貨不一致は add/subtract が拒否。8 テスト。
+4. **会計 export interface**（`2356696`）: `accountingExport.ts`（管理会計→外部会計ソフトの入口 interface + 冪等 mock adapter。二重実行は "duplicate"。法定会計/税務帳簿/実キーは持たない）。5 テスト。
+
+### 重要な前提・残課題
+- 状態機械・利益・会計 IF は純ロジック。**入金/配送/利益の永続 repository と管理UI（全ドメイン）は未着手**（次の作業単位）。
+- `shipments` に status 列がない（**I-016**）。永続化時に追加 migration（0008 以降）が必要。
+- 仕入先以外（買付/仕入記録/原価配賦/陶器個体/経費）の repository も未着手。
+
+### コマンド / テスト
+- typecheck OK / lint OK（warning 0）/ **test 146 passed・1 skipped** / db:validate **7 files** / build clean。
+
+### commit hashes
+- `033bf02` supplier data layer + 0007 / `7ac6446` payment+shipment status machines / `2356696` profit + accounting export interface
+
+---
+
 ## 2026-06-18 (9) — Claude Code — Phase 2A 残補修(0006) + Phase 2B 純ロジック着手
 
 ### 目的
