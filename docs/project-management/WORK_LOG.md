@@ -2,6 +2,26 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (6) — Claude Code — プロジェクト移設（OneDrive→C:\dev）
+
+### 目的
+OneDrive 同期競合/ロック（I-003）の根本解決。正式作業パスを `C:\dev\sites\kamisumi-site` へ移設（人間が実施）。
+
+### 確認
+- 新パスは git リポジトリで HEAD=`14bb392`（移設前の最新 commit）と一致。tracked 320 files・node_modules あり・typecheck 緑。**孤立コピーではなく全履歴・全作業を保持**。
+- 旧パス `C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site` も同一 commit で残存（重複コピー）。以後**参照・編集しない**。
+
+### 実施
+- 正規パス参照を新パスへ更新: CURRENT_STATE / HANDOFF（正式パス・再開コマンド・Codex 再開プロンプトを現状へ刷新）/ PHASE1_FINAL_REVIEW。
+- I-003（OneDrive build lock）→ **Resolved（移設）**。I-001（E2E timeout）→ 移設で改善・要再評価。
+- .cmd ランチャーは `%~dp0`（自身の場所基準）のため変更不要（新パスでもそのまま動作）。
+
+### 注意
+- shell の cwd は毎回リセットされ旧 OneDrive パスに戻るため、コマンドは毎回 `cd "C:/dev/sites/kamisumi-site"` を付ける。
+
+### 設計判断
+PM-030（正式作業パスを OneDrive 外 `C:\dev\sites\kamisumi-site` へ移設。同期競合/ロック回避。旧コピーは触らない）。
+
 ---
 
 ## 2026-06-18 (11) — Claude Code — Phase 2B 永続化（配送/入金/仕入記録）

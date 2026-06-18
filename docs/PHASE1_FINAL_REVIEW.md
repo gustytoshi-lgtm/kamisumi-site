@@ -1,6 +1,6 @@
 # Phase 1 Final Review
 
-対象: `C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site`
+対象: `C:\dev\sites\kamisumi-site`（作成時は OneDrive 配下。session 17 で移設）
 
 作成日: 2026-06-17
 

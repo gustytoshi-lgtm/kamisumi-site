@@ -8,7 +8,9 @@
 
 ## 正式な作業パス
 
-`C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site`（OneDrive配下・正式フォルダで直接作業。クラウドコピーではない）
+`C:\dev\sites\kamisumi-site`（**OneDrive 配下から移設済み**＝同期競合/ロック回避。正式フォルダで直接作業。クラウドコピーではない）
+
+> 旧パス `C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site` は同一 commit の重複コピーが残存（参照しない・編集しない）。以後の正式作業はこの `C:\dev\sites\kamisumi-site` のみ。
 
 ## 現在Phase
 
@@ -78,12 +80,12 @@
 ## テスト状態
 
 - lint / typecheck / **test 211 passed (3 skipped: supabase 契約=実DB必須)** / build / db:validate(15) / verify:quick: **成功**
-- E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
+- E2E（playwright）: 旧 OneDrive 環境では遅延 timeout（I-001）。**`C:\dev` へ移設したため再評価可**（未再実行）。代替に `npm run verify:quick`（別ポート起動の軽量スモーク）。
 
 ## 再開コマンド
 
 ```bash
-cd "C:/Users/tkats/OneDrive/01_HTML_CSS/kamisumi-site"
+cd "C:/dev/sites/kamisumi-site"
 npm install                 # 必要時のみ
 npm run verify:full         # typecheck+lint+test+db:validate+build
 npm run verify:quick        # 公開/管理の軽量スモーク（別ポート3100）
