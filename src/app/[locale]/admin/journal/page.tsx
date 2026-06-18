@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { CreateJournalDraftForm } from "@/components/admin/CreateJournalDraftForm";
 import { JournalStatusForm } from "@/components/admin/JournalStatusForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { canAny } from "@/lib/commerce/rbac";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { getCommerceWriteRepository } from "@/repositories";
+import { siteConfig } from "@/config/site";
 import styles from "@/components/admin/Admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +49,12 @@ export default async function AdminJournalPage({ params }: LocaleParams) {
   return (
     <>
       <h1>{dictionary.nav.journal}</h1>
+      <CreateJournalDraftForm
+        common={dictionary.common}
+        defaultBrandId={siteConfig.brand.id}
+        locale={locale}
+        notify={dictionary.notify}
+      />
       <p className="muted">{validPosts.length}</p>
       {validPosts.length === 0 ? (
         <p className="muted">—</p>

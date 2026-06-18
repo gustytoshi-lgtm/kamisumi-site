@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { CreateSourcingRequestForm } from "@/components/admin/CreateSourcingRequestForm";
 import { SourcingRequestStatusForm } from "@/components/admin/SourcingRequestStatusForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { canAny } from "@/lib/commerce/rbac";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { getCommerceWriteRepository } from "@/repositories";
+import { siteConfig } from "@/config/site";
 import styles from "@/components/admin/Admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +50,12 @@ export default async function AdminSourcingPage({ params }: LocaleParams) {
   return (
     <>
       <h1>{dictionary.nav.sourcingRequests}</h1>
+      <CreateSourcingRequestForm
+        common={dictionary.common}
+        defaultBrandId={siteConfig.brand.id}
+        locale={locale}
+        notify={dictionary.notify}
+      />
       <p className="muted">{validRequests.length}</p>
       {validRequests.length === 0 ? (
         <p className="muted">—</p>

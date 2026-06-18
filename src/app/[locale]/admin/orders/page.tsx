@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CreateOrderForm } from "@/components/admin/CreateOrderForm";
 import { OrderNotesForm } from "@/components/admin/OrderNotesForm";
 import { OrderStatusForm } from "@/components/admin/OrderStatusForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
@@ -7,6 +8,7 @@ import { nextOrderStatuses } from "@/lib/commerce/orderStatus";
 import { canAny } from "@/lib/commerce/rbac";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { getCommerceWriteRepository } from "@/repositories";
+import { siteConfig } from "@/config/site";
 import styles from "@/components/admin/Admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +56,15 @@ export default async function AdminOrdersPage({ params }: LocaleParams) {
   return (
     <>
       <h1>{dictionary.nav.orders}</h1>
+      {canManage && (
+        <CreateOrderForm
+          common={dictionary.common}
+          defaultBrandId={siteConfig.brand.id}
+          defaultStoreId={siteConfig.store.id}
+          locale={locale}
+          notify={dictionary.notify}
+        />
+      )}
       <p className="muted">{validOrders.length}</p>
       {validOrders.length === 0 ? (
         <p className="muted">—</p>

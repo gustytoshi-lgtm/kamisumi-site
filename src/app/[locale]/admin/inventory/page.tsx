@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CreateInventoryItemForm } from "@/components/admin/CreateInventoryItemForm";
 import { InventoryMovementForm } from "@/components/admin/InventoryMovementForm";
 import { InventoryStatusForm } from "@/components/admin/InventoryStatusForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
@@ -57,6 +58,13 @@ export default async function AdminInventoryPage({ params }: LocaleParams) {
   return (
     <>
       <h1>{dictionary.nav.inventory}</h1>
+      {canManage && (
+        <CreateInventoryItemForm
+          common={dictionary.common}
+          locale={locale}
+          notify={dictionary.notify}
+        />
+      )}
       {validItems.length === 0 ? (
         <p className="muted">—</p>
       ) : (
