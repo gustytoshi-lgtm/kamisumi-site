@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ProductManageForm } from "@/components/admin/ProductManageForm";
 import { ProductStatusForm } from "@/components/admin/ProductStatusForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
@@ -41,8 +42,9 @@ export default async function AdminProductsPage({ params }: LocaleParams) {
   }
 
   const canChangeStatus = session !== null && canAny(session.role, ["product:manage_status"]);
-  // 書込ストア（mock）から読む。public read repo（fixture）とは別ストアで、書込結果を反映する。
-  const products = await getCommerceWriteRepository().listManagedProducts();
+  const canManage = session !== null && canAny(session.role, ["product:manage"]);
+  // 書込ストア（mock）から読む。論理削除済みも含めて表示する（復元可能にするため）。
+  const products = await getCommerceWriteRepository().listManagedProducts({ includeDeleted: true });
 
   return (
     <>
@@ -55,21 +57,40 @@ export default async function AdminProductsPage({ params }: LocaleParams) {
             <th>{dictionary.common.status}</th>
             <th>Title ({adminLocale})</th>
             <th>{dictionary.common.actions}</th>
+            <th>{dictionary.common.delete} / {dictionary.common.restore}</th>
           </tr>
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr key={product.id}>
+            <tr key={product.id} style={{ opacity: product.deletedAt ? 0.5 : 1 }}>
               <td>{product.sku}</td>
               <td>
                 <span className={styles.badge}>{product.publicStatus}</span>
+                {product.deletedAt && (
+                  <span className="muted" style={{ marginLeft: 4, fontSize: "0.8em" }}>
+                    (deleted)
+                  </span>
+                )}
               </td>
               <td>{getLocalizedText(product.title, locale)}</td>
               <td>
-                {canChangeStatus ? (
+                {canChangeStatus && !product.deletedAt ? (
                   <ProductStatusForm
                     common={dictionary.common}
                     currentStatus={product.publicStatus}
+                    locale={locale}
+                    notify={dictionary.notify}
+                    productId={product.id}
+                  />
+                ) : (
+                  <span className="muted">-</span>
+                )}
+              </td>
+              <td>
+                {canManage ? (
+                  <ProductManageForm
+                    common={dictionary.common}
+                    deletedAt={product.deletedAt}
                     locale={locale}
                     notify={dictionary.notify}
                     productId={product.id}

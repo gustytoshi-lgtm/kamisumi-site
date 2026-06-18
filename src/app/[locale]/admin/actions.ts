@@ -56,6 +56,48 @@ export async function changeProductStatusAction(
   }
 }
 
+export async function softDeleteProductAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const actor = actorFromSession();
+  if (!actor) return { ok: false, code: "forbidden" };
+
+  const productId = String(formData.get("productId") ?? "").trim();
+  const locale = String(formData.get("locale") ?? "zh-tw");
+
+  if (!productId) return { ok: false, code: "validation" };
+
+  try {
+    await getCommerceService().deleteProduct(actor, productId);
+    revalidatePath(`/${locale}/admin/products`);
+    return { ok: true };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+export async function restoreProductAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const actor = actorFromSession();
+  if (!actor) return { ok: false, code: "forbidden" };
+
+  const productId = String(formData.get("productId") ?? "").trim();
+  const locale = String(formData.get("locale") ?? "zh-tw");
+
+  if (!productId) return { ok: false, code: "validation" };
+
+  try {
+    await getCommerceService().restoreProduct(actor, productId);
+    revalidatePath(`/${locale}/admin/products`);
+    return { ok: true };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 // ============================================================
 // 在庫
 // ============================================================

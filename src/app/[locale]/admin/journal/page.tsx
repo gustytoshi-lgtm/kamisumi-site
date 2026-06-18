@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CreateJournalDraftForm } from "@/components/admin/CreateJournalDraftForm";
 import { JournalStatusForm } from "@/components/admin/JournalStatusForm";
+import { JournalTranslationForm } from "@/components/admin/JournalTranslationForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { canAny } from "@/lib/commerce/rbac";
@@ -66,12 +67,13 @@ export default async function AdminJournalPage({ params }: LocaleParams) {
               <th>{dictionary.common.status}</th>
               <th>{dictionary.common.category}</th>
               <th>{dictionary.common.title} (ja)</th>
+              <th>{dictionary.common.title} (zh-tw)</th>
               <th>{dictionary.common.actions}</th>
             </tr>
           </thead>
           <tbody>
             {validPosts.map((post) => (
-              <tr key={post.id}>
+              <tr key={post.id} style={{ opacity: post.deletedAt ? 0.5 : 1 }}>
                 <td>
                   <code style={{ fontSize: "0.8em" }}>{post.slug}</code>
                 </td>
@@ -79,7 +81,28 @@ export default async function AdminJournalPage({ params }: LocaleParams) {
                   <span className={styles.badge}>{post.status}</span>
                 </td>
                 <td>{post.category}</td>
-                <td>{post.translations.ja?.title ?? "—"}</td>
+                <td>
+                  <JournalTranslationForm
+                    common={dictionary.common}
+                    currentExcerpt={post.translations.ja?.excerpt}
+                    currentTitle={post.translations.ja?.title}
+                    journalId={post.id}
+                    locale={locale}
+                    notify={dictionary.notify}
+                    targetLocale="ja"
+                  />
+                </td>
+                <td>
+                  <JournalTranslationForm
+                    common={dictionary.common}
+                    currentExcerpt={post.translations["zh-tw"]?.excerpt}
+                    currentTitle={post.translations["zh-tw"]?.title}
+                    journalId={post.id}
+                    locale={locale}
+                    notify={dictionary.notify}
+                    targetLocale="zh-tw"
+                  />
+                </td>
                 <td>
                   <JournalStatusForm
                     common={dictionary.common}
