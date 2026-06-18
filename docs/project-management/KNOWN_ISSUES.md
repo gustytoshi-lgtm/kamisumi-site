@@ -13,7 +13,8 @@
 | I-009 | Low | 管理画面が公開レイアウト（Header/Footer）内にネスト | `/[locale]/admin` 表示 | 管理画面に公開ヘッダが出る | flag既定OFFで通常不可視 | route group で専用adminクローム分離（Phase 1 構成は壊さない） | 2A | **Resolved** (route group `(public)`/`(admin)` 分離) |
 | I-010 | Low | 公開ページの `notFound()` がソフト404(200)になる場合あり | 一部の動的描画 | SEO上の soft-404 | 商品/記事は dynamicParams=false 済、admin は proxy で真404化済 | Next の挙動。残箇所は個別に routing/proxy で対応 | 仕上げ | Mitigated |
 | I-011 | Medium | mock 書込ストアと public read(fixture) が別ストア | mock mode で書込しても公開サイトに反映されない | 開発時の体感差・再起動で消える | UI/ドキュメントに明記（dev-only）。admin は書込ストアを読む | Supabase 化で read/write 統合 | 2A | Open(by design) |
-| I-012 | Medium | Supabase 書込 repository が未実装（スケルトン） | `DATA_BACKEND=supabase` で書込呼出 | Supabase mode では書込不可（NotImplemented） | mock mode で開発継続 | 0001-0005 と同契約で実装し contract test 流用 | 2A | Open |
-| I-013 | Low | 管理CRUDは商品ステータス変更のみ接続 | admin の他メニュー | 在庫/注文/買付/Journal は UI 書込未接続（service/テストは有） | service 直叩きは可。同パターンでフォーム追加 | actions.ts + client form を各操作へ拡張 | 2A | Open |
+| I-012 | Medium | Supabase 書込/読取 repository の実 DB 検証が未 | `DATA_BACKEND=supabase` で呼出 | 実クエリは実装済みだが実 DB 未接続で未検証 | mock mode で開発継続 | 実装完了（write/read + RPC + エラー変換）。実 DB で contract test（`RUN_SUPABASE_CONTRACT=1`）+ read 一致確認が残（docs/SUPABASE_SETUP.md） | 2A | 実装済・検証待ち |
+| I-013 | Low | 管理CRUDは商品ステータス変更のみ接続 | admin の他メニュー | 在庫/注文/買付/Journal は UI 書込未接続（service/テストは有） | service 直叩きは可。同パターンでフォーム追加 | actions.ts + client form を各操作へ拡張 | 2A | **Resolved**（全 CRUD 接続済, session 5） |
+| I-014 | Medium | 同一 `main` への並行 worktree コミット（OneDrive 同期） | 並行タスク稼働時 | ref 競合でコミット損失の可能性 | 並行タスクを停止し単一作業者で進める | 1 ブランチ 1 作業者。worktree 作業は別ブランチで | 全般 | **Resolved**（session 8: 並行ライター停止・診断で損失/競合コピーなし確認・単一エージェント方針） |
 
 深刻度: Critical / High / Medium / Low

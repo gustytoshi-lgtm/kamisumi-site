@@ -1,6 +1,6 @@
 # HANDOFF (Codex 移管用)
 
-最終更新: 2026-06-18 (6) / 更新者: Claude Code
+最終更新: 2026-06-18 (8) / 更新者: Claude Code
 
 ## 概要
 KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
@@ -28,15 +28,27 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
   - 注文: create / status change / notes / reopen（cancel→inquiry_received）
   - 買付依頼: create / status change
   - Journal: create draft / translation（ja+zh-tw inline）/ publish / unpublish / soft delete
-- **Supabase クライアント基盤**: `@supabase/supabase-js` 2.108.2 + `src/lib/supabase/client.ts`（anon）+ `src/lib/supabase/server.ts`（service role、server-only）
+- **Supabase クライアント基盤 + SSR**: `@supabase/supabase-js` + `@supabase/ssr` 0.12.0。
+  - `client.ts`=`createBrowserClient`（anon, Cookie）/ `server.ts`=`getSupabaseAdminClient`（service role, write 用）+ `getSupabaseServerAuthClient`（anon+Cookie, ログインユーザー評価）/ `middleware.ts`=`updateSupabaseSession`。
+  - `proxy.ts` は `isSupabaseConfigured()` のときだけ session 更新（mock mode 完全不変）。
+- **Supabase read/write repository 実クエリ実装済み（実 DB 検証待ち）**: 
+  - write: 商品/在庫/注文/買付/Journal/監査の全メソッド。在庫は `apply_inventory_movement` RPC。
+  - read: products/journal/sourcing/faq を PostgREST 埋め込み select で公開型へマッピング。
+  - エラー変換 `src/lib/supabase/errors.ts` + 単体テスト（DB 不要）。
+- **管理画面認証 mock⇄Supabase 切替（Step C, session 8）**: `getAdminSession` が `ADMIN_AUTH_MODE`（既定 `DATA_BACKEND` 追従）で選択。supabase は Cookie セッション→`user_roles`/`profiles`（self-read RLS）、`pickPrimaryRole` で owner 優先。呼出側不変（async 化）。
+- **接続手順書 `docs/SUPABASE_SETUP.md`**: env / project / migration / seed / owner / user_roles / Storage / RLS / contract test / 完了チェックリスト。
 
 ## 作業途中 / 未着手（次の具体的作業）
-1. **Supabase read/write 実装**: `supabaseCommerceRepository.ts`（読取）と `supabaseCommerceWriteRepository.ts`（書込）の各メソッドを 0001-0005 スキーマ/RPC（`apply_inventory_movement`）で実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すこと、`tests/writeContract.test.ts` の `runWriteContract` を Supabase 実装にも適用して同一挙動を確認。Supabase project・env が揃った段階で実装。
-2. **Supabase Auth + セッション保護**: `getAdminSession()`（現在は mock ADMIN_DEV_ROLE）を Supabase Auth の session+user_roles から返すよう差替（呼び出し側不変）。`src/lib/admin/auth.ts` のみ変更。
-3. **admin metadata(I-008)**: `/[locale]/admin/*` の各ページに `generateMetadata` 追加（タブタイトル）。
-4. ~~**admin 専用クローム(I-009)**~~: **完了（2026-06-18 session 6）**。route group `(public)`/`(admin)` で分離。`[locale]/layout.tsx`=html/body+locale、`(public)/layout.tsx`=公開シェル、`(admin)/admin/layout.tsx`=公開Header/Footerなし専用main。Phase 1 URL 不変。
-5. **migration 実適用検証**: Supabase/psql で `supabase db reset` → `db lint`（I-002）。
-6. Phase 2B 以降は ROADMAP 参照。
+1. **実 Supabase project 接続 + 検証**（人間が project/env を用意 → docs/SUPABASE_SETUP.md の順）:
+   - migration 0001-0005 適用 + `db lint`（I-002）。
+   - `RUN_SUPABASE_CONTRACT=1` で `tests/writeContract.supabase.test.ts` を実行（**注: contract の productId "p1" は FK 違反。seed 済み実 UUID を使う setup へ拡張が必要**）。
+   - `DATA_BACKEND=supabase` で公開サイトが mock と同結果になる read 一致確認。
+2. ~~**Supabase Auth 差替**~~: **完了（session 8, Step C）**。`getAdminSession()` が `ADMIN_AUTH_MODE`（既定 `DATA_BACKEND` 追従）で mock/Supabase を切替。supabase は Cookie セッション→`user_roles`/`profiles`（self-read RLS）。残るは実 project 接続でのログイン疎通確認のみ。
+3. **setOrderNotes 恒久対応**: provisional_orders に note 列が無いため現状は監査のみ。`customer_notes` 等で恒久化する migration（0006）。
+4. **migration 実適用検証**（I-002）。
+5. Phase 2B 以降は ROADMAP 参照。
+
+> ✅ **並行作業（I-014）Resolved**: session 8 で並行ライター停止を確認・診断（損失/競合コピーなし）。以後**単一エージェント**で作業する。再開時も 1 ブランチ 1 作業者を厳守。
 
 > 書込の使い方: `getCommerceService()`（既定 mock）→ `service.setProductStatus(actor, id, status)` 等。actor = `{ userId, role }`。業務ルールは service が強制、永続不変条件は repository が担う。
 
@@ -57,7 +69,7 @@ npm run build && npm run start     # http://localhost:3000
 `DATA_BACKEND`(既定mock), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`。秘密値・実口座・顧客情報はコミットしない。
 
 ## migration状態
-0001-0004 作成済み・**実DB未適用**。`db:validate` OK。実SQL妥当性は未検証（I-002）。
+0001-0005 作成済み・**実DB未適用**。`db:validate` OK。実SQL妥当性は未検証（I-002）。
 
 ## mock / Supabase 切替
 `src/config/dataBackend.ts` → `getDataBackend()`。`src/repositories/index.ts` の factory が mock/supabase を選択。Supabase 未設定で `DATA_BACKEND=supabase` にすると factory が明示エラー（誤設定検知）。
@@ -74,8 +86,8 @@ npm run build && npm run start     # http://localhost:3000
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-18 session 5）
-typecheck/lint OK（warning 0）、test 72 passed、build clean、db:validate(5) OK、E2E timeout(I-001)。
+## テスト結果（2026-06-18 session 8）
+typecheck/lint OK（warning 0）、**test 84 passed・1 skipped**（supabase 契約は実 DB 必須で skip）、build clean、db:validate(5) OK、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```

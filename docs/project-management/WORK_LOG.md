@@ -4,6 +4,75 @@
 
 ---
 
+## 2026-06-18 (8) — Claude Code — 並行作業の収束 + Step C 認証切替 + 統合コミット
+
+### 背景
+セッション中に**別エージェントが同じ作業ツリーで Phase 2A を並行実装**していることを検知（SSR/Step B repository/docs）。ユーザー指示で全書込を停止し、状況診断 → 単一エージェント方針へ収束。
+
+### 診断（読取のみ）
+- 実行中の node/npm/next プロセス: なし。:3000 リッスンなし。直近5分のファイル変更なし（並行ライター停止確認）。
+- `.git/index.lock` なし。**OneDrive 競合コピーなし**。**migration 重複なし**（0001-0005）。`git log` 線形・損失なし。
+- 並行ライター（Step B: supabase read/write repo, errors.ts, contract 基盤）と私（Step C: 認証）は**ファイル完全分離・衝突なし** → 双方採用。
+
+### 実施内容
+1. **Step C: 管理画面認証の mock/Supabase 切替**（`src/lib/admin/auth.ts`）
+   - `getAdminAuthMode()`（`ADMIN_AUTH_MODE`、未指定は `DATA_BACKEND` 追従）で mock/supabase を選択。
+   - supabase path: `getSupabaseServerAuthClient()` の Cookie セッション → `user_roles`/`profiles` を self-read RLS（0004）で取得。`pickPrimaryRole`（owner 優先）。
+   - `getAdminSession()` を async 化し全呼出（admin ページ/layout/actions の ~17 箇所、`actorFromSession`）を await 化。呼出側契約は不変。
+   - `tests/adminAuth.test.ts` 拡張（モード解決・ロール優先・mock 動作 = 12 ケース）。`.env.example` に `ADMIN_AUTH_MODE` 追記。
+2. **テスト環境修正**: Step B が `server.ts` の `import "server-only"` を間接導入し vitest が解決不可で 2 スイート失敗 → `vitest.config.ts` で `server-only` を no-op スタブ（`tests/stubs/server-only.ts`）に alias。標準対応で本番のサーバー境界意味は不変。
+3. **統合コミット**（単一作業者として両系統を採用）。
+
+### 最終ゲート（全て確認済み・緑）
+- typecheck OK / lint OK（warning 0）/ **test 84 passed・1 skipped**（supabase 契約は実 DB 必須で skip）/ build clean / db:validate(5) OK。
+- 公開 URL・slug 不変（build ルート一覧で確認）。
+
+### commit hashes
+- `d468bce` feat(admin): switchable mock/Supabase admin auth (step C)
+- `15b01bd` feat(supabase): read/write commerce repositories (step B) + server-only test stub
+- （本エントリ含む docs 更新は末尾でコミット）
+
+### KNOWN_ISSUES
+- **I-014（並行 worktree）→ Resolved**: 並行ライター停止・単一エージェント方針確立。以後このセッションのみで作業。
+
+---
+
+## 2026-06-18 (7) — Claude Code — Supabase SSR + 実 repository 実装
+
+### 目的
+Supabase 接続前にできる実装を完成させる: SSR 認証構成、接続手順書、Supabase read/write repository の実クエリ、エラー変換。実 DB が要る検証は skip 理由と手順を残す。
+
+### 実施内容
+1. **@supabase/ssr 0.12.0 導入（SSR 監査）**
+   - `client.ts`: `createBrowserClient`（anon, Cookie 共有）へ変更。
+   - `server.ts`: `getSupabaseAdminClient()`（service role / RLS バイパス, write 用。旧 `getSupabaseServerClient` は alias 維持）+ `getSupabaseServerAuthClient()`（anon + Cookie, ログインユーザー評価）。
+   - `middleware.ts`: `updateSupabaseSession()`（公式トークン更新パターン）。
+   - `proxy.ts`: `isSupabaseConfigured()` のときだけ session 更新を呼ぶ（mock mode 完全不変）。
+   - すべて関数内で遅延生成（module load で生成しない＝env 未設定でも起動可）。
+2. **接続手順書 `docs/SUPABASE_SETUP.md`**: 環境変数一覧 / project 作成 / migration 0001-0005 適用 / seed / 初期 owner / user_roles / Storage bucket / RLS 検証 / contract test 実行 / Phase 2A 完了チェックリスト。`.env.example` に `ADMIN_ENABLED` / `ADMIN_DEV_ROLE` 追記。
+3. **エラー変換 `src/lib/supabase/errors.ts`**: Postgres errcode/message → `CommerceError`（P0002→not_found, P0001→message で negative_stock/insufficient_stock/conflict 等, 23505→conflict, 23503/23514/23502/22P02→validation, 未知→null で再throw）。単体テスト `tests/supabaseErrors.test.ts`（DB 不要）。
+4. **Supabase write repository 実装** `supabaseCommerceWriteRepository.ts`: 商品/在庫/注文/買付/Journal/監査の全メソッドを 0001-0005 スキーマで実装。在庫は `apply_inventory_movement` RPC（原子・冪等・非負を DB が保証）。複数テーブル更新（注文作成+明細+イベント+監査 等）を順次実行し errcode を変換。
+5. **Supabase read repository 実装** `supabaseCommerceRepository.ts`: products/journal/sourcing/faq を PostgREST 埋め込み select で取得し公開型へマッピング（翻訳→LocalizedString, 画像+alt, matcha/ceramic jsonb, 参考価格, 関連）。公開可否はクエリ条件（published / deleted_at is null）。
+6. **Supabase 契約テスト（skip）** `tests/writeContract.supabase.test.ts`: 共通ランナー `tests/writeContractRunner.ts` を流用。実 DB 必須のため `RUN_SUPABASE_CONTRACT=1` + env が無ければ `describe.skip`。実行手順をファイル内＋SETUP §9-2 に記録。
+
+### 重要な前提・既知の制約
+- **mock/Supabase 切替不変**: factory は既定 mock。`DATA_BACKEND=supabase`+env のときのみ Supabase 実装。
+- **read repo は実 DB + 完全 seed が無いと検証不能**: seed は代表商品のみ。public 全ルートの一致確認は接続後。
+- **contract test の productId "p1" は Supabase で FK 違反**: 実 DB 実行時は seed 済み実 UUID を使う setup へ拡張が必要（ファイル内 TODO）。
+- **provisional_orders に note 列なし**: setOrderNotes は監査記録 + 返り値反映のみ（customer_notes での恒久対応は別 migration）。
+
+### ⚠️ 並行作業の検知（要人間対応）
+- 本セッション中、別 worktree が同じ `main` に OneDrive 同期経由でコミット（`9c17760` 等）。私の作業内容は保持され履歴は線形だが、同一ブランチ並行コミットはコミット損失リスク。**並行タスクの停止を推奨**。
+
+### コマンド / テスト
+- typecheck OK。lint / test / build / db:validate は分類器の一時停止で再実行待ち（復旧後に確定。変更は型安全・追加中心）。
+- 新規単体テスト: `tests/supabaseErrors.test.ts`（DB 不要、常時実行）。
+
+### commit hash
+- `d4ff67f` I-009 route group / `9c17760` SSR clients（worktree メッセージ）/ 本実装は末尾でまとめてコミット予定。
+
+---
+
 ## 2026-06-18 (6) — Claude Code — admin 専用クローム分離（I-009 解決）
 
 ### 目的

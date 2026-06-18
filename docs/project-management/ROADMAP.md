@@ -13,9 +13,9 @@
 | ├ 管理画面 scaffold（flag/auth adapter/dashboard/products[読取]） | Completed | `ADMIN_ENABLED` 既定OFF→真の404。mock認証 `ADMIN_DEV_ROLE` |
 | ├ 書込レイヤ（interface/service/mock/テスト） | Completed | RBAC+状態遷移+在庫整合性+冪等+監査。test 72 |
 | ├ 管理画面 CRUD 接続（書込） | Completed | 商品[status/delete/restore]/在庫[create/move/status]/注文[create/status/notes/reopen]/買付[create/status]/Journal[draft/translation/publish/delete]。I-008(metadata)解決 |
-| ├ Supabase クライアント基盤 | Completed | `@supabase/supabase-js` 2.108.2 + `src/lib/supabase/{client,server}.ts`（env guard + server-only） |
-| ├ Supabase Auth / セッション保護 | Not Started | `getAdminSession` を Supabase Auth session+user_roles へ差替（呼び出し側不変） |
-| ├ SupabaseCommerceRepository（読取/書込）実装 | Not Started | スタブ/スケルトンあり。0001-0005 と同契約で実装、contract test 流用（実 DB 環境待ち） |
+| ├ Supabase クライアント基盤 / SSR | Completed | `@supabase/supabase-js` + `@supabase/ssr`。client(anon)/server(admin+auth)/middleware。proxy は configured 時のみ session 更新 |
+| ├ Supabase Auth / セッション保護 | In Progress | SSR 基盤（cookie client + middleware）完了。`getAdminSession` の Supabase 切替は実 DB 接続後 |
+| ├ SupabaseCommerceRepository（読取/書込）実装 | In Progress | 実クエリ実装完了（write: RPC/原子/冪等、read: 埋め込み select、エラー変換 + 単体テスト）。**実 DB 検証待ち**（contract test skip, docs/SUPABASE_SETUP.md） |
 | **Phase 2B 仕入・原価・在庫・利益** | Not Started | スキーマ(0003)とロードマップのみ。利益ビュー/FIFO/個体UI未 |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
