@@ -44,6 +44,7 @@ const OWNER_BOOT = {
     { name: "入金", path: "/ja/admin/payments", status: 200 },
     { name: "配送", path: "/ja/admin/shipping", status: 200 },
     { name: "経費", path: "/ja/admin/expenses", status: 200 },
+    { name: "利益分析", path: "/ja/admin/profit", status: 200 },
   ],
 };
 

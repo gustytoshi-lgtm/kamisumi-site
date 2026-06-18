@@ -21,6 +21,7 @@ export const adminZhTw: AdminDictionary = {
     payments: "收款",
     shipments: "配送",
     expenses: "費用",
+    profit: "利潤分析",
     settings: "設定",
     auditLogs: "操作紀錄",
   },
@@ -153,6 +154,19 @@ export const adminZhTw: AdminDictionary = {
     recordReceipt: "登記收款",
     empty: "尚無收款紀錄。",
     noBankNote: "※ 不保存實際銀行帳號（僅對帳號碼・確認者）。",
+  },
+  profit: {
+    title: "利潤分析",
+    intro: "依已記錄的收款・進貨・配送・費用彙整毛利與貢獻利益（僅 owner・TWD）。",
+    revenue: "營收（收款）",
+    cost: "成本（進貨）",
+    grossProfit: "毛利",
+    grossMargin: "毛利率",
+    shippingBorne: "運費負擔",
+    fees: "費用",
+    contributionProfit: "貢獻利益",
+    assumptions:
+      "※ 為概算。營收=收款合計，成本=進貨(明細+附帶費)，運費負擔=KAMISUMI 負擔，費用=費用合計。匯差未連動。不同幣別不合算。",
   },
   expenses: {
     title: "費用",

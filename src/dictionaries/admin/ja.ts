@@ -21,6 +21,7 @@ export const adminJa: AdminDictionary = {
     payments: "入金",
     shipments: "配送",
     expenses: "経費",
+    profit: "利益分析",
     settings: "設定",
     auditLogs: "操作履歴",
   },
@@ -153,6 +154,19 @@ export const adminJa: AdminDictionary = {
     recordReceipt: "入金を記録",
     empty: "入金記録はまだありません。",
     noBankNote: "※ 実銀行口座番号は保存しません（照合番号・確認者のみ）。",
+  },
+  profit: {
+    title: "利益分析",
+    intro: "記録済みの入金・仕入・配送・経費から粗利・貢献利益を集計します（owner のみ・TWD）。",
+    revenue: "売上（入金）",
+    cost: "原価（仕入）",
+    grossProfit: "粗利益",
+    grossMargin: "粗利率",
+    shippingBorne: "送料負担",
+    fees: "経費",
+    contributionProfit: "貢献利益",
+    assumptions:
+      "※ 概算です。売上=入金額合計、原価=仕入(明細+付帯費)、送料負担=KAMISUMI負担分、経費=経費合計。為替差損益は未連携。通貨混在は合算しません。",
   },
   expenses: {
     title: "経費",

@@ -142,6 +142,19 @@ export type AdminDictionary = {
     empty: string;
     noBankNote: string;
   };
+  /** 利益分析（§12）画面のラベル。 */
+  profit: {
+    title: string;
+    intro: string;
+    revenue: string;
+    cost: string;
+    grossProfit: string;
+    grossMargin: string;
+    shippingBorne: string;
+    fees: string;
+    contributionProfit: string;
+    assumptions: string;
+  };
   /** 経費管理（§12）画面のラベル。 */
   expenses: {
     title: string;

@@ -29,6 +29,7 @@ const IMPLEMENTED_ROUTES: Partial<Record<AdminNavKey, string>> = {
   payments: "/admin/payments",
   shipments: "/admin/shipping",
   expenses: "/admin/expenses",
+  profit: "/admin/profit",
   settings: "/admin/settings",
 };
 
