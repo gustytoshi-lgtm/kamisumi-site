@@ -18,5 +18,21 @@ export type AdminDictionary = {
     signedInAs: string;
     languageLabel: string;
     noPermission: string;
+    confirm: string;
+    apply: string;
+  };
+  /** CommerceErrorCode と success に対応する通知文言。 */
+  notify: {
+    success: string;
+    forbidden: string;
+    not_found: string;
+    validation: string;
+    invalid_transition: string;
+    insufficient_stock: string;
+    negative_stock: string;
+    duplicate_operation: string;
+    conflict: string;
+    not_purchasable: string;
+    error: string;
   };
 };
