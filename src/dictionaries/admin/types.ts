@@ -142,6 +142,26 @@ export type AdminDictionary = {
     empty: string;
     noBankNote: string;
   };
+  /** 経費管理（§12）画面のラベル。 */
+  expenses: {
+    title: string;
+    intro: string;
+    date: string;
+    category: string;
+    amount: string;
+    note: string;
+    total: string;
+    empty: string;
+    categories: {
+      shipping_supplies: string;
+      transport: string;
+      fees: string;
+      rent: string;
+      utilities: string;
+      marketing: string;
+      other: string;
+    };
+  };
   /** 配送管理（§12）画面のラベル。 */
   shipments: {
     title: string;

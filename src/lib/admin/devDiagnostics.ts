@@ -107,9 +107,9 @@ export async function getDevDiagnostics(): Promise<DevDiagnostics> {
       "shipping",
       "matcha-lots",
       "ceramic-units",
+      "expenses",
     ],
     pendingAdmin: [
-      "expenses",
       "profit",
       "accounting-export",
       "dashboard-metrics",

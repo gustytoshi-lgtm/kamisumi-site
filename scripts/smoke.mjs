@@ -43,6 +43,7 @@ const OWNER_BOOT = {
     { name: "仕入記録", path: "/ja/admin/purchases", status: 200 },
     { name: "入金", path: "/ja/admin/payments", status: 200 },
     { name: "配送", path: "/ja/admin/shipping", status: 200 },
+    { name: "経費", path: "/ja/admin/expenses", status: 200 },
   ],
 };
 
