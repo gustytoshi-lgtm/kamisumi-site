@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { isAdminEnabled } from "@/config/features";
-import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
+import {
+  getAdminAuthMode,
+  getAdminSession,
+  pickPrimaryRole,
+  resolveAdminLocale,
+} from "@/lib/admin/auth";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -15,20 +20,65 @@ describe("admin feature flag", () => {
   });
 });
 
+describe("getAdminAuthMode", () => {
+  it("defaults to mock when DATA_BACKEND is not supabase", () => {
+    vi.stubEnv("ADMIN_AUTH_MODE", "");
+    vi.stubEnv("DATA_BACKEND", "");
+    expect(getAdminAuthMode()).toBe("mock");
+  });
+
+  it("follows the supabase data backend by default", () => {
+    vi.stubEnv("ADMIN_AUTH_MODE", "");
+    vi.stubEnv("DATA_BACKEND", "supabase");
+    expect(getAdminAuthMode()).toBe("supabase");
+  });
+
+  it("honours an explicit ADMIN_AUTH_MODE override", () => {
+    vi.stubEnv("DATA_BACKEND", "supabase");
+    vi.stubEnv("ADMIN_AUTH_MODE", "mock");
+    expect(getAdminAuthMode()).toBe("mock");
+    vi.stubEnv("DATA_BACKEND", "");
+    vi.stubEnv("ADMIN_AUTH_MODE", "supabase");
+    expect(getAdminAuthMode()).toBe("supabase");
+  });
+});
+
 describe("admin auth adapter (mock)", () => {
-  it("returns null when no ADMIN_DEV_ROLE", () => {
+  it("returns null when no ADMIN_DEV_ROLE", async () => {
+    vi.stubEnv("ADMIN_AUTH_MODE", "mock");
     vi.stubEnv("ADMIN_DEV_ROLE", "");
-    expect(getAdminSession()).toBeNull();
+    expect(await getAdminSession()).toBeNull();
   });
 
-  it("returns a session for a valid dev role", () => {
+  it("returns a session for a valid dev role", async () => {
+    vi.stubEnv("ADMIN_AUTH_MODE", "mock");
     vi.stubEnv("ADMIN_DEV_ROLE", "owner");
-    expect(getAdminSession()).toEqual({ userId: "dev-user", role: "owner", adminLocale: "ja" });
+    expect(await getAdminSession()).toEqual({
+      userId: "dev-user",
+      role: "owner",
+      adminLocale: "ja",
+    });
   });
 
-  it("ignores invalid roles", () => {
+  it("ignores invalid roles", async () => {
+    vi.stubEnv("ADMIN_AUTH_MODE", "mock");
     vi.stubEnv("ADMIN_DEV_ROLE", "superuser");
-    expect(getAdminSession()).toBeNull();
+    expect(await getAdminSession()).toBeNull();
+  });
+});
+
+describe("pickPrimaryRole", () => {
+  it("prefers the most privileged role (owner) among several", () => {
+    expect(pickPrimaryRole(["editor", "owner", "front_staff"])).toBe("owner");
+  });
+
+  it("returns the single valid role and ignores unknown values", () => {
+    expect(pickPrimaryRole(["inventory_staff", "superuser"])).toBe("inventory_staff");
+  });
+
+  it("returns null when no valid role is present", () => {
+    expect(pickPrimaryRole([])).toBeNull();
+    expect(pickPrimaryRole(["nope"])).toBeNull();
   });
 });
 

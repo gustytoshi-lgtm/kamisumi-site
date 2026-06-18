@@ -20,9 +20,9 @@ import type { OrderStatus } from "@/lib/commerce/orderStatus";
  * すべて flag/セッション/権限を再確認する（クライアント側の制御に依存しない）。
  * 注: "use server" ファイルは async 関数のみ export 可。型は actionState.ts に分離。
  */
-function actorFromSession() {
+async function actorFromSession() {
   if (!isAdminEnabled()) return null;
-  const session = getAdminSession();
+  const session = await getAdminSession();
   if (!session) return null;
   return { userId: session.userId, role: session.role };
 }
@@ -40,7 +40,7 @@ export async function changeProductStatusAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const productId = String(formData.get("productId") ?? "");
@@ -60,7 +60,7 @@ export async function softDeleteProductAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const productId = String(formData.get("productId") ?? "").trim();
@@ -81,7 +81,7 @@ export async function restoreProductAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const productId = String(formData.get("productId") ?? "").trim();
@@ -106,7 +106,7 @@ export async function createInventoryItemAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
   if (!can(actor.role, "inventory:manage")) return { ok: false, code: "forbidden" };
 
@@ -128,7 +128,7 @@ export async function applyInventoryMovementAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const itemId = String(formData.get("itemId") ?? "").trim();
@@ -157,7 +157,7 @@ export async function setInventoryStatusAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const itemId = String(formData.get("itemId") ?? "").trim();
@@ -183,7 +183,7 @@ export async function createOrderAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const brandId = String(formData.get("brandId") ?? "").trim();
@@ -205,7 +205,7 @@ export async function changeOrderStatusAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const orderId = String(formData.get("orderId") ?? "").trim();
@@ -228,7 +228,7 @@ export async function reopenOrderAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const orderId = String(formData.get("orderId") ?? "").trim();
@@ -249,7 +249,7 @@ export async function setOrderNotesAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const orderId = String(formData.get("orderId") ?? "").trim();
@@ -276,7 +276,7 @@ export async function createSourcingRequestAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const brandId = String(formData.get("brandId") ?? "").trim();
@@ -310,7 +310,7 @@ export async function setSourcingRequestStatusAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const requestId = String(formData.get("requestId") ?? "").trim();
@@ -336,7 +336,7 @@ export async function createJournalDraftAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const brandId = String(formData.get("brandId") ?? "").trim();
@@ -360,7 +360,7 @@ export async function upsertJournalTranslationAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const journalId = String(formData.get("journalId") ?? "").trim();
@@ -390,7 +390,7 @@ export async function setJournalStatusAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const journalId = String(formData.get("journalId") ?? "").trim();
@@ -418,7 +418,7 @@ export async function softDeleteJournalAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const actor = actorFromSession();
+  const actor = await actorFromSession();
   if (!actor) return { ok: false, code: "forbidden" };
 
   const journalId = String(formData.get("journalId") ?? "").trim();

@@ -16,14 +16,14 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const locale = await getLocaleFromParams(params);
-  const session = getAdminSession();
+  const session = await getAdminSession();
   const d = getAdminDictionary(resolveAdminLocale(locale, session));
   return { title: `${d.nav.orders} | KAMISUMI Admin` };
 }
 
 export default async function AdminOrdersPage({ params }: LocaleParams) {
   const locale = await getLocaleFromParams(params);
-  const session = getAdminSession();
+  const session = await getAdminSession();
   const adminLocale = resolveAdminLocale(locale, session);
   const dictionary = getAdminDictionary(adminLocale);
 

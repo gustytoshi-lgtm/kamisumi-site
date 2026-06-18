@@ -28,7 +28,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   if (!isAdminEnabled()) notFound();
 
   const locale = await getLocaleFromParams(params);
-  const session = getAdminSession();
+  const session = await getAdminSession();
   const adminLocale = resolveAdminLocale(locale, session);
   const dictionary = getAdminDictionary(adminLocale);
 
