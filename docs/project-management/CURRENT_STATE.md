@@ -28,7 +28,7 @@
 
 ## 実装中 / 未着手（次の作業）
 
-- 管理画面 **全主要CRUD完了**（`/[locale]/admin`: dashboard/products[status/delete/restore]/inventory[create/movement/status]/orders[create/status/notes/reopen]/sourcing[create/status]/journal[draft/translation/publish/delete]。`ADMIN_ENABLED` 既定OFF）。**残: Supabase Auth差替・専用adminクローム分離(I-009, Low)**
+- 管理画面 **全主要CRUD完了**（`/[locale]/admin`: dashboard/products[status/delete/restore]/inventory[create/movement/status]/orders[create/status/notes/reopen]/sourcing[create/status]/journal[draft/translation/publish/delete]。`ADMIN_ENABLED` 既定OFF）。**専用adminクローム分離 完了（I-009 解決, route group `(public)`/`(admin)`）。残: Supabase Auth差替**
 - `SupabaseCommerceRepository` の実クエリ（**スタブ**、実Supabase project待ち I-012）
 - 利益分析ビュー、原価配賦の実運用フロー、抹茶ロットFIFO/賞味期限アラート、陶器個体管理UI
 - Phase 3 adapter（cart/checkout/payment/通知/SNS下書き）interface
@@ -44,7 +44,8 @@
 ## 公開サイト状態 / 管理画面状態
 
 - 公開サイト: 動作（起動・リダイレクト・404・OG 確認済み）
-- 管理画面: **scaffold動作**（flag OFF=404で公開無影響、ON+devロールでダッシュボード/商品一覧[読取]表示、権限ガード確認済み）。書込CRUD・実Auth・実Supabaseは未
+- 管理画面: **scaffold動作**（flag OFF=404で公開無影響、ON+devロールでダッシュボード/商品一覧[読取]表示、権限ガード確認済み）。**route group `(admin)` で公開Header/Footerを持たない専用クローム化済（I-009 解決）**。書込CRUD・実Auth・実Supabaseは未
+- レイアウト構成: `[locale]/layout.tsx`=html/body+locale のみ / `(public)/layout.tsx`=site-shell+Header+main+Footer / `(admin)/admin/layout.tsx`=admin専用main（route group は URL に影響しない）
 
 ## migration状態
 

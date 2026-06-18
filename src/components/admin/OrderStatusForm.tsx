@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { changeOrderStatusAction } from "@/app/[locale]/admin/actions";
+import { changeOrderStatusAction } from "@/app/[locale]/(admin)/admin/actions";
 import type { ActionState } from "@/lib/admin/actionState";
 import type { AdminDictionary } from "@/dictionaries/admin";
 import type { OrderStatus } from "@/lib/commerce/orderStatus";

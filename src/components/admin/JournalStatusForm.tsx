@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { setJournalStatusAction, softDeleteJournalAction } from "@/app/[locale]/admin/actions";
+import { setJournalStatusAction, softDeleteJournalAction } from "@/app/[locale]/(admin)/admin/actions";
 import type { ActionState } from "@/lib/admin/actionState";
 import type { AdminDictionary } from "@/dictionaries/admin";
 import type { JournalStatus } from "@/repositories/core/writeModels";

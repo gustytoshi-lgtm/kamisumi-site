@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { createSourcingRequestAction } from "@/app/[locale]/admin/actions";
+import { createSourcingRequestAction } from "@/app/[locale]/(admin)/admin/actions";
 import type { ActionState } from "@/lib/admin/actionState";
 import type { AdminDictionary } from "@/dictionaries/admin";
 import styles from "./Admin.module.css";

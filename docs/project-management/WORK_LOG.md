@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-06-18 (6) — Claude Code — admin 専用クローム分離（I-009 解決）
+
+### 目的
+管理画面が公開レイアウト（Header/Footer）内にネストしていた問題（I-009）を route group で解消。公開 URL・slug・主要導線は不変。
+
+### 実施内容
+1. **route group 導入**: `src/app/[locale]/` 配下に `(public)/` と `(admin)/` を作成（route group は URL に影響しない）。
+2. **公開ページ移動**: 全公開ルート（page / about / contact / faq / journal / legal / new-arrivals / order / privacy / products / shipping / shop / sourcing）と `error.tsx` / `loading.tsx` / `not-found.tsx` を `(public)/` へ `git mv`。
+3. **公開シェル移設**: 新規 `(public)/layout.tsx` が `site-shell` + skip-link + `Header` / `<main id="main-content">` / `Footer` を担当。
+4. **ルートレイアウト最小化**: `[locale]/layout.tsx` は `<html lang>`/`<body>` と `generateStaticParams` / globals.css のみに縮小（Header/Footer を保持しない）。
+5. **admin 移動 + 専用クローム**: `admin/` を `(admin)/admin/` へ `git mv`。`(admin)/admin/layout.tsx` は公開 Header/Footer を持たず、自前の `<main className="page-main" id="main-content">` でラップ。
+6. **import 修正**: `src/components/admin/*` の `@/app/[locale]/admin/actions` を `@/app/[locale]/(admin)/admin/actions` に更新（route group はパスの一部）。
+
+### 検証ポイント
+- 公開ページ: 引き続き Header/Footer 表示。slug ページの `notFound()`（products/[slug], journal/[slug]）は `(public)/not-found.tsx` が公開シェル内で描画。
+- 管理画面: 公開 Header/Footer なし。`ADMIN_ENABLED` 既定 OFF で proxy 真404は不変。
+- build 出力でルート一覧が Phase 1 と一致（`/[locale]/admin/*` 含め URL 不変、route group はパスから除去）。
+
+### コマンド / テスト
+- typecheck OK / lint OK（warning 0）/ test **72 passed** / build clean（`.next` 削除→再ビルドで stale type 解消）。
+
+### KNOWN_ISSUES
+- I-009 → **Resolved**
+
+---
+
 ## 2026-06-18 (5) — Claude Code — Phase 2A 管理CRUD仕上げ + I-008 解決
 
 ### 目的

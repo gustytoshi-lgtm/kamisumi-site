@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { setSourcingRequestStatusAction } from "@/app/[locale]/admin/actions";
+import { setSourcingRequestStatusAction } from "@/app/[locale]/(admin)/admin/actions";
 import type { ActionState } from "@/lib/admin/actionState";
 import type { AdminDictionary } from "@/dictionaries/admin";
 import type { SourcingRequestStatus } from "@/repositories/core/writeModels";

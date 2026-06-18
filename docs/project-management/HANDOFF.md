@@ -1,6 +1,6 @@
 # HANDOFF (Codex 移管用)
 
-最終更新: 2026-06-18 (5) / 更新者: Claude Code
+最終更新: 2026-06-18 (6) / 更新者: Claude Code
 
 ## 概要
 KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
@@ -20,6 +20,7 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 - `supabase/migrations` 0001-0005 + seed + ER.md + README、`npm run db:validate`
 - 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ（新フィールド追加済み: quantity/reason/note/restore/publish/unpublish 等）
 - 管理画面 **scaffold + 主要CRUD**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`）。dashboard/products/inventory/orders/sourcing/journal の各ページ + 権限ガード確認済み
+- 管理画面 **専用クローム分離（I-009 解決）**: route group `(public)`/`(admin)` で公開 Header/Footer から分離。`[locale]/layout.tsx`=html/body+locale のみ、公開シェルは `(public)/layout.tsx`、admin は `(admin)/admin/layout.tsx` の専用 main。URL 不変
 - **書込レイヤ**: `CommerceWriteRepository` 契約 + `commerceService`（RBAC/状態遷移/在庫整合性/冪等/監査）+ mock 書込 repo（in-memory, reset/seed）+ テスト72
 - **管理CRUD接続（フル）**: 全 server action + client form パターン（useActionState + confirm + notify 辞書）
   - 商品: status change / soft delete / restore / `generateMetadata`（I-008 解決）
@@ -33,7 +34,7 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 1. **Supabase read/write 実装**: `supabaseCommerceRepository.ts`（読取）と `supabaseCommerceWriteRepository.ts`（書込）の各メソッドを 0001-0005 スキーマ/RPC（`apply_inventory_movement`）で実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すこと、`tests/writeContract.test.ts` の `runWriteContract` を Supabase 実装にも適用して同一挙動を確認。Supabase project・env が揃った段階で実装。
 2. **Supabase Auth + セッション保護**: `getAdminSession()`（現在は mock ADMIN_DEV_ROLE）を Supabase Auth の session+user_roles から返すよう差替（呼び出し側不変）。`src/lib/admin/auth.ts` のみ変更。
 3. **admin metadata(I-008)**: `/[locale]/admin/*` の各ページに `generateMetadata` 追加（タブタイトル）。
-4. **admin 専用クローム(I-009)**: 公開 Header/Footer を含まない admin 専用レイアウトへ route group 分離。Phase 1 構成は壊さない。
+4. ~~**admin 専用クローム(I-009)**~~: **完了（2026-06-18 session 6）**。route group `(public)`/`(admin)` で分離。`[locale]/layout.tsx`=html/body+locale、`(public)/layout.tsx`=公開シェル、`(admin)/admin/layout.tsx`=公開Header/Footerなし専用main。Phase 1 URL 不変。
 5. **migration 実適用検証**: Supabase/psql で `supabase db reset` → `db lint`（I-002）。
 6. Phase 2B 以降は ROADMAP 参照。
 

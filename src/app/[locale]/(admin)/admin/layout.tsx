@@ -34,42 +34,46 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
 
   if (!session) {
     return (
-      <section className="page-section">
-        <div className={`content-shell ${styles.signin}`}>
-          <h1>KAMISUMI Admin</h1>
-          <p className="muted">{dictionary.common.noPermission}</p>
-          <p className="muted">
-            (mock auth) ADMIN_DEV_ROLE=owner|front_staff|inventory_staff|editor
-          </p>
-        </div>
-      </section>
+      <main className="page-main" id="main-content">
+        <section className="page-section">
+          <div className={`content-shell ${styles.signin}`}>
+            <h1>KAMISUMI Admin</h1>
+            <p className="muted">{dictionary.common.noPermission}</p>
+            <p className="muted">
+              (mock auth) ADMIN_DEV_ROLE=owner|front_staff|inventory_staff|editor
+            </p>
+          </div>
+        </section>
+      </main>
     );
   }
 
   const navKeys = visibleAdminNav(session.role);
 
   return (
-    <section className="page-section">
-      <div className={`content-shell ${styles.shell}`}>
-        <nav className={styles.nav} aria-label="Admin">
-          <span className={styles.badge}>
-            {dictionary.common.signedInAs}: {session.role}
-          </span>
-          {navKeys.map((key) => {
-            const route = IMPLEMENTED_ROUTES[key];
-            return route ? (
-              <Link className={styles.navLink} href={localizePath(locale, route)} key={key}>
-                {dictionary.nav[key]}
-              </Link>
-            ) : (
-              <span className={`${styles.navLink} muted`} key={key} aria-disabled="true">
-                {dictionary.nav[key]}
-              </span>
-            );
-          })}
-        </nav>
-        <div className={styles.panel}>{children}</div>
-      </div>
-    </section>
+    <main className="page-main" id="main-content">
+      <section className="page-section">
+        <div className={`content-shell ${styles.shell}`}>
+          <nav className={styles.nav} aria-label="Admin">
+            <span className={styles.badge}>
+              {dictionary.common.signedInAs}: {session.role}
+            </span>
+            {navKeys.map((key) => {
+              const route = IMPLEMENTED_ROUTES[key];
+              return route ? (
+                <Link className={styles.navLink} href={localizePath(locale, route)} key={key}>
+                  {dictionary.nav[key]}
+                </Link>
+              ) : (
+                <span className={`${styles.navLink} muted`} key={key} aria-disabled="true">
+                  {dictionary.nav[key]}
+                </span>
+              );
+            })}
+          </nav>
+          <div className={styles.panel}>{children}</div>
+        </div>
+      </section>
+    </main>
   );
 }
