@@ -35,6 +35,66 @@ export type AdminDictionary = {
     viewHistory: string;
     reopen: string;
   };
+  /** 業務設定（§8）画面のラベル。 */
+  settings: {
+    title: string;
+    intro: string;
+    groups: { brand: string; sales: string; content: string };
+    fields: {
+      contact_email: string;
+      social_threads: string;
+      social_instagram: string;
+      hold_hours: string;
+      order_accepting: string;
+      restock_accept: string;
+    };
+    on: string;
+    off: string;
+    provisional: string;
+    nonEditableNote: string;
+    history: string;
+    noHistory: string;
+    publicReflectNote: string;
+  };
+  /** 仕入先管理（§12）画面のラベル。 */
+  suppliers: {
+    title: string;
+    intro: string;
+    name: string;
+    region: string;
+    country: string;
+    publicLevel: string;
+    contact: string;
+    note: string;
+    levels: { public: string; brand_only: string; region_only: string; private: string };
+    empty: string;
+    confidentialNote: string;
+  };
+  /** 入金管理（§12）画面のラベル。 */
+  payments: {
+    title: string;
+    intro: string;
+    orderId: string;
+    expectedAmount: string;
+    paidAmount: string;
+    paymentType: string;
+    matchingNumber: string;
+    recordReceipt: string;
+    empty: string;
+    noBankNote: string;
+  };
+  /** 配送管理（§12）画面のラベル。 */
+  shipments: {
+    title: string;
+    intro: string;
+    orderId: string;
+    carrier: string;
+    method: string;
+    tracking: string;
+    actualCost: string;
+    chargedCost: string;
+    empty: string;
+  };
   /** CommerceErrorCode と success に対応する通知文言。 */
   notify: {
     success: string;

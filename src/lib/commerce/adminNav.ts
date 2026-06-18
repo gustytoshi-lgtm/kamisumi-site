@@ -20,6 +20,8 @@ export const ADMIN_NAV_KEYS = [
   "journal",
   "media",
   "purchases",
+  "payments",
+  "shipments",
   "settings",
   "auditLogs",
 ] as const;
@@ -41,6 +43,8 @@ export const ADMIN_NAV_PERMISSIONS: Record<AdminNavKey, Permission[]> = {
   journal: ["journal:manage"],
   media: ["media:manage", "product:manage_images"],
   purchases: ["purchase:manage", "cost:view"],
+  payments: ["purchase:manage"],
+  shipments: ["order:update_status"],
   settings: ["settings:manage"],
   auditLogs: ["audit_log:view"],
 };

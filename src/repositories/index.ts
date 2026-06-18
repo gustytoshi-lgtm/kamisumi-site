@@ -24,6 +24,10 @@ import { supabaseProcurementRepository } from "./supabase/supabaseProcurementRep
 import { supabaseFulfillmentRepository } from "./supabase/supabaseFulfillmentRepository";
 import { mockPaymentRepository } from "./mock/mockPaymentRepository";
 import { supabasePaymentRepository } from "./supabase/supabasePaymentRepository";
+import type { SettingsRepository } from "./core/settingsRepository";
+import { createSettingsService, type SettingsService } from "@/lib/commerce/settingsService";
+import { mockSettingsRepository } from "./mock/mockSettingsRepository";
+import { supabaseSettingsRepository } from "./supabase/supabaseSettingsRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -114,4 +118,21 @@ export function getPaymentRepository(): PaymentRepository {
 
 export function getPaymentService(): PaymentService {
   return createPaymentService(getPaymentRepository());
+}
+
+/** 業務設定 repository factory。既定 mock。Supabase は実装待ち（スケルトン）。 */
+export function getSettingsRepository(): SettingsRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseSettingsRepository;
+  }
+  return mockSettingsRepository;
+}
+
+export function getSettingsService(): SettingsService {
+  return createSettingsService(getSettingsRepository());
 }

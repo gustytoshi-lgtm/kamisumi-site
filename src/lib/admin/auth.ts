@@ -39,7 +39,10 @@ export function getAdminAuthMode(): AdminAuthMode {
 function getMockAdminSession(): AdminSession | null {
   const devRole = process.env.ADMIN_DEV_ROLE;
   if (devRole && isRole(devRole)) {
-    return { userId: "dev-user", role: devRole, adminLocale: "ja" };
+    // 管理画面の表示言語は利用者設定（profiles.admin_locale）。mock では ADMIN_DEV_LOCALE で
+    // 切り替え可能にし、人間が日本語/繁體中文の両方を確認できるようにする（既定 ja）。
+    const adminLocale: AdminLocale = process.env.ADMIN_DEV_LOCALE === "zh-tw" ? "zh-tw" : "ja";
+    return { userId: "dev-user", role: devRole, adminLocale };
   }
   return null;
 }

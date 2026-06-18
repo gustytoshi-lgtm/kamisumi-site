@@ -23,6 +23,10 @@ const IMPLEMENTED_ROUTES: Partial<Record<AdminNavKey, string>> = {
   orders: "/admin/orders",
   sourcingRequests: "/admin/sourcing",
   journal: "/admin/journal",
+  purchases: "/admin/suppliers",
+  payments: "/admin/payments",
+  shipments: "/admin/shipping",
+  settings: "/admin/settings",
 };
 
 type AdminLayoutProps = LocaleParams & { children: ReactNode };

@@ -93,18 +93,26 @@ export async function getDevDiagnostics(): Promise<DevDiagnostics> {
     migrations,
     latestMigration: migrations.at(-1) ?? "-",
     commit: readCommit(),
-    implementedAdmin: ["dashboard", "products", "inventory", "orders", "sourcing", "journal"],
-    pendingAdmin: [
+    implementedAdmin: [
+      "dashboard",
+      "products",
+      "inventory",
+      "orders",
+      "sourcing",
+      "journal",
+      "settings",
       "suppliers",
-      "purchases",
       "payments",
-      "shipments",
+      "shipping",
+    ],
+    pendingAdmin: [
+      "purchases-detail",
       "matcha-lots",
       "ceramic-units",
       "expenses",
       "profit",
       "accounting-export",
-      "settings",
+      "dashboard-metrics",
     ],
   };
 }
