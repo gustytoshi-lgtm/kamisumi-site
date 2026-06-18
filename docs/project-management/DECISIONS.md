@@ -22,3 +22,6 @@
 | PM-016 | 2026-06-18 | `getAdminSession` を `ADMIN_AUTH_MODE`(mock/supabase) で切替。未指定は `DATA_BACKEND` 追従。supabase は self-read RLS で `user_roles`/`profiles` 取得 | mock 開発を壊さず Supabase Auth を後付け。呼出側契約不変（async 化のみ） | 認証を常に Supabase 必須化 / 別フラグ無し | 本番認証要件が固まったら | `src/lib/admin/auth.ts` と全 admin 呼出 |
 | PM-017 | 2026-06-18 | vitest で `server-only` を no-op スタブに alias | Step B が server.ts 経由で `server-only` を間接導入し jsdom で解決不可。サーバー境界の意味は本番ビルドで担保 | 各 repo を動的 import に全面改修 | — | `vitest.config.ts`, `tests/stubs/server-only.ts` |
 | PM-018 | 2026-06-18 | 並行エージェントの Step B（repository）と本セッションの Step C（認証）を双方採用し、以後**単一エージェント**で作業 | 両者はファイル完全分離・衝突なし。診断でコミット損失/競合コピーなしを確認（I-014 Resolved） | 一方を破棄して再実装（無駄） | — | 全 Phase 2A コード、運用方針 |
+| PM-019 | 2026-06-18 | 注文メモは provisional_orders に列追加（migration 0006）。別テーブル化しない | 1:1 の単純メモ。注文行と同じ RLS/論理削除に自然に追従。監査は audit_logs | customer_notes 別テーブル | 履歴要件が出れば別テーブル化 | 0006, order write repo |
+| PM-020 | 2026-06-18 | 原価配賦 method はドメインで `purchase_value`、DB は `amount`。`to/fromDbMethod` で橋渡し | spec §3.D の語彙と既存 DB enum(0003) の差を、適用済み migration を書き換えずに吸収 | 0003 を書き換え / 名称を統一 | 次の schema 改訂時に統一検討 | costAllocation.ts, cost_allocations |
+| PM-021 | 2026-06-18 | 抹茶ロットの FIFO/賞味期限は純ロジック（DB非依存）。on-hand 数量はドメイン入力で受ける | 物理数量は inventory_items が持つ。ロット順序/警告のみを純関数化しテスト容易に | matcha_lots に数量列を即追加 | I-015 で供給経路を確定 | matchaLot.ts |

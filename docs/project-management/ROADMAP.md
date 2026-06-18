@@ -1,12 +1,12 @@
 # ROADMAP
 
 状態: Not Started / In Progress / Blocked / Completed / Deferred
-最終更新: 2026-06-18
+最終更新: 2026-06-18 (session 9)
 
 | 項目 | 状態 | 備考 |
 |---|---|---|
 | **Phase 1 公開サイト** | Completed | 全15ルート、SEO/JSON-LD、OG PNG、favicon、soft-404修正 |
-| **Phase 2A 販売・運用管理基盤** | In Progress | 基盤（型/スキーマ/RLS/repo切替/権限/i18n）完了。管理画面UI・Auth・実クエリ未着手 |
+| **Phase 2A 販売・運用管理基盤** | Impl Complete / Validation Pending | コード完了（基盤/管理UI CRUD/SSR/read+write repo/認証切替/注文メモ0006）。実 Supabase 接続での検証が残（タグ未付与） |
 | ├ データ基盤（migration/seed/RLS/ER/切替） | Completed | 実DB適用は env 待ち |
 | ├ ドメインロジック（money/状態/RBAC/受付） | Completed | テスト45件 |
 | ├ 管理画面 i18n + ナビ権限マップ | Completed | ルート未実装 |
@@ -14,9 +14,10 @@
 | ├ 書込レイヤ（interface/service/mock/テスト） | Completed | RBAC+状態遷移+在庫整合性+冪等+監査。test 72 |
 | ├ 管理画面 CRUD 接続（書込） | Completed | 商品[status/delete/restore]/在庫[create/move/status]/注文[create/status/notes/reopen]/買付[create/status]/Journal[draft/translation/publish/delete]。I-008(metadata)解決 |
 | ├ Supabase クライアント基盤 / SSR | Completed | `@supabase/supabase-js` + `@supabase/ssr`。client(anon)/server(admin+auth)/middleware。proxy は configured 時のみ session 更新 |
-| ├ Supabase Auth / セッション保護 | In Progress | SSR 基盤（cookie client + middleware）完了。`getAdminSession` の Supabase 切替は実 DB 接続後 |
-| ├ SupabaseCommerceRepository（読取/書込）実装 | In Progress | 実クエリ実装完了（write: RPC/原子/冪等、read: 埋め込み select、エラー変換 + 単体テスト）。**実 DB 検証待ち**（contract test skip, docs/SUPABASE_SETUP.md） |
-| **Phase 2B 仕入・原価・在庫・利益** | Not Started | スキーマ(0003)とロードマップのみ。利益ビュー/FIFO/個体UI未 |
+| ├ Supabase Auth / セッション保護 | Impl Complete / Validation Pending | `getAdminSession` を `ADMIN_AUTH_MODE` で mock⇄Supabase 切替（user_roles/profiles self-read RLS）。実ログイン疎通は実 DB 接続後 |
+| ├ SupabaseCommerceRepository（読取/書込）実装 | Impl Complete / Validation Pending | 実クエリ実装完了（write: RPC/原子/冪等、read: 埋め込み select、エラー変換 + 単体テスト）。**実 DB 検証待ち**（contract test skip, docs/SUPABASE_SETUP.md） |
+| ├ 注文メモ恒久化（migration 0006） | Completed | provisional_orders に customer/internal note 列。write repo 列 UPDATE。contract test 追加 |
+| **Phase 2B 仕入・原価・在庫・利益** | In Progress | schema(0003)あり。**純ロジック完了**: 原価配賦(quantity/value/weight/volume/manual/none)・抹茶ロット FIFO/賞味期限アラート。残: repository/管理UI/入金・配送ステートマシン/利益分析/会計 export interface |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
 | 本番公開準備 | Blocked | 連絡先・法務・配送・支払い・実商品 確定が前提 |

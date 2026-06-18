@@ -1,6 +1,9 @@
 # HANDOFF (Codex 移管用)
 
-最終更新: 2026-06-18 (8) / 更新者: Claude Code
+最終更新: 2026-06-18 (9) / 更新者: Claude Code
+
+> **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
+> **Phase 2B: 純ロジック着手**（原価配賦・抹茶ロット FIFO/賞味期限を実装+テスト。repository/UI/入金・配送・利益分析/会計 interface は未着手）。
 
 ## 概要
 KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
@@ -44,9 +47,9 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
    - `RUN_SUPABASE_CONTRACT=1` で `tests/writeContract.supabase.test.ts` を実行（**注: contract の productId "p1" は FK 違反。seed 済み実 UUID を使う setup へ拡張が必要**）。
    - `DATA_BACKEND=supabase` で公開サイトが mock と同結果になる read 一致確認。
 2. ~~**Supabase Auth 差替**~~: **完了（session 8, Step C）**。`getAdminSession()` が `ADMIN_AUTH_MODE`（既定 `DATA_BACKEND` 追従）で mock/Supabase を切替。supabase は Cookie セッション→`user_roles`/`profiles`（self-read RLS）。残るは実 project 接続でのログイン疎通確認のみ。
-3. **setOrderNotes 恒久対応**: provisional_orders に note 列が無いため現状は監査のみ。`customer_notes` 等で恒久化する migration（0006）。
-4. **migration 実適用検証**（I-002）。
-5. Phase 2B 以降は ROADMAP 参照。
+3. ~~**setOrderNotes 恒久対応**~~: **完了（session 9, migration 0006）**。`provisional_orders` に customer_note/internal_note/notes_updated_by/notes_updated_at を追加し write repo を列 UPDATE に変更。
+4. **migration 実適用検証**（I-002、0001-0006）。
+5. **Phase 2B 続き**: 純ロジック（costAllocation/matchaLot）は実装済み。次は repository（suppliers/purchases/purchase_items/cost_allocations/matcha_lots/ceramic_units/payments/shipments）+ service + 管理UI(ja/zh-tw) + 入金/配送ステートマシン + 利益分析ビュー + 会計 export interface。schema は 0003 に存在。`matcha_lots` の on-hand 数量は I-015。
 
 > ✅ **並行作業（I-014）Resolved**: session 8 で並行ライター停止を確認・診断（損失/競合コピーなし）。以後**単一エージェント**で作業する。再開時も 1 ブランチ 1 作業者を厳守。
 
@@ -69,7 +72,7 @@ npm run build && npm run start     # http://localhost:3000
 `DATA_BACKEND`(既定mock), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`。秘密値・実口座・顧客情報はコミットしない。
 
 ## migration状態
-0001-0005 作成済み・**実DB未適用**。`db:validate` OK。実SQL妥当性は未検証（I-002）。
+0001-0006 作成済み（0006=注文メモ列）・**実DB未適用**。`db:validate` OK（6 files）。実SQL妥当性は未検証（I-002）。
 
 ## mock / Supabase 切替
 `src/config/dataBackend.ts` → `getDataBackend()`。`src/repositories/index.ts` の factory が mock/supabase を選択。Supabase 未設定で `DATA_BACKEND=supabase` にすると factory が明示エラー（誤設定検知）。
@@ -86,8 +89,8 @@ npm run build && npm run start     # http://localhost:3000
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-18 session 8）
-typecheck/lint OK（warning 0）、**test 84 passed・1 skipped**（supabase 契約は実 DB 必須で skip）、build clean、db:validate(5) OK、E2E timeout(I-001)。
+## テスト結果（2026-06-18 session 9）
+typecheck/lint OK（warning 0）、**test 112 passed・1 skipped**（supabase 契約は実 DB 必須で skip）、build clean、db:validate(6) OK、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```

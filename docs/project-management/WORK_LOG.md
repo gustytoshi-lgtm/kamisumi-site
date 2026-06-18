@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-06-18 (9) — Claude Code — Phase 2A 残補修(0006) + Phase 2B 純ロジック着手
+
+### 目的
+Phase 2A の `setOrderNotes` を実 DB で恒久化（migration 0006）。続けて Phase 2B のうち
+DB/UI 非依存で安全・完全にテストできる純ロジック（原価配賦・抹茶ロット）を実装。単一エージェント継続。
+
+### 実施内容
+1. **migration 0006_order_notes.sql**: `provisional_orders` に `customer_note` / `internal_note` / `notes_updated_by` / `notes_updated_at` を追加（追加 migration、0001-0005 不変）。RLS は既存 `is_org_member` が新列に適用。
+   - Supabase write repo `setOrderNotes` を監査のみ→列 UPDATE + 読み戻しに変更。`mapOrder` が note 列を反映。
+   - mock は既に in-memory 保持済み → 両 repo が同一契約。`writeContractRunner` に setOrderNotes 永続テスト（部分更新の据え置き含む）追加。
+2. **Phase 2B-D 原価配賦** `src/lib/commerce/costAllocation.ts`: quantity / purchase_value / weight / volume / manual / none。`money.allocateByRatio` 上に構築し、合計一致・端数保存・整数最小単位・通貨保持・manual の合計/通貨検証。DB の `amount` ↔ ドメインの `purchase_value` を `to/fromDbMethod` で橋渡し。15 テスト。
+3. **Phase 2B-E 抹茶ロット** `src/lib/commerce/matchaLot.ts`: `availableCount` / `sortFifo`（fifoSeq→仕入日→賞味期限）/ `allocateFifo`（不足量報告）/ `bestBeforeAlert`（expired/90/60/30/14、しきい値設定可）。12 テスト。
+
+### 重要な前提・残課題
+- `matcha_lots` に明示的な on-hand 数量列がない（reserved_count/incoming_count はあり）。純ロジックは数量をドメイン入力で受ける設計。永続供給（inventory_items 連携 or 列追加）は今後（**I-015**）。
+- Phase 2B の repository / 管理UI / 入金・配送・利益分析 / 会計 export interface は未着手（純ロジックを先行し安全に積み上げる方針）。
+
+### コマンド / テスト
+- typecheck OK / lint OK（warning 0）/ **test 112 passed・1 skipped** / db:validate **6 files** OK / build clean。
+
+### commit hashes
+- `d6fa407` feat(phase2a): persist order notes (migration 0006)
+- `26f1c71` feat(phase2b): cost allocation module
+- `99a1767` feat(phase2b): matcha lot FIFO + best-before alert logic
+
+---
+
 ## 2026-06-18 (8) — Claude Code — 並行作業の収束 + Step C 認証切替 + 統合コミット
 
 ### 背景

@@ -13,8 +13,9 @@
 ## 現在Phase
 
 - Phase 1（公開サイト）: **完了**＋仕上げ継続中
-- Phase 2A（販売・運用管理基盤）: **コード実装ほぼ完了・実 DB 検証待ち**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n/管理画面scaffold/書込レイヤ/管理CRUD全接続/**Supabase SSR**/**Supabase read+write repository 実クエリ**/**mock⇄Supabase 認証切替** 完了。残: 実 Supabase project 接続での contract test・read 一致・RLS 検証）
-- Phase 2B / 3 / 4: 未着手（スキーマの一部とロードマップのみ）
+- Phase 2A（販売・運用管理基盤）: **Implementation Complete / Real Supabase Validation Pending**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n/管理画面scaffold/書込レイヤ/管理CRUD全接続/Supabase SSR/Supabase read+write repository 実クエリ/mock⇄Supabase 認証切替/注文メモ永続化(0006) 完了。**実 DB 検証が残るため `v0.2.0-phase2a` タグは未付与**）
+- Phase 2B（仕入・原価・在庫・採算）: **純ロジック着手**（原価配賦 `costAllocation.ts`・抹茶ロット FIFO/賞味期限 `matchaLot.ts` 実装+テスト完了。schema 0003 は既存。repository/管理UI/入金・配送・利益分析/会計 export interface は未着手）
+- Phase 3 / 4: 未着手（スキーマの一部とロードマップのみ）
 
 ## 完了済み
 
@@ -23,7 +24,7 @@
 - Commerce Core 型・境界（`CoreScope` 多テナント）
 - ドメインロジック（`src/lib/commerce/`）: money / orderStatus / inventoryStatus / rbac / sourcingAcceptance / adminNav + テスト
 - データ基盤: `DATA_BACKEND` 切替（既定 mock）、Supabase adapter スタブ、`.env.example`
-- `supabase/migrations` 0001-0004（組織/カタログ/運用/仕入/RLS）、`seed.sql`、`ER.md`、`README.md`、`npm run db:validate`
+- `supabase/migrations` 0001-0006（組織/カタログ/運用/仕入/RLS/書込支援/注文メモ）、`seed.sql`、`ER.md`、`README.md`、`npm run db:validate`
 - 管理画面 i18n 辞書（ja / zh-tw）+ ナビ↔権限マップ（ルート未実装）
 
 ## 実装中 / 未着手（次の作業）
@@ -51,20 +52,20 @@
 
 ## migration状態
 
-- `supabase/migrations` 0001-0005 作成済み。**実DBへは未適用**（Supabase project なし）。
-- 静的検証 `npm run db:validate` は OK（5 files）。実SQL妥当性は未検証（Postgres 必要、KNOWN_ISSUES I-002）。
+- `supabase/migrations` 0001-0006 作成済み（0006=注文メモ列）。**実DBへは未適用**（Supabase project なし）。
+- 静的検証 `npm run db:validate` は OK（6 files）。実SQL妥当性は未検証（Postgres 必要、KNOWN_ISSUES I-002）。
 
 ## Git
 
 - branch: `main`
-- 最新 commit: `15b01bd`（実行時に `git log -1` で再確認）
+- 最新 commit: `99a1767`（実行時に `git log -1` で再確認）
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / **test(84 passed・1 skipped)** / build / db:validate(5): **成功**（supabase 契約テストは実 DB 必須で skip）
+- lint / typecheck / **test(112 passed・1 skipped)** / build / db:validate(6): **成功**（supabase 契約テストは実 DB 必須で skip）
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）
 
 ## 再開コマンド
