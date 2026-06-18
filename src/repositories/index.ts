@@ -1,11 +1,18 @@
 import type { CommerceRepository } from "./core/commerceRepository";
 import type { CommerceWriteRepository } from "./core/commerceWriteRepository";
+import type { ProcurementRepository } from "./core/procurementRepository";
 import { getDataBackend, isSupabaseConfigured } from "@/config/dataBackend";
 import { createCommerceService, type CommerceService } from "@/lib/commerce/commerceService";
+import {
+  createProcurementService,
+  type ProcurementService,
+} from "@/lib/commerce/procurementService";
 import { mockCommerceRepository } from "./kamisumi/mockCommerceRepository";
 import { mockCommerceWriteRepository } from "./mock/mockCommerceWriteRepository";
+import { mockProcurementRepository } from "./mock/mockProcurementRepository";
 import { supabaseCommerceRepository } from "./supabase/supabaseCommerceRepository";
 import { supabaseCommerceWriteRepository } from "./supabase/supabaseCommerceWriteRepository";
+import { supabaseProcurementRepository } from "./supabase/supabaseProcurementRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -43,4 +50,23 @@ export function getCommerceWriteRepository(): CommerceWriteRepository {
 
 export function getCommerceService(): CommerceService {
   return createCommerceService(getCommerceWriteRepository());
+}
+
+/**
+ * Phase 2B 調達 repository factory。既定 mock。読取と同じく DATA_BACKEND と env を尊重する。
+ */
+export function getProcurementRepository(): ProcurementRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseProcurementRepository;
+  }
+  return mockProcurementRepository;
+}
+
+export function getProcurementService(): ProcurementService {
+  return createProcurementService(getProcurementRepository());
 }
