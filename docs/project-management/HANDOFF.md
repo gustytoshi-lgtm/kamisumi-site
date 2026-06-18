@@ -6,7 +6,8 @@
 > **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`・仕入先 `/admin/suppliers`・仕入記録 `/admin/purchases`（原価配賦）・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。
 > **session 14 追加（Phase 2B 永続化+分析+会計）**: 抹茶ロット(0010)・陶器個体(0011)・経費(0012)・利益分析・ダッシュボード・会計エクスポート(0013)。
 > **session 15 追加**: メディア管理 `/admin/media`(0014)・SNS下書き `/admin/sns-drafts`(承認フロー・自動公開なし)。Phase 3 lib: cart/checkout(手動振込mock・sandbox skeleton)・notifications(mock)。
-> **session 16 追加**: Phase 2B 全 Supabase repo の実クエリ実装（matcha/ceramic/expense/media/settings）+ migration 0015(setting_history)。test 211・全ゲート緑。実 DB 検証は I-002/I-020 で残。本番決済/送信/自動投稿なし。
+> **session 16 追加**: Phase 2B 全 Supabase repo の実クエリ実装（matcha/ceramic/expense/media/settings）+ migration 0015(setting_history)。実 DB 検証は I-002/I-020 で残。
+> **session 17 追加**: GitHub remote 設定＋`main` push（以後 commit ごとに push・push 前に秘密情報点検）。OneDrive→`C:\dev\sites\kamisumi-site` 移設（I-003 解消）。通知を業務サービスへ実配線（注文/入金/配送の状態変化で best-effort enqueue）＋通知ビューア(dev) `/admin/notifications`＋操作履歴ビューア `/admin/audit-logs`(owner)。**test 216**・全ゲート＋verify:quick 緑・管理画面 全16。本番決済/送信/自動投稿なし。
 
 > **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
 > **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
@@ -112,8 +113,8 @@ Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRO
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-19 session 16）
-typecheck/lint OK（warning 0）、**test 211 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(15) OK、build clean、`verify:quick` 全✅（管理画面 全14 画面含む）、E2E timeout(I-001)。
+## テスト結果（2026-06-19 session 17）
+typecheck/lint OK（warning 0）、**test 216 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(15) OK、build clean、`verify:quick` 全✅（管理画面 全16 画面含む）、E2E は移設で要再評価(I-001)。
 
 ## Codex 再開用プロンプト
 ```
