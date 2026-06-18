@@ -2,8 +2,11 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isAdminEnabled } from "@/config/features";
+import { isDevToolsEnabled } from "@/config/devtools";
+import { getDataBackend } from "@/config/dataBackend";
+import { DevModeBar } from "@/components/admin/DevModeBar";
 import { getAdminDictionary } from "@/dictionaries/admin";
-import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
+import { getAdminAuthMode, getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { visibleAdminNav, type AdminNavKey } from "@/lib/commerce/adminNav";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { localizePath } from "@/lib/routes";
@@ -49,9 +52,18 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   }
 
   const navKeys = visibleAdminNav(session.role);
+  const showDevBar = isDevToolsEnabled();
 
   return (
     <main className="page-main" id="main-content">
+      {showDevBar ? (
+        <DevModeBar
+          authMode={getAdminAuthMode()}
+          backend={getDataBackend()}
+          locale={locale}
+          role={session.role}
+        />
+      ) : null}
       <section className="page-section">
         <div className={`content-shell ${styles.shell}`}>
           <nav className={styles.nav} aria-label="Admin">
