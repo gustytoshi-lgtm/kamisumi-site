@@ -66,6 +66,8 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0003_procurement.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0004_rls.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0005_write_support.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0006_order_notes.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0007_supplier_details.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0008_shipment_status.sql
 ```
 
 適用前に静的検証:
