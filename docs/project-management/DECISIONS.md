@@ -13,3 +13,7 @@
 | PM-007 | 2026-06-18 | 管理画面UI・実Supabaseクエリ・Auth ランタイムは本セッションで未実装とし、型/スキーマ/権限/i18n を先行 | 半完成UIで公開サイトを壊すリスク回避（§17 非該当のため mock/flag で吸収し継続） | 管理画面まで一気に実装 | 次セッションで実装 | 管理画面全般 |
 | PM-008 | 2026-06-18 | プロジェクト管理文書を `docs/project-management/` に集約（正規） | spec の参照順に合わせ、Codex 引き継ぎを明確化 | ルート直下のみ | — | docs 構成 |
 | PM-009 | 2026-06-18 | `@supabase/supabase-js` は本セッションで未導入 | 本番情報なしで依存追加・lock 変更を避け、adapter スタブで契約のみ確定 | 先に依存追加 | Supabase 実装着手時に追加 | 依存関係 |
+| PM-010 | 2026-06-18 | 注文「再開」は cancelled→inquiry_received の限定遷移のみ許可 | orderStatus の前進機械は un-cancel を許さないため、再開は専用の限定操作として扱う | 任意状態へ戻す | 運用要件が出たら再検討 | commerceService.reopenOrder |
+| PM-011 | 2026-06-18 | 書込は「service層=業務ルール / repository=永続不変条件」に分離 | 同じ業務ルールを mock/Supabase で再実装しないため。repository は契約として差し替え可能 | repository に業務ルールを埋める | — | commerceService / writeRepository |
+| PM-012 | 2026-06-18 | 複数テーブル更新は DB function/RPC で原子実行 + idempotencyKey で冪等 | 在庫移動/予約/注文状態/監査の途中状態を残さない。二重実行で二重減算しない | アプリ側で逐次更新 | — | apply_inventory_movement(0005), 在庫サービス |
+| PM-013 | 2026-06-18 | mock 書込は in-memory store（fixture 非破壊、reset/seed）。public read(fixture) とは別ストア | 開発・テスト用。source を書き換えない。Supabase 化で read/write 統合 | fixture を直接書換 / ファイル永続化 | Supabase 実装時に統合 | mockCommerceWriteRepository。**注意: 開発サーバー再起動で消える**（本番DB代替ではない） |

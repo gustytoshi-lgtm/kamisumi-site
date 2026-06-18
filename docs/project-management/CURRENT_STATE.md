@@ -13,7 +13,7 @@
 ## 現在Phase
 
 - Phase 1（公開サイト）: **完了**＋仕上げ継続中
-- Phase 2A（販売・運用管理基盤）: **基盤実装中**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n/管理画面scaffold[読取] は完了。CRUD書込・実Supabaseクエリ・Supabase認証は未着手）
+- Phase 2A（販売・運用管理基盤）: **基盤実装中**（ドメインロジック/スキーマ/RLS/repository切替/管理i18n/管理画面scaffold/**書込レイヤ[interface+service+mock+テスト]**/管理CRUD接続[商品ステータス] 完了。Supabase書込の実クエリ・Supabase認証・残CRUDフォームは未着手）
 - Phase 2B / 3 / 4: 未着手（スキーマの一部とロードマップのみ）
 
 ## 完了済み
@@ -37,7 +37,9 @@
 ## データモード
 
 - 既定 **mock**（`DATA_BACKEND` 未設定）。公開サイトは Phase 1 と同一挙動。
-- Supabase は env（`NEXT_PUBLIC_SUPABASE_URL` 等）と `DATA_BACKEND=supabase` を設定したときのみ。現状は接続なし。
+- 読取: `getCommerceRepository()` / 書込: `getCommerceWriteRepository()` + `getCommerceService()`（既定 mock）。
+- **mock 書込は in-memory（reset/seed、fixture非破壊、再起動で消える）。public read(fixture) とは別ストア**（Supabase 化で統合）。
+- Supabase は env と `DATA_BACKEND=supabase` 設定時のみ。書込は契約確定済み・メソッド実装待ち（NotImplemented）。
 
 ## 公開サイト状態 / 管理画面状態
 
@@ -52,13 +54,13 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `f745444`（admin scaffold）※実行時に `git log -1` で再確認
+- 最新 commit: `7f813a0`（supabase write skeleton + 0005）※実行時に `git log -1` で再確認
 - tag: なし（Phase 2A 未完了のため `v0.2.0-phase2a` は未付与）
 - リモート: なし（push しない）
 
 ## テスト状態
 
-- lint / typecheck / test(45) / build(79p) / db:validate: **成功**
+- lint / typecheck / test(72) / build / db:validate(5): **成功**
 - E2E（playwright）: OneDrive遅延で timeout（KNOWN_ISSUES I-001）
 
 ## 再開コマンド

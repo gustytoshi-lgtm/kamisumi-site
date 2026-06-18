@@ -19,15 +19,18 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 - データ基盤: `DATA_BACKEND` 切替（既定mock）、Supabase adapterスタブ、`.env.example`
 - `supabase/migrations` 0001-0004 + seed + ER.md + README、`npm run db:validate`
 - 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ
-- 管理画面 **scaffold**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`、ダッシュボード/商品一覧[読取]、権限ガード確認済み）
+- 管理画面 **scaffold**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`、ダッシュボード/商品一覧、権限ガード確認済み）
+- **書込レイヤ**: `CommerceWriteRepository` 契約 + `commerceService`（RBAC/状態遷移/在庫整合性/冪等/監査）+ mock 書込 repo（in-memory, reset/seed）+ テスト72。管理CRUD は商品ステータス変更を server action で接続済
 
 ## 作業途中 / 未着手（次の具体的作業）
 1. **`@supabase/supabase-js` 導入**し `src/lib/supabase/{client,server}.ts` を作成（client=anon, server=service role はサーバー専用）。
-2. **`SupabaseCommerceRepository` 実装**: `supabaseCommerceRepository.ts` の各メソッドを 0001 スキーマに対するクエリで実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すことを確認。
-3. **Supabase Auth + セッション保護**: `/[locale]/admin` layout（server）で session 確認、`user_roles` から role 取得、`rbac.ts`/`adminNav.ts` でメニュー制御。未ログインは公開トップへ。
-4. **管理画面 CRUD UI**（scaffold は実装済み。残りを継続）: `adminNav` の各キー（inventory/customers/inquiries/orders/sourcing/journal/media/settings/audit）の書込フォームを追加。`getAdminDictionary(adminLocale)` を使用しラベル直書き禁止。各ページで `can()` による権限ガードを継続。`ADMIN_ENABLED` は既定OFFのまま。`/[locale]/admin/products` は読取の例として実装済み。残: admin metadata(title, I-008)・専用adminクローム(I-009)。
+2. **Supabase read/write 実装**: `supabaseCommerceRepository.ts`（読取）と `supabaseCommerceWriteRepository.ts`（書込）の各メソッドを 0001-0005 スキーマ/RPC（`apply_inventory_movement`）で実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すこと、`tests/writeContract.test.ts` の `runWriteContract` を Supabase 実装にも適用して同一挙動を確認。
+3. **Supabase Auth + セッション保護**: `getAdminSession()`（mock）を Supabase Auth の session+user_roles から返すよう差替（呼び出し側不変）。
+4. **管理画面 残 CRUD**: 在庫移動/注文状態/買付/Journal のフォームを `actions.ts` + client form パターン（商品ステータスと同じ）で追加。service/テストは実装済み。`getAdminDictionary` 使用・`can()` ガード継続・`ADMIN_ENABLED` 既定OFF。残: admin metadata(I-008)・専用adminクローム(I-009)。
 5. **migration 実適用検証**: Supabase/psql で `supabase db reset` → `db lint`（I-002）。
 6. Phase 2B 以降は ROADMAP 参照。
+
+> 書込の使い方: `getCommerceService()`（既定 mock）→ `service.setProductStatus(actor, id, status)` 等。actor = `{ userId, role }`。業務ルールは service が強制、永続不変条件は repository が担う。
 
 ## 最初に読むファイル
 1. `docs/project-management/CURRENT_STATE.md` / `ROADMAP.md` / `KNOWN_ISSUES.md` / `DECISIONS.md`
@@ -64,14 +67,14 @@ npm run build && npm run start     # http://localhost:3000
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
 ## テスト結果（2026-06-18）
-typecheck/lint OK、test 45 passed、build 79ページ、db:validate OK、E2E timeout(I-001)。
+typecheck/lint OK、test 72 passed、build clean、db:validate(5) OK、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```
 KAMISUMI プロジェクト（C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site）を継続する。
 まず docs/project-management/CURRENT_STATE.md と HANDOFF.md を読むこと。
-現在 Phase 2A 基盤（型/スキーマ/RLS/repository切替/RBAC/管理i18n）は完了、管理画面UI・Supabase Auth・実Supabaseクエリが未着手。
-次のタスク: (1) @supabase/supabase-js 導入と src/lib/supabase/{client,server}.ts、(2) supabaseCommerceRepository を 0001 スキーマで実装し DATA_BACKEND=supabase で公開サイトが mock と同結果になることを確認、(3) /[locale]/admin の Auth 保護と CRUD UI を adminNav+rbac+getAdminDictionary で実装（feature flag 既定無効）。
+現在 Phase 2A は 基盤 + 管理画面scaffold + 書込レイヤ(interface/service/mock/テスト72) + 管理CRUD接続(商品ステータス) まで完了。Supabase の実read/write・Supabase Auth・残CRUDフォームが未着手。
+次のタスク: (1) @supabase/supabase-js 導入と src/lib/supabase/{client,server}.ts、(2) supabaseCommerceRepository(読取)と supabaseCommerceWriteRepository(書込)を 0001-0005/RPC で実装し、DATA_BACKEND=supabase で公開サイトが mock と同結果・runWriteContract も通ることを確認、(3) getAdminSession を Supabase Auth へ差替、(4) 在庫/注文/買付/Journal の管理CRUDフォームを actions.ts+client form パターンで追加。
 ルール: 公開サイトを壊さない、GitHub push しない、OneDrive外へ移動しない、適用済みmigrationは書き換えない、金額は整数*_minor、front_staffに原価/利益/口座/権限/全顧客CSVを見せない、秘密情報をcommitしない。
 各機能ごとに npm run typecheck/lint/test/build/db:validate を通し、WORK_LOG と CURRENT_STATE を更新すること。
 ```

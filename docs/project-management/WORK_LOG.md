@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-06-18 (3) — Claude Code — Phase 2A 書込レイヤ
+
+### 目的
+mock 専用に閉じず Supabase へ差し替え可能な共通契約で、商品/在庫/注文/買付/Journal の書込ユースケースを実装。
+
+### 実施内容（指定順序 1-8）
+1-3. 書込 interface（`core/commerceWriteRepository.ts` + `core/writeModels.ts`）/ service層（`lib/commerce/commerceService.ts`）/ mock 書込 repository（`repositories/mock/mockCommerceWriteRepository.ts`、in-memory・reset/seed・fixture非破壊）。
+4. 管理画面CRUD接続（代表: 商品ステータス変更）。server action `app/[locale]/admin/actions.ts` + client `ProductStatusForm`（useActionState・確認・両言語通知）。admin/products を書込ストア参照に。
+5. 状態遷移・在庫整合性テスト（`tests/commerceService.test.ts`, `tests/writeContract.test.ts`）。
+6-7. Supabase 書込スケルトン（`repositories/supabase/supabaseCommerceWriteRepository.ts`）+ migration `0005_write_support.sql`（reserved/held 列・idempotency_keys・原子的 apply_inventory_movement）+ README 方針。
+8. mock 既定で動作継続（DATA_BACKEND 未設定）。
+
+### コマンド / テスト
+- typecheck/lint OK、test **72 passed**、build clean、db:validate(5) OK
+- 実機: admin ON+owner で商品ステータス変更フォーム描画(200)、OFFで /admin 404、公開導線維持
+
+### 業務ルール（テスト済）
+不正遷移拒否 / 販売可能在庫を下回る予約拒否 / 在庫負数防止 / 二重実行防止(idempotency) /
+予約解除で在庫復元 / 出荷は予約分のみ / 完売・参考掲載の購入拒否 / 監査記録 / 論理削除除外 /
+owner・front_staff・inventory_staff 権限差 / mock reset 分離 / repository 契約テスト。
+
+### 残課題
+- Supabase 書込メソッド実装（RPC/テーブル）+ contract test 流用、`@supabase/supabase-js` 導入
+- 管理画面の残 CRUD（在庫移動・注文状態・買付・Journal フォーム。商品ステータスと同パターン）
+- mock 書込と public read(fixture) の統合（Supabase 化で解消）
+
+### commit hash
+- `271028c` 書込レイヤ / `4df0187` admin CRUD接続 / `7f813a0` Supabase書込スケルトン+0005
+
+---
+
 ## 2026-06-18 (2) — Claude Code — Phase 2A 管理画面 scaffold
 
 ### 目的

@@ -11,9 +11,10 @@
 | ├ ドメインロジック（money/状態/RBAC/受付） | Completed | テスト45件 |
 | ├ 管理画面 i18n + ナビ権限マップ | Completed | ルート未実装 |
 | ├ 管理画面 scaffold（flag/auth adapter/dashboard/products[読取]） | Completed | `ADMIN_ENABLED` 既定OFF→真の404。mock認証 `ADMIN_DEV_ROLE` |
+| ├ 書込レイヤ（interface/service/mock/テスト） | Completed | RBAC+状態遷移+在庫整合性+冪等+監査。test 72 |
+| ├ 管理画面 CRUD 接続（書込） | In Progress | 商品ステータス変更を server action で接続済。在庫/注文/買付/Journal フォームは同パターンで残 |
 | ├ Supabase Auth / セッション保護 | Not Started | `@supabase/supabase-js` 導入 + `getAdminSession` 差替 |
-| ├ SupabaseCommerceRepository 実装 | Not Started | スタブあり。スキーマと同契約で実装 |
-| ├ 管理画面 CRUD UI（書込・各メニュー） | In Progress | scaffold/権限/i18n 完了。書込フォーム・残メニュー・admin metadata 未 |
+| ├ SupabaseCommerceRepository（読取/書込）実装 | Not Started | スタブ/スケルトンあり。0001-0005 と同契約で実装、contract test 流用 |
 | **Phase 2B 仕入・原価・在庫・利益** | Not Started | スキーマ(0003)とロードマップのみ。利益ビュー/FIFO/個体UI未 |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
