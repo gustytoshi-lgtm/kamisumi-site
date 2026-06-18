@@ -142,6 +142,28 @@ export type AdminDictionary = {
     empty: string;
     noBankNote: string;
   };
+  /** メディア管理（§9）画面のラベル。 */
+  media: {
+    title: string;
+    intro: string;
+    kind: string;
+    bucket: string;
+    path: string;
+    mimeType: string;
+    altJa: string;
+    altZh: string;
+    privateNote: string;
+    empty: string;
+    kinds: {
+      product: string;
+      journal: string;
+      brand: string;
+      receipt: string;
+      sourcing_proof: string;
+      customer: string;
+      internal: string;
+    };
+  };
   /** 会計 export（§12）画面のラベル。 */
   accounting: {
     title: string;

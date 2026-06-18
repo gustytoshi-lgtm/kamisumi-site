@@ -110,9 +110,9 @@ export async function getDevDiagnostics(): Promise<DevDiagnostics> {
       "expenses",
       "profit",
       "accounting",
+      "media",
     ],
     pendingAdmin: [
-      "image-management",
       "phase3-interfaces",
     ],
   };

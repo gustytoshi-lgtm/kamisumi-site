@@ -45,6 +45,10 @@ import {
   type AccountingExportService,
 } from "@/lib/commerce/accountingExportService";
 import { mockAccountingExporter } from "@/lib/commerce/accountingExport";
+import type { MediaRepository } from "./core/mediaRepository";
+import { createMediaService, type MediaService } from "@/lib/commerce/mediaService";
+import { mockMediaRepository } from "./mock/mockMediaRepository";
+import { supabaseMediaRepository } from "./supabase/supabaseMediaRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -211,4 +215,21 @@ export function getExpenseService(): ExpenseService {
  */
 export function getAccountingExportService(): AccountingExportService {
   return createAccountingExportService(mockAccountingExporter);
+}
+
+/** メディア repository factory。既定 mock。Supabase はスケルトン（Storage 連携は実装待ち）。 */
+export function getMediaRepository(): MediaRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseMediaRepository;
+  }
+  return mockMediaRepository;
+}
+
+export function getMediaService(): MediaService {
+  return createMediaService(getMediaRepository());
 }
