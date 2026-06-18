@@ -72,10 +72,11 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `ca37dac`（Supabase settings 実装 + 0015。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
+- 最新 commit: `cc073b6`（通知の実配線。実行時に `git log -1` で再確認。docs commit が最新の場合あり）
+- **remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`（main 追跡・push 済み）**
 - tag: なし（Phase 2A は実 DB 検証が残るため `v0.2.0-phase2a` は未付与）
 - 履歴は線形・損失なし。**単一エージェント作業方針（I-014 Resolved）**
-- リモート: なし（push しない）
+- リモート: `origin`（GitHub, main push 済み・追跡）
 
 ## テスト状態
 

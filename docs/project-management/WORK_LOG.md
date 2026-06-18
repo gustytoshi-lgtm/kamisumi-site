@@ -2,6 +2,22 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (7) — Claude Code — GitHub 連携 + 通知の実配線
+
+### GitHub
+- 秘密情報点検（.env系/鍵/node_modules/.next は ignore、追跡は空テンプレ .env.example のみ、SUPABASE_SETUP.md はプレースホルダ）→ 問題なし。
+- `git push -u origin main`（`https://github.com/gustytoshi-lgtm/kamisumi-site.git`）。以後 commit ごとに push。
+
+### 通知の実配線（commit cc073b6）
+- `lib/commerce/notify.ts`（notifyBestEffort・失敗非ブロッキング）+ `mockNotifier` シングルトン。
+- commerceService.changeOrderStatus→order_status / paymentService.recordReceipt→payment_received / fulfillmentService.changeShipmentStatus→shipment_update を enqueue。notifier はコンストラクタ任意注入（後方互換）。factory `getNotifier()` 注入。
+- test 216（配線5件追加）。本番送信なし（mock）。
+
+### 設計判断
+PM-031（通知は best-effort・任意 notifier 注入。失敗は業務処理を止めない。本番送信は adapter 差替で将来）。
+
+---
+
 ## 2026-06-19 (6) — Claude Code — プロジェクト移設（OneDrive→C:\dev）
 
 ### 目的
