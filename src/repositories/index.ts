@@ -1,6 +1,9 @@
 import type { CommerceRepository } from "./core/commerceRepository";
+import type { CommerceWriteRepository } from "./core/commerceWriteRepository";
 import { getDataBackend, isSupabaseConfigured } from "@/config/dataBackend";
+import { createCommerceService, type CommerceService } from "@/lib/commerce/commerceService";
 import { mockCommerceRepository } from "./kamisumi/mockCommerceRepository";
+import { mockCommerceWriteRepository } from "./mock/mockCommerceWriteRepository";
 import { supabaseCommerceRepository } from "./supabase/supabaseCommerceRepository";
 
 /**
@@ -18,4 +21,25 @@ export function getCommerceRepository(): CommerceRepository {
     return supabaseCommerceRepository;
   }
   return mockCommerceRepository;
+}
+
+/**
+ * 書込 repository factory。既定 mock。Supabase 書込は本番情報が揃ってから実装・有効化する。
+ * （読取と同じく DATA_BACKEND と env を尊重）
+ */
+export function getCommerceWriteRepository(): CommerceWriteRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    // Supabase 書込 repository は別途実装予定（HANDOFF 参照）。未実装のため明示エラー。
+    throw new Error("SupabaseCommerceWriteRepository is not implemented yet. Use mock mode.");
+  }
+  return mockCommerceWriteRepository;
+}
+
+export function getCommerceService(): CommerceService {
+  return createCommerceService(getCommerceWriteRepository());
 }
