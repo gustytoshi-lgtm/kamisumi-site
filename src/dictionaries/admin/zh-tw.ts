@@ -155,6 +155,13 @@ export const adminZhTw: AdminDictionary = {
     empty: "尚無收款紀錄。",
     noBankNote: "※ 不保存實際銀行帳號（僅對帳號碼・確認者）。",
   },
+  dashboard: {
+    bestBeforeAlerts: "賞味期限警示",
+    suppliers: "供應商",
+    purchases: "進貨紀錄",
+    payments: "收款",
+    shipments: "配送",
+  },
   profit: {
     title: "利潤分析",
     intro: "依已記錄的收款・進貨・配送・費用彙整毛利與貢獻利益（僅 owner・TWD）。",

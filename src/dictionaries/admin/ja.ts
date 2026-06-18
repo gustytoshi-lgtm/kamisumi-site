@@ -155,6 +155,13 @@ export const adminJa: AdminDictionary = {
     empty: "入金記録はまだありません。",
     noBankNote: "※ 実銀行口座番号は保存しません（照合番号・確認者のみ）。",
   },
+  dashboard: {
+    bestBeforeAlerts: "賞味期限の警告",
+    suppliers: "仕入先",
+    purchases: "仕入記録",
+    payments: "入金",
+    shipments: "配送",
+  },
   profit: {
     title: "利益分析",
     intro: "記録済みの入金・仕入・配送・経費から粗利・貢献利益を集計します（owner のみ・TWD）。",

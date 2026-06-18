@@ -142,6 +142,14 @@ export type AdminDictionary = {
     empty: string;
     noBankNote: string;
   };
+  /** ダッシュボード指標ラベル。 */
+  dashboard: {
+    bestBeforeAlerts: string;
+    suppliers: string;
+    purchases: string;
+    payments: string;
+    shipments: string;
+  };
   /** 利益分析（§12）画面のラベル。 */
   profit: {
     title: string;
