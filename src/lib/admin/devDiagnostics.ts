@@ -102,11 +102,11 @@ export async function getDevDiagnostics(): Promise<DevDiagnostics> {
       "journal",
       "settings",
       "suppliers",
+      "purchases",
       "payments",
       "shipping",
     ],
     pendingAdmin: [
-      "purchases-detail",
       "matcha-lots",
       "ceramic-units",
       "expenses",

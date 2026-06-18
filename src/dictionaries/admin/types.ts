@@ -70,6 +70,29 @@ export type AdminDictionary = {
     empty: string;
     confidentialNote: string;
   };
+  /** 仕入・買付管理（§12）画面のラベル。 */
+  purchases: {
+    title: string;
+    intro: string;
+    purchasedOn: string;
+    supplier: string;
+    ancillary: string;
+    domesticShipping: string;
+    transport: string;
+    otherExpense: string;
+    itemDescription: string;
+    itemQuantity: string;
+    itemUnitPrice: string;
+    allocate: string;
+    method: string;
+    ancillaryTotal: string;
+    items: string;
+    allocations: string;
+    empty: string;
+    toSuppliers: string;
+    toPurchases: string;
+    methods: { quantity: string; purchase_value: string; none: string };
+  };
   /** 入金管理（§12）画面のラベル。 */
   payments: {
     title: string;

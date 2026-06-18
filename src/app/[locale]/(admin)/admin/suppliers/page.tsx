@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AdminActionForm } from "@/components/admin/AdminActionForm";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { canAny } from "@/lib/commerce/rbac";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
+import { localizePath } from "@/lib/routes";
 import { getProcurementService } from "@/repositories";
 import { SUPPLIER_PUBLIC_LEVELS } from "@/repositories/core/procurementModels";
 import {
@@ -49,6 +51,9 @@ export default async function AdminSuppliersPage({ params }: LocaleParams) {
     <>
       <h1>{d.suppliers.title}</h1>
       <p className="muted">{d.suppliers.intro}</p>
+      <p>
+        <Link href={localizePath(locale, "/admin/purchases")}>{d.purchases.toPurchases}</Link>
+      </p>
 
       <section className={styles.panel} style={{ marginTop: "12px" }}>
         <h2>{d.common.create}</h2>

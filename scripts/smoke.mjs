@@ -38,6 +38,7 @@ const OWNER_BOOT = {
     { name: "Journal", path: "/ja/admin/journal", status: 200 },
     { name: "業務設定", path: "/ja/admin/settings", status: 200 },
     { name: "仕入先", path: "/ja/admin/suppliers", status: 200 },
+    { name: "仕入記録", path: "/ja/admin/purchases", status: 200 },
     { name: "入金", path: "/ja/admin/payments", status: 200 },
     { name: "配送", path: "/ja/admin/shipping", status: 200 },
   ],
