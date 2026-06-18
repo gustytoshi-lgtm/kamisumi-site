@@ -13,6 +13,10 @@
 - commerceService.changeOrderStatus→order_status / paymentService.recordReceipt→payment_received / fulfillmentService.changeShipmentStatus→shipment_update を enqueue。notifier はコンストラクタ任意注入（後方互換）。factory `getNotifier()` 注入。
 - test 216（配線5件追加）。本番送信なし（mock）。
 
+### 追加（同 session）
+- 通知ビューア(dev) `/admin/notifications`（`62dbb58`・dev限定・mockNotifier.listSent 表示・DevModeBar リンク）。
+- 操作履歴ビューア `/admin/audit-logs`（`d1022bf`・owner=audit_log:view・nav auditLogs キー実装・直近200件）。管理画面 全16画面。
+
 ### 設計判断
 PM-031（通知は best-effort・任意 notifier 注入。失敗は業務処理を止めない。本番送信は adapter 差替で将来）。
 
