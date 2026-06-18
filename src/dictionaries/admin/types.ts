@@ -12,6 +12,9 @@ export type AdminDictionary = {
     create: string;
     edit: string;
     delete: string;
+    restore: string;
+    publish: string;
+    unpublish: string;
     search: string;
     status: string;
     actions: string;
@@ -20,6 +23,16 @@ export type AdminDictionary = {
     noPermission: string;
     confirm: string;
     apply: string;
+    quantity: string;
+    reason: string;
+    note: string;
+    customerNote: string;
+    internalNote: string;
+    slug: string;
+    category: string;
+    title: string;
+    excerpt: string;
+    viewHistory: string;
   };
   /** CommerceErrorCode と success に対応する通知文言。 */
   notify: {

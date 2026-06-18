@@ -16,6 +16,10 @@ export const dynamic = "force-dynamic";
 const IMPLEMENTED_ROUTES: Partial<Record<AdminNavKey, string>> = {
   dashboard: "/admin",
   products: "/admin/products",
+  inventory: "/admin/inventory",
+  orders: "/admin/orders",
+  sourcingRequests: "/admin/sourcing",
+  journal: "/admin/journal",
 };
 
 type AdminLayoutProps = LocaleParams & { children: ReactNode };

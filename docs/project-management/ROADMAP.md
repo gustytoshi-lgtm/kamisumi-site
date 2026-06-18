@@ -12,9 +12,10 @@
 | ├ 管理画面 i18n + ナビ権限マップ | Completed | ルート未実装 |
 | ├ 管理画面 scaffold（flag/auth adapter/dashboard/products[読取]） | Completed | `ADMIN_ENABLED` 既定OFF→真の404。mock認証 `ADMIN_DEV_ROLE` |
 | ├ 書込レイヤ（interface/service/mock/テスト） | Completed | RBAC+状態遷移+在庫整合性+冪等+監査。test 72 |
-| ├ 管理画面 CRUD 接続（書込） | In Progress | 商品ステータス変更を server action で接続済。在庫/注文/買付/Journal フォームは同パターンで残 |
-| ├ Supabase Auth / セッション保護 | Not Started | `@supabase/supabase-js` 導入 + `getAdminSession` 差替 |
-| ├ SupabaseCommerceRepository（読取/書込）実装 | Not Started | スタブ/スケルトンあり。0001-0005 と同契約で実装、contract test 流用 |
+| ├ 管理画面 CRUD 接続（書込） | Completed | 商品/在庫/注文/買付/Journal を server action + client form パターンで接続。権限ガード・辞書・notify 全対応 |
+| ├ Supabase クライアント基盤 | Completed | `@supabase/supabase-js` 2.108.2 + `src/lib/supabase/{client,server}.ts`（env guard + server-only） |
+| ├ Supabase Auth / セッション保護 | Not Started | `getAdminSession` を Supabase Auth session+user_roles へ差替（呼び出し側不変） |
+| ├ SupabaseCommerceRepository（読取/書込）実装 | Not Started | スタブ/スケルトンあり。0001-0005 と同契約で実装、contract test 流用（実 DB 環境待ち） |
 | **Phase 2B 仕入・原価・在庫・利益** | Not Started | スキーマ(0003)とロードマップのみ。利益ビュー/FIFO/個体UI未 |
 | **Phase 3 販売機能拡張** | Not Started | cart/checkout/payment/通知/SNS下書き interface（mock/sandbox） |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |

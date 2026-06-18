@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-06-18 (4) — Claude Code — Phase 2A Supabase基盤 + 管理CRUD拡張
+
+### 目的
+`@supabase/supabase-js` を導入し Supabase クライアント基盤を作成。管理画面の残 CRUD（在庫・注文・買付・Journal）を server action + client form パターンで接続。
+
+### 実施内容
+1. `@supabase/supabase-js` 2.108.2 インストール（package.json dependencies に追加）。
+2. `src/lib/supabase/client.ts` — ブラウザ用 anon key クライアント（env 未設定時に明示エラー）。
+3. `src/lib/supabase/server.ts` — サーバー専用 service role key クライアント（`server-only` import で誤用防止）。
+4. `AdminDictionary` に新フィールド追加（`common.quantity/reason/note/customerNote/internalNote/slug/category/title/excerpt/restore/publish/unpublish/viewHistory`）。ja/zh-tw 辞書を両言語で更新。
+5. `app/[locale]/admin/actions.ts` に全 CRUD アクション追加：
+   - 在庫: `createInventoryItemAction` / `applyInventoryMovementAction` / `setInventoryStatusAction`
+   - 注文: `createOrderAction` / `changeOrderStatusAction` / `setOrderNotesAction`
+   - 買付: `createSourcingRequestAction` / `setSourcingRequestStatusAction`
+   - Journal: `createJournalDraftAction` / `upsertJournalTranslationAction` / `setJournalStatusAction` / `softDeleteJournalAction`
+6. フォームコンポーネント作成（すべて useActionState + confirm + notify 辞書）：
+   - `InventoryMovementForm` / `InventoryStatusForm` / `OrderStatusForm` / `OrderNotesForm` / `SourcingRequestStatusForm` / `JournalStatusForm`
+7. 管理ページ作成（権限ガード・書込ストア参照・audit ログ活用）：
+   - `admin/inventory/page.tsx` / `admin/orders/page.tsx` / `admin/sourcing/page.tsx` / `admin/journal/page.tsx`
+8. admin layout の `IMPLEMENTED_ROUTES` に inventory/orders/sourcing/journal を追加（リンク有効化）。
+
+### コマンド / テスト
+- typecheck/lint OK（warning 0）、test **72 passed**、build clean、db:validate(5) OK
+
+### 残課題（次セッション優先）
+- Supabase read/write repository の実クエリ実装（env + 実プロジェクト待ち、I-012）
+- `getAdminSession` を Supabase Auth へ差替（I-013 関連）
+- admin metadata `<title>` 追加（I-008）
+- admin 専用クローム分離（I-009）
+- migration 実 DB 適用検証（I-002）
+
+### commit hash
+（このセッション末に追記）
+
+---
+
 ## 2026-06-18 (3) — Claude Code — Phase 2A 書込レイヤ
 
 ### 目的

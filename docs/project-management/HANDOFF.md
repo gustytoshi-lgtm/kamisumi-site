@@ -1,6 +1,6 @@
 # HANDOFF (Codex 移管用)
 
-最終更新: 2026-06-18 / 更新者: Claude Code
+最終更新: 2026-06-18 (4) / 更新者: Claude Code
 
 ## 概要
 KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
@@ -17,16 +17,18 @@ Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 m
 - 公開サイト（zh-tw/ja、en隠し）全15ルート、SEO/JSON-LD/sitemap/robots、OG PNG(`/api/og`)、favicon、soft-404修正
 - ドメインロジック `src/lib/commerce/`（money/orderStatus/inventoryStatus/rbac/sourcingAcceptance/adminNav）+ テスト45件
 - データ基盤: `DATA_BACKEND` 切替（既定mock）、Supabase adapterスタブ、`.env.example`
-- `supabase/migrations` 0001-0004 + seed + ER.md + README、`npm run db:validate`
-- 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ
-- 管理画面 **scaffold**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`、ダッシュボード/商品一覧、権限ガード確認済み）
-- **書込レイヤ**: `CommerceWriteRepository` 契約 + `commerceService`（RBAC/状態遷移/在庫整合性/冪等/監査）+ mock 書込 repo（in-memory, reset/seed）+ テスト72。管理CRUD は商品ステータス変更を server action で接続済
+- `supabase/migrations` 0001-0005 + seed + ER.md + README、`npm run db:validate`
+- 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ（新フィールド追加済み: quantity/reason/note/restore/publish/unpublish 等）
+- 管理画面 **scaffold + 主要CRUD**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`）。dashboard/products/inventory/orders/sourcing/journal の各ページ + 権限ガード確認済み
+- **書込レイヤ**: `CommerceWriteRepository` 契約 + `commerceService`（RBAC/状態遷移/在庫整合性/冪等/監査）+ mock 書込 repo（in-memory, reset/seed）+ テスト72
+- **管理CRUD接続**: 商品ステータス/在庫移動/在庫ステータス/注文ステータス/注文メモ/買付依頼/Journal公開・削除 を server action + client form（useActionState）で接続。全操作が RBAC チェック・CommerceError → notify 辞書変換を行う
+- **Supabase クライアント基盤**: `@supabase/supabase-js` 2.108.2 + `src/lib/supabase/client.ts`（anon）+ `src/lib/supabase/server.ts`（service role、server-only）
 
 ## 作業途中 / 未着手（次の具体的作業）
-1. **`@supabase/supabase-js` 導入**し `src/lib/supabase/{client,server}.ts` を作成（client=anon, server=service role はサーバー専用）。
-2. **Supabase read/write 実装**: `supabaseCommerceRepository.ts`（読取）と `supabaseCommerceWriteRepository.ts`（書込）の各メソッドを 0001-0005 スキーマ/RPC（`apply_inventory_movement`）で実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すこと、`tests/writeContract.test.ts` の `runWriteContract` を Supabase 実装にも適用して同一挙動を確認。
-3. **Supabase Auth + セッション保護**: `getAdminSession()`（mock）を Supabase Auth の session+user_roles から返すよう差替（呼び出し側不変）。
-4. **管理画面 残 CRUD**: 在庫移動/注文状態/買付/Journal のフォームを `actions.ts` + client form パターン（商品ステータスと同じ）で追加。service/テストは実装済み。`getAdminDictionary` 使用・`can()` ガード継続・`ADMIN_ENABLED` 既定OFF。残: admin metadata(I-008)・専用adminクローム(I-009)。
+1. **Supabase read/write 実装**: `supabaseCommerceRepository.ts`（読取）と `supabaseCommerceWriteRepository.ts`（書込）の各メソッドを 0001-0005 スキーマ/RPC（`apply_inventory_movement`）で実装。`DATA_BACKEND=supabase` で公開サイトが mock と同結果を返すこと、`tests/writeContract.test.ts` の `runWriteContract` を Supabase 実装にも適用して同一挙動を確認。Supabase project・env が揃った段階で実装。
+2. **Supabase Auth + セッション保護**: `getAdminSession()`（現在は mock ADMIN_DEV_ROLE）を Supabase Auth の session+user_roles から返すよう差替（呼び出し側不変）。`src/lib/admin/auth.ts` のみ変更。
+3. **admin metadata(I-008)**: `/[locale]/admin/*` の各ページに `generateMetadata` 追加（タブタイトル）。
+4. **admin 専用クローム(I-009)**: 公開 Header/Footer を含まない admin 専用レイアウトへ route group 分離。Phase 1 構成は壊さない。
 5. **migration 実適用検証**: Supabase/psql で `supabase db reset` → `db lint`（I-002）。
 6. Phase 2B 以降は ROADMAP 参照。
 
@@ -66,8 +68,8 @@ npm run build && npm run start     # http://localhost:3000
 ## 既知問題
 KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
 
-## テスト結果（2026-06-18）
-typecheck/lint OK、test 72 passed、build clean、db:validate(5) OK、E2E timeout(I-001)。
+## テスト結果（2026-06-18 session 4）
+typecheck/lint OK（warning 0）、test 72 passed、build clean、db:validate(5) OK、E2E timeout(I-001)。
 
 ## Codex 再開用プロンプト
 ```
