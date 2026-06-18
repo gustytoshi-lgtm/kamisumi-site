@@ -10,6 +10,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dev-server*.log
+.dev-server.pid
 
 # Claude Code local (machine-specific) settings
 .claude/settings.local.json

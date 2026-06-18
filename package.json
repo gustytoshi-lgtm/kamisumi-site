@@ -10,7 +10,19 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "db:validate": "node scripts/validate-migrations.mjs"
+    "db:validate": "node scripts/validate-migrations.mjs",
+    "dev:mock": "cross-env ADMIN_ENABLED=true ADMIN_DEV_ROLE=owner next dev",
+    "dev:owner": "cross-env ADMIN_ENABLED=true ADMIN_DEV_ROLE=owner next dev",
+    "dev:front": "cross-env ADMIN_ENABLED=true ADMIN_DEV_ROLE=front_staff next dev",
+    "dev:inventory": "cross-env ADMIN_ENABLED=true ADMIN_DEV_ROLE=inventory_staff next dev",
+    "dev:public": "cross-env ADMIN_ENABLED=false next dev",
+    "mock:reset": "node scripts/mock-reset.mjs",
+    "stop": "node scripts/stop.mjs",
+    "verify:public": "node scripts/smoke.mjs public",
+    "verify:admin": "node scripts/smoke.mjs admin",
+    "verify:mock": "node scripts/smoke.mjs mock",
+    "verify:quick": "node scripts/smoke.mjs quick",
+    "verify:full": "npm run typecheck && npm run lint && npm run test && npm run db:validate && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
@@ -28,6 +40,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "^6.0.2",
+    "cross-env": "^10.1.0",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "jsdom": "latest",
