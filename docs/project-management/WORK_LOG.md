@@ -2,6 +2,40 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (23) — Claude — 顧客マイページ入力バリデーション堅牢化（優先1）
+
+### 目的
+優先タスク1「顧客マイページとカートの堅牢化」。`origin/main`（`f1f5c9b`）から再開し、外部資格情報なしで進められる堅牢化を実施。
+
+### 確認（既存の堅牢性）
+- cart 側は session 22 で既に堅牢化済み: 数量境界 `MIN/MAX_CART_QUANTITY`（1..99, 合算後も再検証）、`isPurchasableStatus` で購入不可ステータスを拒否、`parseLocale`、通貨不一致拒否、checkout idempotencyKey。
+- runtime gate（`/api/features/cart` + `ProductCartGate`）は安全: 返却は `{enabled}` のみ・`no-store`、本当の認可は server action `addToCartAction` の `isCartEnabled()` 再確認。flag OFF 時はフォーム非描画で公開サイト不変。
+- account 側に**入力バリデーション欠落**を確認（email 形式・国コード・桁数上限なし、`locale` 未検証）。
+
+### 実装（account/customer-portal 堅牢化）
+- `src/lib/customer/validation.ts`（純関数）: email 形式、国コード 2 文字、電話形式、各フィールド桁数上限（`CUSTOMER_FIELD_LIMITS`）。不正は `CommerceError("validation")`。値の正規化（保存内容書換）はしない。
+- `customerPortalService` の updateProfile / createAddress / updateAddress に `validateProfilePatch` / `validateAddressInput` を配線。**本人一致（forbidden）チェックの後**に検証＝不一致時に情報を漏らさない。mock/Supabase 双方へ同一検証が効く。
+- account actions の `locale` を `parseLocale`（`isLocale` 検証、不正は既定ロケール）に統一（cart と整合）。
+
+### テスト
+- `tests/customerValidation.test.ts`（純関数 10 件）。
+- `tests/customerPortalService.test.ts` に検証ケース 3 件追加（email/国コード/桁数の拒否、住所検証、forbidden 優先）。
+- 全体: **263 passed / 9 files skipped**（+13）。既存 contract test（repo 直叩き・正当データ）は影響なし。
+
+### 確認
+- `npm.cmd run typecheck` / `lint`: OK。
+- `npm.cmd run verify:full`: 成功（typecheck/lint/test 263 passed/db:validate 16/build）。
+- `npm.cmd run verify:quick`: 成功（公開 smoke / 管理16画面 / inventory 権限制限 / `CART_ENABLED` 既定OFFで `/ja/cart` 404）。
+
+### Git
+- 責務単位で commit/push（`maomao-desk\tkats` では git 書込可）。I-022 の Codex サンドボックス制約は本ユーザーには非該当。
+
+### 残 / 次
+- 優先2 注文・手動振込フローの mock 拡充（在庫引当・注文台帳）。
+- 優先3 配送先/通貨/在庫ドメインのテスト拡充。
+
+---
+
 ## 2026-06-19 (22) — Codex — 商品ページからのカート追加導線
 
 ### 目的
