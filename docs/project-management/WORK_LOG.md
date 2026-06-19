@@ -2,6 +2,43 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (22) — Codex — 商品ページからのカート追加導線
+
+### 目的
+商品詳細ページ（SSG）から `CART_ENABLED=true` のときだけカートへ追加できる導線を追加する。`CART_ENABLED=false` 既定時は既存公開サイトの見た目・直接アクセス制御を変えない。
+
+### 設計判断
+- 商品詳細ページは `dynamicParams=false` の SSG のため、server component 内で `CART_ENABLED` を評価しない。ビルド時固定を避けるため、client gate が runtime API `/api/features/cart` を `no-store` で確認し、ON時だけフォームを描画する。
+- 送信値は slug と quantity のみ。商品名・価格・通貨は server action が `getCommerceRepository().getProductBySlug()` で商品マスタから再取得し、クライアント値を信用しない。
+- 追加後は hidden `redirectToCart=true` のときだけ locale を保って `/{locale}/cart` へ遷移。cart page 内の既存追加フォームは従来どおり同ページ更新。
+- 販売可能ステータスは `isPurchasableStatus()` に統一。coming soon / archive 等は action 側でも拒否。
+
+### 実装
+- `/api/features/cart`: `CART_ENABLED` の runtime 判定を返す dynamic API（`Cache-Control: no-store`）。
+- `ProductCartGate`: 商品詳細ページ用 client gate。flag ON 時のみ `CartActionForm` を表示。
+- 商品詳細ページ: SSG 維持のまま、販売可能商品にだけ `ProductCartGate` を配置。
+- cart action: locale 正規化、数量上限、非販売ステータス拒否、商品ページ追加後の localized redirect。
+- cart 純ロジック: 数量範囲を `1..99` に固定し、合算後の数量も上限超過を拒否。
+- cart page: 商品選択候補を販売可能商品に限定し、数量 input に max を付与。
+- smoke: flag OFF 時 `/ja/cart` が 404 であることを `verify:quick` public に追加。
+
+### 確認
+- `npm.cmd run test -- cartCheckout cartActions`: 12 passed。
+- `npm.cmd run typecheck`: OK。
+- `npm.cmd run lint`: OK。
+- `npm.cmd run build`: OK。商品詳細ページは引き続き SSG、`/api/features/cart` と `/[locale]/cart` は Dynamic。
+- 手動 smoke（mock, `next dev`, `CART_ENABLED=true`, 既存 Chrome + Playwright）:
+  - `/ja/products/kyoto-usucha-midori` で runtime gate がフォームを表示。
+  - 数量2で追加後 `/ja/cart` へ遷移。
+  - cart 明細に Midori と数量2が表示。
+
+### 残
+- 本番決済、本番注文送信、実送料計算、実FX取得は引き続き未実装（設計どおり）。
+- 実 Supabase 接続検証は資格情報待ち。
+- 現 Codex 実行ユーザーでは `.git/index.lock` 作成が permission denied になり `git add` 不可。commit/push は人間側または権限復旧後に実施（I-022 reopened）。
+
+---
+
 ## 2026-06-19 (21) — Claude — 複数通貨 / 国別配送 UI（優先5）
 
 ### 目的

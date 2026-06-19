@@ -24,7 +24,7 @@
 | I-018 | Low | 画像管理は mock 実装済・Supabase Storage 連携が残 | `/admin/media` | メタデータ管理は可（mock）。実ファイル保管（Storage）と商品画像への紐付けは未 | mock でメタ管理 | supabaseMediaRepository + Storage(public/private, 署名付きURL) を実装 | 2B/運用 | UI実装済・Storage残 |
 | I-020b | Low | Phase 3 は interface+mock のみ（本番決済/送信/自動投稿なし） | cart/checkout/通知/SNS | 本番連携は未（設計上の境界） | mock/sandbox で開発・確認 | 本番契約後に adapter 実装 | 3 | Open(by design) |
 | I-021 | Low | 顧客マイページは基盤のみで公開UI未実装 | `/account` 等 | customer_accounts/auth/repo/service はあるが、人間が使う公開画面はまだ無い | mock/service テストで確認 | `/[locale]/account` の公開UIとプロフィール/住所編集導線を追加（flag `CUSTOMER_PORTAL_ENABLED` 既定OFF=真404）。残は実ログイン導線（Supabase Auth） | 3 | **Resolved**（公開UI実装, session 19。実ログインは実DB接続後） |
-| I-022 | High | `.git` ACL により stage/commit/push ができない | `git add ...` | `fatal: Unable to create 'C:/dev/sites/kamisumi-site/.git/index.lock': Permission denied` でドキュメント更新や実装変更をコミットできない | 作業内容は作業ツリーに保持。Git操作前に状態を再確認 | Deny ACL は現ユーザー `maomao-desk\tkats` ではなく別 SID(`S-1-5-21-...-1010570570`) 対象と判明。session 18 で `git add`/`commit` 成功を確認し 4 コミット作成 | 運用 | **Resolved**（現ユーザーで commit 可能, session 18） |
+| I-022 | High | Codex 実行ユーザーで `.git` 書き込みができない | `git add ...` / `git pull --ff-only origin main` | `fatal: Unable to create 'C:/dev/sites/kamisumi-site/.git/index.lock': Permission denied`。`FETCH_HEAD` も permission denied | 作業内容は作業ツリーに保持。検証完了後、人間側または権限復旧後に commit/push | `maomao-desk\tkats` では解決済みと引き継ぎあり。ただし `maomao-desk\codexsandboxonline` では再現。Codex サンドボックスの `.git` 書き込み権限を復旧する | 運用 | Reopened（session 22） |
 | I-019 | Low | 在ブラウザのロール切替は未実装（役割別ランチャーで代替） | 管理画面 | ロール変更は .cmd 再起動が必要 | START_KAMISUMI_{OWNER,FRONT_STAFF,INVENTORY}.cmd | 任意で cookie ベースの dev 専用ロール切替（PM-016） | 運用 | Open(by design) |
 
 深刻度: Critical / High / Medium / Low
