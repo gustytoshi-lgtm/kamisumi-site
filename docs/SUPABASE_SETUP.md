@@ -49,7 +49,7 @@ Supabase バックエンドへ切り替えられる。**秘密情報・実キー
 
 ---
 
-## 3. migration 0001〜0015 の適用
+## 3. migration 0001〜0017 の適用
 
 ### 3-A. Supabase CLI（ローカル開発 DB を作り直す場合）
 
@@ -78,6 +78,7 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0013_accounting_exports.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0014_media_assets_meta.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0015_settings_history.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0016_customer_accounts.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0017_checkout_orders.sql
 ```
 
 適用前に静的検証:
@@ -235,6 +236,7 @@ npm run test -- *.supabase
 - `mediaContract.supabase.test.ts`（メディアメタデータ。Storage upload は対象外）
 - `settingsContract.supabase.test.ts`（業務設定/履歴）
 - `customerPortalContract.supabase.test.ts`（顧客マイページ。`customer_accounts` へリンク済み customer が必要）
+- `manualTransferOrderContract.supabase.test.ts`（カート注文台帳。0017 + seed の固定 org が必要。`RUN_SUPABASE_CONTRACT=1` + Supabase env のみで実行可。owner 操作の role は ActorContext で渡すため customer fixture は不要）
 
 > Supabase 契約テストは破壊的（テストデータを作る）。**本番 project では実行しない**。
 > 専用の test schema / 開発 project を使うこと。

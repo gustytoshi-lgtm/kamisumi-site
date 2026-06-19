@@ -17,7 +17,7 @@
 | I-013 | Low | 管理CRUDは商品ステータス変更のみ接続 | admin の他メニュー | 在庫/注文/買付/Journal は UI 書込未接続（service/テストは有） | service 直叩きは可。同パターンでフォーム追加 | actions.ts + client form を各操作へ拡張 | 2A | **Resolved**（全 CRUD 接続済, session 5） |
 | I-014 | Medium | 同一 `main` への並行 worktree コミット（OneDrive 同期） | 並行タスク稼働時 | ref 競合でコミット損失の可能性 | 並行タスクを停止し単一作業者で進める | 1 ブランチ 1 作業者。worktree 作業は別ブランチで | 全般 | **Resolved**（session 8: 並行ライター停止・診断で損失/競合コピーなし確認・単一エージェント方針） |
 | I-015 | Low | `matcha_lots` に明示的な on-hand 数量列がない | Phase 2B 抹茶在庫 | ロット別の物理数量を DB から直接取れない | — | quantity 列を追加 | 2B | **Resolved**（migration 0010 で quantity/updated_at/deleted_at 追加, session 14） |
-| I-020 | Medium | Phase 2B/顧客基盤の Supabase repo は実装済だが実 DB 未検証 | `DATA_BACKEND=supabase` で呼出 | 実クエリ実装済（matcha/ceramic/expense/media/settings/customer portal）だが実 DB 接続での動作未確認 | mock mode で開発 | 実 DB へ migration 0001-0016 適用 + 各 *.supabase.test.ts contract test で mock と同挙動を確認 | 2B/3 | 実装済・検証待ち |
+| I-020 | Medium | Phase 2B/顧客基盤/注文台帳の Supabase repo は実装済だが実 DB 未検証 | `DATA_BACKEND=supabase` で呼出 | 実クエリ実装済（matcha/ceramic/expense/media/settings/customer portal/checkout order）だが実 DB 接続での動作未確認 | mock mode で開発 | 実 DB へ migration 0001-0017 適用 + 各 *.supabase.test.ts contract test で mock と同挙動を確認 | 2B/3 | 実装済・検証待ち |
 | I-016 | Low | `shipments` に status 列がない | Phase 2B 配送 | 配送状態を DB に永続化できない（純ロジックは実装済） | 状態機械 shipmentStatus.ts は列なしで検証可 | 配送 repository 実装時に status 列の追加 migration（0008+, PM-023） | 2B | **Resolved**（migration 0008 で status 列 + shipment_status_events 追加） |
 
 | I-017 | Low | 業務設定（§8）管理UIは実装済だが公開サイト未反映 | `/admin/settings` | 設定値は mock/Supabase repository に保存・編集/履歴可だが、公開サイト（site.ts）へは未反映 | mock で編集・確認可 | 設定値を公開サイト読取へ接続 | 2B/運用 | UI/repo実装済・公開反映残 |

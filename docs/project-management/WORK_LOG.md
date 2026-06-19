@@ -2,6 +2,50 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (28) — Claude — 注文台帳の Supabase 永続化（実DB対応, 優先2-5）
+
+### 目的
+mock 注文台帳の責務・interface を維持したまま Supabase 永続化を追加し、販売フロー
+（商品→カート→注文確定→振込待ち→owner入金確認→状態更新）を実 DB で完結可能にする。
+資格情報が無いため実接続検証はできないが、接続後すぐ実行できる状態まで実装する。
+
+### 優先1: Supabase 実接続の準備状況
+- `.env.local` **不在**、資格情報なし。値の推測・生成・捏造はしていない。
+- 必要 env（`DATA_BACKEND`/`NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY`/`SUPABASE_DB_URL`）は `.env.example` と整合。contract test 実行条件 `RUN_SUPABASE_CONTRACT=1` + Supabase env を確認。
+- migration 適用順 0001→0017、`docs/SUPABASE_SETUP.md` を 0017 まで更新。
+
+### 優先2: Supabase 注文台帳 repository
+- `src/repositories/supabase/supabaseCheckoutOrderRepository.ts`: `ManualTransferOrderRepository`（get/getByReference/save/list）を実装。service role + `throwCommerce` エラー変換。save は order_id で upsert（作成/更新両対応）。createdAt/updatedAt は service 確定値を保存（mock と同挙動）。
+- 業務ルール（状態遷移・owner 限定・冪等・検証）は **service 層（checkoutOrder.ts）に集約のまま**。mock/Supabase で重複実装しない。
+
+### 優先3: migration + RLS（0017_checkout_orders）
+- 新規連番 0017（適用済みは不変）。`checkout_orders`: order_id PK、reference UNIQUE（二重注文防止）、organization_id（seed org default、FK）、currency/amount_minor/order_status/payment_status の CHECK、items jsonb（明細 snapshot）、customer_ref、created/updated_at。
+- index: (organization_id, created_at) / payment_status。
+- RLS: `checkout_orders_owner`（`has_org_role(org, ['owner'])`）owner 限定。anon/非 owner 遮断。アプリは service role でアクセス。
+
+### 優先4: contract test
+- `tests/manualTransferOrderContractRunner.ts`: mock/Supabase 共通の repository 契約。正常作成・明細 snapshot・id/reference 再取得・冪等・owner 入金確認（paid/paid_in_full）・二重確認 invalid_transition・取消・非 owner forbidden・空カート/金額不一致 validation・存在しない注文 not_found・再取得後の状態保持。
+- `manualTransferOrderContract.test.ts`（mock, 常時）/ `manualTransferOrderContract.supabase.test.ts`（実 DB 必須・既定 skip）。
+- 旧 `tests/checkoutOrder.test.ts` はランナーへ統合し削除（重複排除、カバレッジ維持/拡張）。
+
+### 優先5: checkout への実 repository 配線
+- `repositories/index.ts`: `getManualTransferOrderRepository()` を `DATA_BACKEND=supabase`+env 揃い時のみ Supabase、既定 mock。env 不備の supabase 指定は明示エラー（誤って本番風に動かさない）。
+- `cart/actions.ts` `checkoutAction`: 注文記録成功後にのみカート clear（失敗時はカート維持）。catch でエラーを握り潰さず `console.error` で内部ログ、ユーザーには `CommerceError.code` か汎用 `error` のみ返す（内部詳細を漏らさない）。idempotencyKey で二重送信に耐える。
+
+### 確認
+- `typecheck`/`lint`: OK。`db:validate`: **17 files OK**。
+- `verify:full`: 成功（test **281 passed / 10 files skipped**）。`verify:quick`: 成功。
+- mock 契約 9 ケース green。Supabase 契約は資格情報なしのため既定 skip（接続後に実行可能）。
+
+### 資格情報不足で未確認（外部ブロッカー）
+- 実 DB への 0017 適用、RLS 実挙動、Supabase 契約テストの実走。`.env.local` + 開発 project が必要。
+
+### 残 / 次
+- 実 Supabase 接続後の契約テスト実走・RLS 検証（I-002/I-020）。
+- 余力: 注文/入金/取消の audit_logs 統合、owner 注文画面の絞り込み。
+
+---
+
 ## 2026-06-19 (27) — Claude — 本番公開前セキュリティ確認チェックリスト（優先9）
 
 ### 目的
