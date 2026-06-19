@@ -2,6 +2,90 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (handoff prep) — Codex — 引き継ぎ準備
+
+### 目的
+次の Claude Code セッションへ安全に引き継ぐため、実装を行わず、確認済みの Git 状態・検証結果・未完了タスクをプロジェクト管理文書へ反映した。
+
+### 確認した内容
+- `git status --short`: 未コミット変更あり。Supabase contract test 基盤、顧客マイページ基盤、smoke script 改善、関連ドキュメント更新が作業ツリーに残っている。
+- current branch: `main`。
+- latest commit: `f3c4571 docs(pm): finalize HANDOFF for Codex (session 17 state)`。
+- `git log --oneline -20`: HANDOFF.md に記録。
+- 秘密情報点検: 追跡対象の env/鍵/credential は `.env.example` のみ確認済み。
+- Git 操作制約: `.git` ACL により `git add` が `index.lock: Permission denied` で失敗するため、コミット/ push は未実施。
+
+### 反映した検証結果
+- `npm.cmd run verify:full`: 成功（typecheck / lint / test **237 passed・9 skipped** / `db:validate` **16 files OK** / build）。
+- `npm.cmd run verify:quick`: 成功（public smoke / owner 全16管理画面 / inventory 権限制限）。
+- `npm.cmd run test -- customerPortalService customerAuth`: 8 passed。
+- `npm.cmd run test -- customerPortal`: 6 passed / 1 skipped。
+- `npm.cmd run db:validate`: 16 files OK。
+- `npm.cmd run typecheck`: OK。
+
+### 更新
+- `CURRENT_STATE.md`: 最新の実装済み範囲、未実装/未検証、Git状態、検証結果へ更新。
+- `HANDOFF.md`: branch / latest commit / worktree status / git log / 実装済み内容 / テスト状況 / 優先タスク / 注意事項 / Claude Code 推奨プロンプトを記録。
+- `ROADMAP.md`: Phase 2B と Phase 3 の状態を最新化。
+- `KNOWN_ISSUES.md`: 実DB未検証範囲を 0016/customer portal まで更新し、`.git` ACL 問題（I-022）を追加。
+
+### 残
+- `.git` ACL 復旧後、未コミット変更を機能単位で commit/push する。
+- 実 Supabase project 接続検証は未実施。
+
+---
+
+## 2026-06-19 (9) — Codex — 顧客マイページ基盤
+
+### 目的
+公開マイページ UI の前提として、Supabase Auth ユーザーと顧客台帳を安全にリンクする顧客本人向け基盤を作った。全顧客 export・内部メモ・原価/利益など管理者向け情報は契約に含めない。
+
+### 実装
+- migration **0016_customer_accounts.sql**: `customer_accounts` を追加し、`profiles.id` と `customers.id` をリンク。`is_customer_self(customer_id)` と本人向け RLS（customers/customer_addresses/orders/sourcing_requests の本人 read/update 範囲）を追加。
+- core: `customerModels.ts` / `customerRepository.ts`。
+- repo: `mockCustomerPortalRepository` / `supabaseCustomerPortalRepository`。
+- auth: `src/lib/customer/auth.ts`（`CUSTOMER_AUTH_MODE`、mock⇄Supabase、preferredLocale 解決）。
+- service: `customerPortalService`（未ログイン拒否・account/customerId mismatch 拒否・プロフィール/住所操作）。
+- tests: `customerPortalService.test.ts` / `customerAuth.test.ts` / `customerPortalContract*.test.ts`。
+- `.env.example` と `docs/SUPABASE_SETUP.md` に顧客 contract 用 env を追記。
+
+### 確認
+- `npm.cmd run test -- customerPortalService customerAuth`: 8 passed。
+- `npm.cmd run test -- customerPortal`: 6 passed / 1 skipped（Supabase 実DB）。
+- `npm.cmd run db:validate`: 16 files OK。
+- `npm.cmd run typecheck`: OK。
+- `npm.cmd run verify:full`: OK（typecheck / lint / test 237 passed・9 skipped / db:validate 16 files / build）。
+- `npm.cmd run verify:quick`: OK（公開 / owner 全16管理画面 / inventory 権限制限）。
+
+### 残
+- `/[locale]/account` など公開UIは未実装（I-021）。
+- 実 Supabase project で 0016 適用・RLS・`customerPortalContract.supabase.test.ts` 実行が必要。
+
+---
+
+## 2026-06-19 (8) — Codex — Supabase 実 DB 契約テスト入口拡張
+
+### 目的
+実 Supabase project/env がまだ無い状態でも次の検証へ進めるように、Phase 2B/運用系 repository の mock 契約テストと実 DB 用 `*.supabase.test.ts`（既定 skip）を追加した。実データ・秘密情報は含めず、実 DB 実行時は `SUPABASE_CONTRACT_ACTOR_ID` に `profiles.id` を渡す。
+
+### 実装
+- 追加: `tests/repositoryContractFixtures.ts`（seed 固定 UUID と Supabase 契約テストの env 判定）。
+- 追加: 抹茶ロット / 陶器個体 / 経費 / メディア / 業務設定の contract runner、mock contract test、Supabase contract test。
+- Supabase 実行条件: `RUN_SUPABASE_CONTRACT=1` + `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + `SUPABASE_CONTRACT_ACTOR_ID`。
+- `scripts/smoke.mjs` をブロック単位の独立 Node プロセス実行へ変更。Windows で `next dev` を同一プロセス内連続起動するとポート解放待ちが不安定だったため、公開/owner/inventory を安全に分離した。
+- docs 補正: `docs/SUPABASE_SETUP.md` を migration 0001-0015 と全 Supabase 契約テスト一覧へ更新。CURRENT_STATE/HANDOFF/ROADMAP/KNOWN_ISSUES/DECISIONS/LOCAL_VERIFICATION_GUIDE の古い記述（0009止まり、スケルトン、OneDrive）を最新化。
+
+### 確認
+- `npm.cmd run test -- matchaLotContract ceramicUnitContract expenseContract mediaContract settingsContract`: 12 passed / 5 skipped（実 DB 必須の Supabase は既定 skip）。
+- `npm.cmd run typecheck`: OK。
+- `npm.cmd run verify:quick`: OK（公開 / owner 全16管理画面 / inventory 権限制限）。
+- `npm.cmd run verify:full`: OK（typecheck / lint / test 228 passed・8 skipped / db:validate 15 files / build）。
+
+### 次
+- 実 Supabase env が無い限り、次の合理的な縦スライスは顧客マイページ基盤または cart/checkout 公開UI。
+
+---
+
 ## 2026-06-19 (7) — Claude Code — GitHub 連携 + 通知の実配線
 
 ### GitHub

@@ -5,6 +5,8 @@
 | ID | 日付 | 内容 | 背景 / 理由 | 却下案 | 見直し条件 | 影響範囲 |
 |---|---|---|---|---|---|---|
 | PM-030 | 2026-06-19 | 正式作業パスを OneDrive 外 `C:\dev\sites\kamisumi-site` へ移設 | OneDrive 同期競合/ロックで build EPERM・大量削除確認が頻発（I-003）。`.next`/`node_modules` の同期が根因 | OneDrive 内で同期除外設定 | 別環境へ移す場合は本表と CURRENT_STATE/HANDOFF のパスを更新 | 全体（旧 OneDrive コピーは参照・編集しない） |
+| PM-031 | 2026-06-19 | 実 Supabase 契約テストは `RUN_SUPABASE_CONTRACT=1` と `SUPABASE_CONTRACT_ACTOR_ID` が揃う時だけ実行 | 実 DB テストは破壊的で、`created_by/uploaded_by/changed_by` の FK に実 `profiles.id` が必要。既定 skip で mock 開発を止めない | env があれば常時実行 / 固定ダミー user id を seed へ入れる | 専用 test project/seed が確立したら自動化を再検討 | tests/*.supabase.test.ts, docs/SUPABASE_SETUP.md |
+| PM-032 | 2026-06-19 | 顧客マイページは `customer_accounts` で Supabase Auth ユーザーと `customers` をリンクし、本人データだけを RLS で開く | `customers` は管理者向け顧客台帳でもあるため、Auth ユーザーを直接混ぜると全顧客/内部メモ露出の境界が曖昧になる | customers に user_id を直接追加 / 顧客本人にも管理 repo を使わせる | 本番会員要件・退会/データ削除ポリシー確定時 | 0016_customer_accounts, customerPortalRepository, customer auth |
 | PM-001 | 2026-06-18 | データバックエンドを `DATA_BACKEND`(mock/supabase) で切替、既定 mock | 公開サイトを壊さず Supabase を段階導入。env 未設定なら Phase 1 と同一挙動 | 即 Supabase 化（本番情報なし） | Supabase 本番 project 確定時 | `src/config/dataBackend.ts`, `src/repositories/index.ts` |
 | PM-002 | 2026-06-18 | 金額は最小通貨単位の整数 + currency。`src/lib/commerce/money.ts` 経由で計算 | 浮動小数点誤差の排除（§8 必須） | number で直接計算 | — | 全金額処理、DB `*_minor` 列 |
 | PM-003 | 2026-06-18 | ステータスは TS union と DB `CHECK(... in ...)` で二重定義し一致させる | enum 移行の手間回避と型安全の両立 | PG enum 型 | 状態追加が頻繁なら enum 検討 | `orderStatus`/`inventoryStatus`/migrations |

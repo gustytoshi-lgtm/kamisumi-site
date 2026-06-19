@@ -1,127 +1,171 @@
-# HANDOFF (Codex 移管用)
+# HANDOFF
 
-最終更新: 2026-06-19 (12) / 更新者: Claude Code
+最終更新: 2026-06-19 (handoff prep) / 更新者: Codex
 
-> **session 12 追加（人間向け運用基盤）**: 役割別 .cmd ランチャー / `verify:*` スモーク / dev-check ページ / 開発モードバー / mock reset API / `docs/LOCAL_VERIFICATION_GUIDE.md`。本番では dev 機能を無効化（`isDevToolsEnabled`）。非技術者が PowerShell なしで起動・確認・初期化できる。
-> **session 13 追加（Phase 2B 管理UI）**: 業務設定 `/admin/settings`・仕入先 `/admin/suppliers`・仕入記録 `/admin/purchases`（原価配賦）・入金 `/admin/payments`・配送 `/admin/shipping`。共有 `AdminActionForm`。`ADMIN_DEV_LOCALE` で mock 管理 UI 言語切替（ja/zh-tw）。
-> **session 14 追加（Phase 2B 永続化+分析+会計）**: 抹茶ロット(0010)・陶器個体(0011)・経費(0012)・利益分析・ダッシュボード・会計エクスポート(0013)。
-> **session 15 追加**: メディア管理 `/admin/media`(0014)・SNS下書き `/admin/sns-drafts`(承認フロー・自動公開なし)。Phase 3 lib: cart/checkout(手動振込mock・sandbox skeleton)・notifications(mock)。
-> **session 16 追加**: Phase 2B 全 Supabase repo の実クエリ実装（matcha/ceramic/expense/media/settings）+ migration 0015(setting_history)。実 DB 検証は I-002/I-020 で残。
-> **session 17 追加**: GitHub remote 設定＋`main` push（以後 commit ごとに push・push 前に秘密情報点検）。OneDrive→`C:\dev\sites\kamisumi-site` 移設（I-003 解消）。通知を業務サービスへ実配線（注文/入金/配送の状態変化で best-effort enqueue）＋通知ビューア(dev) `/admin/notifications`＋操作履歴ビューア `/admin/audit-logs`(owner)。**test 216**・全ゲート＋verify:quick 緑・管理画面 全16。本番決済/送信/自動投稿なし。
+## 目的
 
-> **Phase 2A: Implementation Complete / Real Supabase Validation Pending**（実 DB 検証まで `v0.2.0-phase2a` タグ未付与）。
-> **Phase 2B: データ層/永続化 実装中**。完了: 原価配賦・抹茶FIFO/賞味期限・仕入先データ層(0007)・状態機械(入金/配送)+送料差額・利益計算・会計 export interface・配送永続化(0008)・入金永続化(0009)・仕入記録+原価配賦永続化。
-> 残: 陶器個体/経費 repository、利益レポート/会計 export の永続化、**全ドメイン管理UI(ja/zh-tw)**、ダッシュボード。
-
-## 概要
-KAMISUMI（運営: KAGURAKOJI）の公開サイト + KAGURAKOJI Commerce Core 基盤。
-Next.js 16 (App Router) / TypeScript strict / CSS Modules。データは既定 mock、Supabase は段階導入。
+次の Claude Code セッションへ安全に引き継ぐための現状整理。実装は行わず、確認済みの Git 状態、実装状況、検証結果、未完了タスクを記録する。
 
 ## 正式パス
-`C:\dev\sites\kamisumi-site`（**OneDrive 配下から移設済み**。正式フォルダで直接作業。GitHub remote 設定済み＝push 可。旧パス `C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site` は重複コピー残存＝参照・編集しない）
 
-## Git
-- branch: `main` / tag: なし / リモート: `origin`（GitHub: gustytoshi-lgtm/kamisumi-site, push 済み）
-- commit 履歴: `cd3f608`→`fd80f74`→`c77bb8e`→`45570a3`→`fcd791f`(+docs commit)。再開時 `git log --oneline` で最新を確認。
+`C:\dev\sites\kamisumi-site`
 
-## 完了済み
-- 公開サイト（zh-tw/ja、en隠し）全15ルート、SEO/JSON-LD/sitemap/robots、OG PNG(`/api/og`)、favicon、soft-404修正
-- ドメインロジック `src/lib/commerce/`（money/orderStatus/inventoryStatus/rbac/sourcingAcceptance/adminNav）+ テスト45件
-- データ基盤: `DATA_BACKEND` 切替（既定mock）、Supabase adapterスタブ、`.env.example`
-- `supabase/migrations` 0001-0005 + seed + ER.md + README、`npm run db:validate`
-- 管理画面 i18n（ja/zh-tw）+ ナビ↔権限マップ（新フィールド追加済み: quantity/reason/note/restore/publish/unpublish 等）
-- 管理画面 **scaffold + 主要CRUD**: `/[locale]/admin`（flag `ADMIN_ENABLED` 既定OFF→proxyで真404、mock認証 `ADMIN_DEV_ROLE`）。dashboard/products/inventory/orders/sourcing/journal の各ページ + 権限ガード確認済み
-- 管理画面 **専用クローム分離（I-009 解決）**: route group `(public)`/`(admin)` で公開 Header/Footer から分離。`[locale]/layout.tsx`=html/body+locale のみ、公開シェルは `(public)/layout.tsx`、admin は `(admin)/admin/layout.tsx` の専用 main。URL 不変
-- **書込レイヤ**: `CommerceWriteRepository` 契約 + `commerceService`（RBAC/状態遷移/在庫整合性/冪等/監査）+ mock 書込 repo（in-memory, reset/seed）+ テスト72
-- **管理CRUD接続（フル）**: 全 server action + client form パターン（useActionState + confirm + notify 辞書）
-  - 商品: status change / soft delete / restore / `generateMetadata`（I-008 解決）
-  - 在庫: create item / apply movement（全10理由）/ set status
-  - 注文: create / status change / notes / reopen（cancel→inquiry_received）
-  - 買付依頼: create / status change
-  - Journal: create draft / translation（ja+zh-tw inline）/ publish / unpublish / soft delete
-- **Supabase クライアント基盤 + SSR**: `@supabase/supabase-js` + `@supabase/ssr` 0.12.0。
-  - `client.ts`=`createBrowserClient`（anon, Cookie）/ `server.ts`=`getSupabaseAdminClient`（service role, write 用）+ `getSupabaseServerAuthClient`（anon+Cookie, ログインユーザー評価）/ `middleware.ts`=`updateSupabaseSession`。
-  - `proxy.ts` は `isSupabaseConfigured()` のときだけ session 更新（mock mode 完全不変）。
-- **Supabase read/write repository 実クエリ実装済み（実 DB 検証待ち）**: 
-  - write: 商品/在庫/注文/買付/Journal/監査の全メソッド。在庫は `apply_inventory_movement` RPC。
-  - read: products/journal/sourcing/faq を PostgREST 埋め込み select で公開型へマッピング。
-  - エラー変換 `src/lib/supabase/errors.ts` + 単体テスト（DB 不要）。
-- **管理画面認証 mock⇄Supabase 切替（Step C, session 8）**: `getAdminSession` が `ADMIN_AUTH_MODE`（既定 `DATA_BACKEND` 追従）で選択。supabase は Cookie セッション→`user_roles`/`profiles`（self-read RLS）、`pickPrimaryRole` で owner 優先。呼出側不変（async 化）。
-- **接続手順書 `docs/SUPABASE_SETUP.md`**: env / project / migration / seed / owner / user_roles / Storage / RLS / contract test / 完了チェックリスト。
+- OneDrive 旧フォルダ `C:\Users\tkats\OneDrive\01_HTML_CSS\kamisumi-site` は重複コピー。参照・編集しない。
+- コマンド実行時は毎回正式パスへ移動する。
+- GitHub remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`
 
-## 作業途中 / 未着手（次の具体的作業）
-1. **実 Supabase project 接続 + 検証**（人間が project/env を用意 → docs/SUPABASE_SETUP.md の順）:
-   - migration 0001-0005 適用 + `db lint`（I-002）。
-   - `RUN_SUPABASE_CONTRACT=1` で `tests/writeContract.supabase.test.ts` を実行（**注: contract の productId "p1" は FK 違反。seed 済み実 UUID を使う setup へ拡張が必要**）。
-   - `DATA_BACKEND=supabase` で公開サイトが mock と同結果になる read 一致確認。
-2. ~~**Supabase Auth 差替**~~: **完了（session 8, Step C）**。`getAdminSession()` が `ADMIN_AUTH_MODE`（既定 `DATA_BACKEND` 追従）で mock/Supabase を切替。supabase は Cookie セッション→`user_roles`/`profiles`（self-read RLS）。残るは実 project 接続でのログイン疎通確認のみ。
-3. ~~**setOrderNotes 恒久対応**~~: **完了（session 9, migration 0006）**。`provisional_orders` に customer_note/internal_note/notes_updated_by/notes_updated_at を追加し write repo を列 UPDATE に変更。
-4. **migration 実適用検証**（I-002、0001-0006）。
-5. **Phase 2B 続き**（純ロジック・仕入先/仕入記録/配送/入金 の永続化は実装済み）。次の具体作業:
-   - repository 実装の残: matcha_lots、ceramic_units、expenses（既存パターン: core 型 + interface + mock + supabase + service + contract）。matcha は I-015 の on-hand 供給を確定。
-   - 利益レポート/会計 export の永続化: profit.ts / accountingExport.ts を実データ（注文/仕入/送料/為替）へ接続。front_staff へ原価/利益を出さない。
-   - 管理UI(ja/zh-tw): 仕入先→仕入・買付→入金→配送→抹茶→陶器→経費→利益分析→ダッシュボード→会計export の順に画面追加。actions.ts + client form パターン、adminNav + 辞書追加。RBAC は purchase:manage（仕入/入金=owner）/ order:update_status（配送=member）。
-   - 既存の getProcurementService / getFulfillmentService / getPaymentService を UI から呼ぶ（UI から DB 直書きしない）。
-6. ~~編集可能な業務設定 UI（§8）~~: **完了（session 13）**。残: 設定値の公開サイト反映 + `supabaseSettingsRepository` 実装（site_settings + 履歴表）。I-017。
-7. **Phase 2B/3 管理UI**: purchases/抹茶/陶器/経費/利益/ダッシュボード/会計export/メディア/SNS下書き **完了(session 13-15)**。Phase 3 lib（cart/checkout/通知）も interface+mock 完了。
-   - **#2 Supabase 実クエリ完成（session 16）**: settings/matcha/ceramic/expense/media を実装済み。**残るは実 DB 検証**（I-002/I-020）: migration 0001-0015 を実 DB へ適用 + 各ドメインに `*.supabase.test.ts`（実 DB 必須・既定 skip）contract test を追加し mock と同挙動を確認。
-   - 残り: 顧客マイページ基盤・複数通貨/国別配送UI・再入荷/注文通知の配線（通知 mock を service へ接続）・cart/checkout の公開UI（Phase 3）・matcha adjustQuantity の DB function 化（原子性, PM-028 注記）。
-   - **Supabase repo 実クエリ実装の残**: matcha/ceramic/expense/settings は現状スケルトン（NotImplemented）。実 DB 接続時に procurement/payment/fulfillment と同様 PostgREST/RPC で実装し contract test を流用。
-   - mock 永続は in-memory（再起動で消える）。原価/利益/経費は owner 限定（front_staff/inventory に非表示）を維持すること。
-8. **画像管理 UI（§9, I-018）**: mock 画像管理 → Supabase Storage（public/private, MIME/サイズ/寸法検証）。レシート等は private。
-9. （任意）在ブラウザの dev 専用ロール切替（cookie ベース、I-019）。現状は役割別ランチャー + `ADMIN_DEV_LOCALE` で代替。
+## Git 状態
 
-> 運用基盤メモ: 開発専用機能は `src/config/devtools.ts` の `isDevToolsEnabled()`（非本番 かつ ADMIN 有効 かつ mock）で一元ガード。dev-check=`/[locale]/admin/dev-check`、mock 初期化=`/api/dev/reset`（POST, 本番404）。停止は `.dev-server.pid` 記録分のみ（無差別 kill しない）。
+- 現在のブランチ: `main`
+- 最新コミット: `f3c4571 docs(pm): finalize HANDOFF for Codex (session 17 state)`
+- tag: なし
+- 作業ツリー: 未コミット変更あり
 
-> ✅ **並行作業（I-014）Resolved**: session 8 で並行ライター停止を確認・診断（損失/競合コピーなし）。以後**単一エージェント**で作業する。再開時も 1 ブランチ 1 作業者を厳守。
+### `git status --short` 要約
 
-> 書込の使い方: `getCommerceService()`（既定 mock）→ `service.setProductStatus(actor, id, status)` 等。actor = `{ userId, role }`。業務ルールは service が強制、永続不変条件は repository が担う。
+- 変更あり:
+  - `.env.example`
+  - `docs/LOCAL_VERIFICATION_GUIDE.md`
+  - `docs/SUPABASE_SETUP.md`
+  - `docs/project-management/CURRENT_STATE.md`
+  - `docs/project-management/DECISIONS.md`
+  - `docs/project-management/HANDOFF.md`
+  - `docs/project-management/KNOWN_ISSUES.md`
+  - `docs/project-management/ROADMAP.md`
+  - `docs/project-management/WORK_LOG.md`
+  - `next-env.d.ts`
+  - `scripts/_devutil.mjs`
+  - `scripts/smoke.mjs`
+  - `src/repositories/index.ts`
+- 未追跡:
+  - `src/lib/customer/`
+  - `src/repositories/core/customerModels.ts`
+  - `src/repositories/core/customerRepository.ts`
+  - `src/repositories/mock/mockCustomerPortalRepository.ts`
+  - `src/repositories/supabase/supabaseCustomerPortalRepository.ts`
+  - `supabase/migrations/0016_customer_accounts.sql`
+  - `tests/*Contract*.test.ts`
+  - `tests/*ContractRunner.ts`
+  - `tests/customerAuth.test.ts`
+  - `tests/customerPortalService.test.ts`
+  - `tests/repositoryContractFixtures.ts`
 
-## 最初に読むファイル
-1. `docs/project-management/CURRENT_STATE.md` / `ROADMAP.md` / `KNOWN_ISSUES.md` / `DECISIONS.md`
-2. `README.md`, `docs/PHASE2A_IMPLEMENTATION_PLAN.md`
-3. `src/types/commerce.ts`, `src/repositories/`, `src/lib/commerce/`, `supabase/`
+### `git log --oneline -20`
 
-## 実行コマンド
+```text
+f3c4571 docs(pm): finalize HANDOFF for Codex (session 17 state)
+71b8179 docs(pm): record notification viewer + audit log viewer (session 17)
+d1022bf feat(admin): audit log viewer (/admin/audit-logs, owner)
+62dbb58 feat(dev): mock notification viewer (/admin/notifications) + dev bar link
+81f362e docs(pm): record GitHub remote + notification wiring (session 17)
+cc073b6 feat(phase3): wire notifications into order/payment/shipment services
+2ea4d15 docs(pm): relocate canonical path to C:\dev\sites\kamisumi-site (out of OneDrive)
+14bb392 docs(pm): record Supabase real-query completion (session 16)
+ca37dac feat(supabase): settings repository (real queries) + setting_history (0015)
+0cf02d0 feat(supabase): real queries for expense/media/ceramic/matcha repositories
+2402c8e docs(pm): record media foundation + Phase 3 interfaces (session 15)
+be0c9d1 feat(phase3): notification interface + mock, SNS draft + human approval flow
+7b32d78 feat(phase3): cart interface + mock cart, checkout adapter + manual-transfer mock
+140b6f1 feat(admin): media management foundation (mock) + UI
+8d19f16 docs(pm): record accounting export slice + session 14 final state
+fb1e6b5 feat(admin): accounting export persistence + UI (idempotent)
+10fdc4a docs(pm): record session 14 slices (matcha/ceramic/expense/profit/dashboard)
+0ca7ca5 feat(admin): management dashboard with role-aware metrics
+b279c28 feat(admin): profit analysis (read-only) from recorded data
+8b2d834 feat(admin): expense persistence + management UI
+```
+
+### Git 注意
+
+- `git add` は現環境で失敗確認済み: `.git/index.lock: Permission denied`。
+- `.git` に明示的な DENY ACL があり、コミット/ push には権限復旧が必要。
+- 秘密情報点検では、追跡対象の env/鍵/credential は `.env.example` のみ確認済み。
+
+## 実装済み内容
+
+- Phase 1 公開サイト: zh-tw / ja の全15ルート、SEO/JSON-LD/sitemap/robots、OG PNG、favicon、soft-404 対応。
+- Phase 2A: 管理基盤、ドメインロジック、RLS/migration、管理 UI、書込 service、mock/Supabase 認証切替、Supabase read/write repository 実クエリ、注文メモ永続化。
+- Phase 2B: 仕入先、仕入記録、原価配賦、配送、入金、抹茶ロット、陶器個体、経費、利益分析、会計 export、ダッシュボード、操作履歴ビューア、全ドメイン管理 UI。
+- Phase 3 interface: cart/checkout 手動振込 mock、通知 mock + 業務サービス配線、SNS 下書き + 人間承認。
+- 顧客マイページ基盤: migration 0016、`customer_accounts`、本人 RLS、customer portal repository mock/Supabase、customer auth adapter、customer portal service、contract test 入口。
+- Supabase contract test 基盤: matcha / ceramic / expense / media / settings / customer portal の mock test と `*.supabase.test.ts`（既定 skip）。
+- smoke script: Windows での dev server 連続起動を安定化するため、public / owner / inventory を独立プロセスで確認する構成へ変更済み。
+
+## テスト状況
+
+最新確認（2026-06-19）:
+
+- `npm.cmd run verify:full`: 成功
+  - typecheck OK
+  - lint OK
+  - test **237 passed / 9 skipped**
+  - `db:validate` **16 files OK**
+  - build OK
+- `npm.cmd run verify:quick`: 成功
+  - public smoke OK
+  - owner 全16管理画面 OK
+  - inventory 権限制限 OK
+- 追加確認:
+  - `npm.cmd run test -- customerPortalService customerAuth`: 8 passed
+  - `npm.cmd run test -- customerPortal`: 6 passed / 1 skipped
+  - `npm.cmd run db:validate`: 16 files OK
+  - `npm.cmd run typecheck`: OK
+
+## 既知の未実装 / 未検証
+
+- 実 Supabase project への migration 0001-0016 適用と seed。
+- `RUN_SUPABASE_CONTRACT=1` での実 DB contract test。
+- Supabase RLS / read 一致 / Storage 実ファイル連携。
+- 顧客マイページ公開 UI。
+- 複数通貨 / 国別配送 UI。
+- cart/checkout 公開 UI。
+- `matcha adjustQuantity` の DB function 原子化。
+- 操作履歴の全ドメイン集約・検索/絞り込み。
+- Playwright E2E の `C:\dev` 移設後再評価。
+- `.git` ACL による stage/commit/push ブロック。
+
+## 次に着手すべき候補タスク（優先順位）
+
+1. `.git` ACL 復旧後、未コミット変更を確認して機能単位で commit/push。
+2. 実 Supabase 接続検証: migration 0001-0016 適用、seed、RLS、`*.supabase.test.ts` 実行。
+3. 顧客マイページ公開 UI: `/[locale]/account`、ログイン状態表示、プロフィール/住所編集。
+4. cart/checkout 公開 UI: 本番決済なし、手動振込 mock / sandbox 境界を維持。
+5. 複数通貨 / 国別配送 UI: 既存の整数金額・currency 方針を維持。
+6. 操作履歴検索/絞り込み: owner 限定のまま全ドメイン監査ログを横断表示。
+7. `matcha adjustQuantity` DB function 原子化。
+
+## 注意事項
+
+- 公開サイトの URL・slug・主要導線・Phase 1 デザインを壊さない。
+- 適用済み migration は書き換えず、新番号で追加する。
+- 金額は整数 `*_minor` + `currency`。浮動小数点で金額計算しない。
+- `front_staff` に原価/利益/口座/権限管理/全顧客 CSV/秘密設定を見せない。
+- 本番決済、本番メール送信、SNS 自動投稿はしない。
+- 実銀行口座番号、実 API キー、顧客個人情報を保存/ログ/commit しない。
+- dev 専用機能は production で無効。production で mock fallback しない。
+- Supabase は env + `DATA_BACKEND=supabase` の時のみ。既定は mock。
+
+## 再開用コマンド
+
 ```bash
-npm install
-npm run verify:full     # typecheck+lint+test+db:validate+build（最後のゲート）
-npm run verify:quick    # 公開/管理の軽量スモーク（別ポート3100, 1-3分）
-npm run dev:owner       # mock owner で管理画面（or START_KAMISUMI_*.cmd をダブルクリック）
-# 人間向け手順は docs/LOCAL_VERIFICATION_GUIDE.md。E2E は OneDrive 遅延で timeout（I-001）
+cd "C:/dev/sites/kamisumi-site"
+git status --short
+git log --oneline -20
+npm run verify:full
+npm run verify:quick
 ```
-Windows ランチャー: `START_KAMISUMI_MOCK.cmd`(dev-check) / `_OWNER` / `_FRONT_STAFF` / `_INVENTORY` / `_PUBLIC_ONLY` / `STOP_KAMISUMI.cmd` / `CHECK_KAMISUMI.cmd` / `RESET_MOCK_DATA.cmd`。
 
-## 環境変数（`.env.example` 参照）
-`DATA_BACKEND`(既定mock), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`。秘密値・実口座・顧客情報はコミットしない。
+## Claude Code 推奨プロンプト
 
-## migration状態
-0001-0015 作成済み（…0012=経費, 0013=会計export, 0014=メディアメタ, 0015=設定履歴）・**実DB未適用**。`db:validate` OK（15 files）。実SQL妥当性は未検証（I-002）。
+```text
+KAMISUMI / KAGURAKOJI Commerce Core を C:\dev\sites\kamisumi-site で継続してください。
+最初に docs/project-management/CURRENT_STATE.md / HANDOFF.md / ROADMAP.md / WORK_LOG.md / KNOWN_ISSUES.md を読み、git status と git log --oneline -20 を確認してください。
 
-## mock / Supabase 切替
-`src/config/dataBackend.ts` → `getDataBackend()`。`src/repositories/index.ts` の factory が mock/supabase を選択。Supabase 未設定で `DATA_BACKEND=supabase` にすると factory が明示エラー（誤設定検知）。
+現状: Phase 1 公開サイト、Phase 2A 管理基盤、Phase 2B 仕入・原価・在庫・採算、Phase 3 interface、顧客マイページ基盤まで実装済み。Supabase repo 実クエリと contract test 入口はあるが、実 DB 接続検証は未実施です。最新検証は verify:full 成功（test 237 passed / 9 skipped、db:validate 16 files）と verify:quick 成功です。
 
-## 注意設計 / 変更禁止
-- 金額は必ず整数 `*_minor` + currency（`src/lib/commerce/money.ts`）。number で金額計算しない。
-- front_staff に原価/利益/口座/権限/全顧客CSV/秘密設定を見せない（`rbac.ts` の SENSITIVE_PERMISSIONS、RLS 0004）。
-- 適用済み migration は書き換えず新番号で追加。`src/proxy.ts` のファイル/関数名 `proxy` を変えない（Next.js 16 規約）。
-- 公開サイトの URL・slug・主要導線・Phase 1 デザインを維持。実在しない業務ルール・提携・受賞・正規代理店表記を作らない。
+注意: 現在 .git ACL のため git add が index.lock permission denied で失敗します。まず権限を復旧し、未コミット変更を確認してから機能単位で commit/push してください。OneDrive 旧フォルダは参照・編集禁止です。
 
-## 未決事項（人間が決める）
-連絡先メール / SNS URL / 法務・支払い・キャンセル・台湾食品配送規定 / 実商品データ・価格・画像・ロゴ・商標 / 台湾口座 / 本番決済・メール送信サービス / 英語公開時期 / Supabase本番project。
+優先タスクは、(1) Git stage/commit 可能化と未コミット変更の整理、(2) 実 Supabase 接続検証、(3) 顧客マイページ公開 UI、(4) cart/checkout 公開 UI、(5) 複数通貨/国別配送 UI です。
 
-## 既知問題
-KNOWN_ISSUES.md（I-001 E2E timeout, I-002 migration未検証, I-003 OneDrive build lock, I-004 npm audit, I-005 商品OG SVG, ...）。
-
-## テスト結果（2026-06-19 session 17）
-typecheck/lint OK（warning 0）、**test 216 passed・3 skipped**（supabase 契約は実 DB 必須で skip）、db:validate(15) OK、build clean、`verify:quick` 全✅（管理画面 全16 画面含む）、E2E は移設で要再評価(I-001)。
-
-## Codex 再開用プロンプト
-```
-KAMISUMI プロジェクト（C:\dev\sites\kamisumi-site）を継続する。
-まず docs/project-management/CURRENT_STATE.md と HANDOFF.md を読むこと。
-現状: Phase 1 公開サイト + Phase 2A(基盤/管理画面 全14/書込/認証切替) + Phase 2B(仕入先/仕入/入金/配送/抹茶/陶器/経費/利益/会計export/ダッシュボード) + Phase 3 interface(cart/checkout/通知/SNS下書き+承認) 完了。全 Supabase repo の実クエリ実装済み（実 DB 検証は I-002/I-020 で残）。test 211。
-次のタスク候補: (1) 実 Supabase project 接続＋migration 0001-0015 適用＋各 *.supabase.test.ts contract test で mock 同等を検証、(2) 顧客マイページ基盤、(3) 複数通貨/国別配送UI、(4) 再入荷/注文通知の service 配線、(5) cart/checkout 公開UI、(6) matcha adjustQuantity の DB function 原子化。
-ルール: 公開サイトを壊さない、適用済みmigrationは書き換えない、金額は整数*_minor、front_staffに原価/利益/口座/権限/全顧客CSVを見せない、秘密情報をcommit/pushしない（push前に必ず点検）、本番決済/送信/自動投稿をしない。GitHub push は可（origin 設定済み）。
-各機能ごとに npm run typecheck/lint/test/db:validate/build/verify:quick を通し、WORK_LOG と CURRENT_STATE を更新すること。
+ルール: 公開サイトを壊さない、適用済み migration は書き換えない、金額は整数 *_minor + currency、front_staff に原価/利益/口座/権限/全顧客 CSV を見せない、本番決済/送信/SNS 自動投稿をしない、秘密情報を commit/push しない。
 ```

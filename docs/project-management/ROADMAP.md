@@ -1,7 +1,7 @@
 # ROADMAP
 
 状態: Not Started / In Progress / Blocked / Completed / Deferred
-最終更新: 2026-06-19 (session 12)
+最終更新: 2026-06-19 (handoff prep)
 
 | 項目 | 状態 | 備考 |
 |---|---|---|
@@ -18,7 +18,7 @@
 | ├ Supabase Auth / セッション保護 | Impl Complete / Validation Pending | `getAdminSession` を `ADMIN_AUTH_MODE` で mock⇄Supabase 切替（user_roles/profiles self-read RLS）。実ログイン疎通は実 DB 接続後 |
 | ├ SupabaseCommerceRepository（読取/書込）実装 | Impl Complete / Validation Pending | 実クエリ実装完了（write: RPC/原子/冪等、read: 埋め込み select、エラー変換 + 単体テスト）。**実 DB 検証待ち**（contract test skip, docs/SUPABASE_SETUP.md） |
 | ├ 注文メモ恒久化（migration 0006） | Completed | provisional_orders に customer/internal note 列。write repo 列 UPDATE。contract test 追加 |
-| **Phase 2B 仕入・原価・在庫・利益** | In Progress | schema(0003)あり。**完了**: 原価配賦/抹茶FIFO・賞味期限/仕入先データ層(repo/mock/supabase/service/contract, 0007)/入金・配送 状態機械+送料差額/利益計算/会計 export interface(冪等mock)。**残**: 買付・仕入記録・陶器個体・経費 repository、入金/配送/利益の永続化、全ドメイン管理UI、ダッシュボード |
+| **Phase 2B 仕入・原価・在庫・利益** | Impl Complete / Validation Pending | 仕入先、仕入記録、原価配賦、配送、入金、抹茶ロット、陶器個体、経費、利益分析、会計 export、ダッシュボード、操作履歴ビューア、全ドメイン管理UI、Supabase実クエリを実装済み。残: 実DB検証（I-002/I-020）と操作履歴検索/絞り込み |
 | ├ 純ロジック（原価配賦/抹茶FIFO/利益/状態機械） | Completed | costAllocation/matchaLot/profit/payment・shipmentStatus。整数最小単位・通貨不一致拒否・決定的丸め |
 | ├ 仕入先データ層 + migration 0007 | Completed | ProcurementRepository(mock/supabase)+service(purchase:manage)+contract。公開投影で非公開を遮断 |
 | ├ 会計 export interface | Completed | management-accounting の入口 IF + 冪等 mock。法定会計/税務は対象外（§4） |
@@ -26,11 +26,11 @@
 | ├ 入金永続化（0009, PaymentRepository） | Completed | payment_type/expected/matching/paid_at。状態機械 + owner 限定 |
 | ├ 仕入記録+原価配賦 永続化 | Completed | purchases/items/cost_allocations。allocateCost 適用・合計保存 |
 | ├ 管理UI: 業務設定/仕入先/入金/配送/仕入記録 | Completed | session 13。AdminActionForm + service 経由 |
-| ├ 抹茶ロット(0010)/陶器個体(0011)/経費(0012) 永続化+UI | Completed | session 14。core+repo+mock+supabaseスケルトン+service+test。原価/経費/利益は owner 限定 |
+| ├ 抹茶ロット(0010)/陶器個体(0011)/経費(0012) 永続化+UI | Completed | session 14-18。core+repo+mock+supabase実クエリ+service+test+実DB契約テスト入口。原価/経費/利益は owner 限定 |
 | ├ 利益分析 + 経営ダッシュボード | Completed | session 14。記録済みデータからの概算（profit:view=owner）。ダッシュボードはロール別指標 |
 | ├ 会計export永続化+UI | Completed | session 14。冪等 exporter + /admin/accounting（owner）。migration 0013 |
 | ├ 画像管理基盤 + Media UI | Completed | session 15。migration 0014。MIME/サイズ/寸法検証・パス正規化・private=owner。Supabase Storage 連携は実装待ち |
-| **Phase 3 販売機能拡張** | In Progress | cart/checkout(手動振込mock,sandbox skeleton)/通知(mock)+**業務サービスへ実配線(session17)**/通知ビューア(dev)/SNS下書き+承認 完了。本番決済/送信/自動投稿なし。残: 顧客マイページ・複数通貨UI・cart/checkout 公開UI |
+| **Phase 3 販売機能拡張** | In Progress | cart/checkout(手動振込mock,sandbox skeleton)/通知(mock)+業務サービス配線/通知ビューア(dev)/SNS下書き+承認/顧客マイページ基盤(0016 customer_accounts + auth/repo/service mock/Supabase) 完了。本番決済/送信/自動投稿なし。残: マイページ公開UI・複数通貨/国別配送UI・cart/checkout 公開UI |
 | **管理画面強化** | In Progress | 操作履歴(監査ログ)ビューア `/admin/audit-logs`(owner, session17)。管理画面 全16。残: 監査の全ドメイン集約・検索/絞り込み |
 | ├ 各 Supabase repo 実クエリ実装（matcha/ceramic/expense/media/settings） | Completed | session 16。全 repo 実装済み（実 DB 検証は I-002/I-020 で残）。migration 0015(setting_history) |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |
@@ -46,4 +46,4 @@
 - Phase 3: `v0.4.0-phase3`
 - Phase 4: `v0.5.0-commerce-core`
 
-> 現時点では Phase 2A は **基盤のみ**完了のため、`v0.2.0-phase2a` は未付与。
+> Phase 2A / 2B は実装済み範囲が広いが、実 Supabase DB 検証が未完了のため Phase 完了タグは未付与。
