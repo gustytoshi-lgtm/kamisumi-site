@@ -13,3 +13,11 @@ export function isAdminEnabled(): boolean {
 export function isCustomerPortalEnabled(): boolean {
   return process.env.CUSTOMER_PORTAL_ENABLED === "true";
 }
+
+/**
+ * cart / checkout 公開 UI の有効判定。既定 OFF＝`/[locale]/cart` は真の 404。
+ * 本番決済は行わず、手動振込 mock のみ。Phase 1 公開サイトの導線は変えない。
+ */
+export function isCartEnabled(): boolean {
+  return process.env.CART_ENABLED === "true";
+}

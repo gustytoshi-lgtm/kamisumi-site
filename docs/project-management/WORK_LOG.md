@@ -2,6 +2,38 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (20) — Claude — cart / checkout 公開 UI（優先4）
+
+### 目的
+優先タスク4。cart interface + 手動振込 checkout mock の上に、公開の cart/checkout UI を実装する。**本番決済はしない**（手動振込 mock のみ）。Phase 1 公開サイト（特に SSG 商品ページ・ナビ）を変えない。
+
+### 設計判断
+- 商品詳細ページは `dynamicParams=false` の SSG。flag をビルド時評価してしまうため、**商品ページには手を入れず**、cart 機能を独立した dynamic ルート `/[locale]/cart` に自己完結させた（商品選択 → 追加 → 明細編集 → デモ checkout を 1 ページで完結）。
+
+### 実装
+- flag `isCartEnabled()`（`CART_ENABLED`、既定 OFF）。`proxy.ts` で無効時 `/[locale]/cart` を**真の 404**。
+- factory: `getCartRepository()`（mock シングルトン）/ `getCheckoutAdapter()`（手動振込 mock）を `repositories/index.ts` に追加。
+- page `cart/page.tsx`（force-dynamic, `robots: noindex`）: cookie `kms_cart` のカートを表示。商品追加フォーム、明細（数量更新/削除）、小計、デモ checkout、確認パネル（参照番号・金額・pending_payment・案内文）。
+- actions `cart/actions.ts`: add / updateQuantity / remove / clear / checkout。flag を server 側で再確認、cookie でカート ID を保持、整数数量検証、通貨不一致拒否、`revalidatePath`。checkout は `idempotencyKey = cartId:itemCount:subtotal` で二重送信防止、本番決済はせず参照番号を cookie に保存。
+- `cartCookies.ts`: cookie 名定数（"use server" ファイルは定数 export 不可のため分離）。
+- `CartActionForm`（client, useActionState + i18n notify, number/select/hidden）。
+- i18n: `Dictionary` 型に `cart` セクション + zh-tw / ja / en。
+- `.env.example`: `CART_ENABLED` 追記。
+
+### 確認
+- `typecheck` / `lint`: OK。`build`: `/[locale]/cart` `/[locale]/account` ともに ƒ(Dynamic)。
+- 手動 smoke（mock, `next dev`）:
+  - flag ON: `/zh-tw/cart` `/ja/cart` `/en/cart` = 200。購物車/カート/Cart、加入商品/商品を追加/Add item、小計/Subtotal を確認。
+  - flag OFF（既定）: `/zh-tw/cart` `/zh-tw/account` = **404**。`/zh-tw`（200）/ `/zh-tw/shop`（200）/ `/zh-tw/products/kyoto-usucha-midori`（200）で公開サイト不変を確認。
+- 純ロジックは既存 `tests/cartCheckout.test.ts` でカバー。
+
+### 残
+- 商品ページからの「カートに追加」導線（SSG のため flag ランタイム評価の設計が必要。別途）。
+- 実決済 provider（stripe/paypal/tw_provider）は契約後に同 interface で差し替え。
+- 次: 優先5 複数通貨 / 国別配送 UI。
+
+---
+
 ## 2026-06-19 (19) — Claude — 顧客マイページ公開 UI（優先3）
 
 ### 目的

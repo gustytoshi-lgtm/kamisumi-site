@@ -60,6 +60,8 @@ import {
 } from "@/lib/customer/customerPortalService";
 import { mockCustomerPortalRepository } from "./mock/mockCustomerPortalRepository";
 import { supabaseCustomerPortalRepository } from "./supabase/supabaseCustomerPortalRepository";
+import { createMockCartRepository, type CartRepository } from "@/lib/commerce/cart";
+import { createMockManualTransferAdapter, type CheckoutAdapter } from "@/lib/commerce/checkout";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -272,4 +274,19 @@ export function getCustomerPortalRepository(): CustomerPortalRepository {
 
 export function getCustomerPortalService(): CustomerPortalService {
   return createCustomerPortalService(getCustomerPortalRepository());
+}
+
+// ---- cart / checkout（Phase 3 公開 UI。mock のみ。本番決済なし）----
+// プロセス内シングルトン。mock は in-memory（dev・再起動で消える）。本番カート永続化は Phase 4+。
+const mockCartRepository = createMockCartRepository();
+const mockManualTransferAdapter = createMockManualTransferAdapter();
+
+/** cart repository factory。現状 mock のみ（Supabase カート永続化は Phase 4+）。 */
+export function getCartRepository(): CartRepository {
+  return mockCartRepository;
+}
+
+/** checkout adapter factory。手動振込 mock のみ。本番決済 provider は契約後に同 interface で差し替える。 */
+export function getCheckoutAdapter(): CheckoutAdapter {
+  return mockManualTransferAdapter;
 }

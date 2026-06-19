@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { isAdminEnabled, isCustomerPortalEnabled } from "@/config/features";
+import { isAdminEnabled, isCartEnabled, isCustomerPortalEnabled } from "@/config/features";
 import { isSupabaseConfigured } from "@/config/dataBackend";
 import { defaultLocale, isLocale } from "@/config/site";
 
@@ -32,6 +32,11 @@ export async function proxy(request: NextRequest) {
     segments[1] === "account" &&
     !isCustomerPortalEnabled()
   ) {
+    return new NextResponse(null, { status: 404 });
+  }
+
+  // cart / checkout 公開 UI も CART_ENABLED=true のときだけ到達可能。無効時は真の 404。
+  if (firstSegment && isLocale(firstSegment) && segments[1] === "cart" && !isCartEnabled()) {
     return new NextResponse(null, { status: 404 });
   }
 

@@ -134,6 +134,35 @@ export type Dictionary = {
       not_found: string;
     };
   };
+  cart: {
+    title: string;
+    description: string;
+    demoNote: string;
+    empty: string;
+    addHeading: string;
+    productLabel: string;
+    quantityLabel: string;
+    add: string;
+    update: string;
+    remove: string;
+    clear: string;
+    subtotal: string;
+    checkoutHeading: string;
+    checkout: string;
+    confirmationHeading: string;
+    reference: string;
+    amount: string;
+    statusLabel: string;
+    pendingPayment: string;
+    instructions: string;
+    notify: {
+      success: string;
+      error: string;
+      forbidden: string;
+      validation: string;
+      not_found: string;
+    };
+  };
   pages: {
     home: {
       eyebrow: string;

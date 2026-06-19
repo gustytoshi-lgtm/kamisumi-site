@@ -157,6 +157,37 @@ export const en: Dictionary = {
       not_found: "The requested data was not found.",
     },
   },
+  cart: {
+    title: "Cart",
+    description: "Review items and quantities, then place a demo order (manual bank transfer, no online payment).",
+    demoNote:
+      "Demo environment: no online payment is taken. Submitting creates a payment-pending reference; KAMISUMI confirms stock and shipping and contacts you separately.",
+    empty: "Your cart is empty.",
+    addHeading: "Add an item",
+    productLabel: "Product",
+    quantityLabel: "Quantity",
+    add: "Add to cart",
+    update: "Update",
+    remove: "Remove",
+    clear: "Clear cart",
+    subtotal: "Subtotal",
+    checkoutHeading: "Place order (demo)",
+    checkout: "Place demo order",
+    confirmationHeading: "Your order has been received (demo)",
+    reference: "Reference",
+    amount: "Amount",
+    statusLabel: "Status",
+    pendingPayment: "Awaiting payment confirmation",
+    instructions:
+      "Please transfer the amount only after receiving the official instructions. We arrange shipping after payment is confirmed.",
+    notify: {
+      success: "Updated.",
+      error: "Something went wrong. Please try again later.",
+      forbidden: "Currently unavailable.",
+      validation: "Please check your input.",
+      not_found: "The requested product was not found.",
+    },
+  },
   pages: {
     home: {
       eyebrow: "Japanese Tea & Craft",
