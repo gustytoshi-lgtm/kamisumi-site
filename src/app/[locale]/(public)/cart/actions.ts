@@ -24,6 +24,7 @@ import {
   getCommerceRepository,
   getManualTransferOrderService,
 } from "@/repositories";
+import { CommerceError } from "@/repositories/core/writeModels";
 import type { ActionState } from "@/lib/admin/actionState";
 import { CART_COOKIE, CHECKOUT_COOKIE, CURRENCY_COOKIE, DEST_COOKIE } from "./cartCookies";
 
@@ -173,7 +174,8 @@ export async function checkoutAction(_prev: ActionState, formData: FormData): Pr
     const idempotencyKey = `${cartId}:${cartItemCount(cart)}:${subtotal.amountMinor}`;
     const result = await getCheckoutAdapter().startCheckout({ cart, idempotencyKey });
 
-    // 注文台帳に記録（reference で冪等）。記録できた後にカートをクリアする。
+    // 注文台帳に記録（reference で冪等）。記録できた後にのみカートをクリアする。
+    // 記録に失敗したらカートは消さず、ユーザーは再試行できる（カートだけ消える状態を作らない）。
     await getManualTransferOrderService().placeOrder({ cart, checkout: result });
 
     // 本番決済はしない。pending_payment の参照番号を cookie に保存し、確認パネルで表示する。
@@ -185,7 +187,10 @@ export async function checkoutAction(_prev: ActionState, formData: FormData): Pr
     await repo.saveCart(clearCart(cart));
     revalidatePath(`/${locale}/cart`);
     return ok();
-  } catch {
+  } catch (error) {
+    // 内部詳細はサーバーログにのみ出し、ユーザーには汎用/既知コードのみ返す（情報を漏らさない）。
+    console.error("[cart] checkout failed", error);
+    if (error instanceof CommerceError) return fail(error.code);
     return fail("error");
   }
 }

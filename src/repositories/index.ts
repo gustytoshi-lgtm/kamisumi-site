@@ -68,6 +68,7 @@ import {
   type ManualTransferOrderRepository,
   type ManualTransferOrderService,
 } from "@/lib/commerce/checkoutOrder";
+import { supabaseCheckoutOrderRepository } from "./supabase/supabaseCheckoutOrderRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -300,8 +301,20 @@ export function getCheckoutAdapter(): CheckoutAdapter {
 // 手動振込の注文台帳（mock シングルトン）。checkout 時に注文を記録し、owner が入金確認する。
 const mockManualTransferOrderRepository = createMockManualTransferOrderRepository();
 
-/** 手動振込の注文台帳 repository factory。現状 mock のみ。 */
+/**
+ * 手動振込の注文台帳 repository factory。既定 mock。
+ * `DATA_BACKEND=supabase` かつ env 揃いのときのみ Supabase（0017 checkout_orders, owner RLS）。
+ * 設定不備で supabase 指定時は明示エラー（誤って本番風に動かさない）。
+ */
 export function getManualTransferOrderRepository(): ManualTransferOrderRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseCheckoutOrderRepository;
+  }
   return mockManualTransferOrderRepository;
 }
 
