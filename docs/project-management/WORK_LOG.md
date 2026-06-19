@@ -2,6 +2,29 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (25) — Claude — 公開サイト不変 + feature flag OFF 回帰ガード（優先4）
+
+### 目的
+優先タスク4。「公開サイトを壊さない」「feature flag 既定 OFF」をコードで保証する自動回帰ガードを追加。これまで verify:quick の smoke でのみ確認していたルート 404 を、ユニットテストでも固定する。
+
+### 実装（テストのみ。production コードは変更なし）
+- `tests/featureFlags.test.ts`（6 件）:
+  - `isAdminEnabled` / `isCustomerPortalEnabled` / `isCartEnabled` は env 未設定時すべて false。
+  - 厳密一致（`"true"` のみ有効。`"1"`/`"yes"`/`"TRUE"`/`""` 等は false）。
+  - `isDevToolsEnabled` は本番（`NODE_ENV=production`）で必ず false、非本番でも admin 有効かつ mock backend のときのみ true（`DATA_BACKEND=supabase` で false）。
+- `tests/proxyGating.test.ts`（3 件）: `proxy()` を直接呼び、flag OFF で `/ja/admin` `/ja/account` `/ja/cart` `/zh-tw/cart` が 404、公開ルート（shop/products）は非 404、ルート `/` は既定ロケールへリダイレクト。flag ON で gated ルートが 404 でなくなることも確認。
+- env は各テストで保存→`afterEach` 復元（他テストへ汚染しない）。
+
+### 確認
+- `npm.cmd run test -- featureFlags proxyGating`: 9 passed。
+- `verify:full`: 成功（typecheck/lint/test/db:validate/build）。
+- `verify:quick`: 成功（従来どおり）。
+
+### 残 / 次
+- 優先6 認証・権限制御の境界テスト（rbac の role×permission マトリクス、front_staff に機微を見せない保証）。
+
+---
+
 ## 2026-06-19 (24) — Claude — 注文・手動振込フローの mock 実装（優先2）
 
 ### 目的

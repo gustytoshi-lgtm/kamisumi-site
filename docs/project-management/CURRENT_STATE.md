@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-19 (session 24) / 更新者: Claude
+最終更新: 2026-06-19 (session 25) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -60,7 +60,7 @@
 - `npm.cmd run verify:full`: 成功。
   - typecheck OK
   - lint OK
-  - test **272 passed / 9 files skipped**（session 24 で手動振込注文台帳 9 件追加）
+  - test **281 passed / 9 files skipped**（session 25 で feature flag/proxy ガード 9 件追加）
   - `db:validate` **16 files OK**
   - build OK
 - `npm.cmd run verify:quick`: 成功。
