@@ -2,6 +2,38 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (24) — Claude — 注文・手動振込フローの mock 実装（優先2）
+
+### 目的
+優先タスク2。cart の checkout で注文内容を台帳に記録し、オーナーが手動振込の入金確認で支払い・注文状態を前進させる mock を実装。本番決済はしない。
+
+### 設計判断
+- 既存の状態機械（`orderStatus.ts` / `paymentStatus.ts`）と整数金額・`ActorContext`/`CommerceError`・RBAC を**再利用**し、新しい業務ルールを発明しない。
+- 公開 checkout 由来の注文は、スタッフ運用の `provisional_orders`（管理画面）とは別の **mock 台帳** として明確に分離（公開デモフロー）。実 DB / 管理画面統合は後続判断。
+- 入金確認は会計機微のため `purchase:manage`（owner 限定、`paymentService` と整合）。`placeOrder` は公開（顧客）操作のため権限不要。
+
+### 実装
+- `src/lib/commerce/checkoutOrder.ts`: `ManualTransferOrder` 型、mock repository、`createManualTransferOrderService`。
+  - `placeOrder({cart, checkout})`: cart をスナップショット、初期 `orderStatus=payment_waiting` / `paymentStatus=billed`。checkout.reference で冪等。空カート・金額不一致を拒否。
+  - `confirmPayment(ctx, id)`: owner 限定。`canTransitionPayment(→paid)` / `canTransitionOrder(→paid_in_full)` を強制。
+  - `cancelOrder(ctx, id)`: owner 限定。`→cancelled`（発送前のみ）。
+  - `getOrder` / `listOrders`: owner 限定。
+- `repositories/index.ts`: `getManualTransferOrderRepository()` / `getManualTransferOrderService()`（mock シングルトン）。
+- `cart/actions.ts` の `checkoutAction`: startCheckout 後に `placeOrder` を呼び、注文記録後にカートをクリア（記録失敗時はカート維持＝再試行可）。
+
+### テスト
+- `tests/checkoutOrder.test.ts`（9 件）: スナップショット、冪等、空カート/金額不一致拒否、owner 入金確認で paid + paid_in_full、二重確認 invalid_transition、取消、get/list の owner 限定、not_found。
+
+### 確認
+- `typecheck` / `lint`: OK。`verify:full` / `verify:quick`: 成功（下記）。
+- 公開フロー: checkout 後にカートクリア + 確認パネル（reference/amount/pending_payment）は従来どおり。注文台帳記録は内部（owner 確認サービス）。
+
+### 残 / 次
+- 注文台帳の owner 管理 UI（観測・確認操作）。既存 `/admin/orders`（provisional_orders）との関係整理は要判断。
+- 優先3 在庫ドメインのテスト拡充。
+
+---
+
 ## 2026-06-19 (23) — Claude — 顧客マイページ入力バリデーション堅牢化（優先1）
 
 ### 目的
