@@ -53,6 +53,13 @@ import { createSnsDraftService, type SnsDraftService } from "@/lib/commerce/snsD
 import { mockSnsDraftRepository } from "@/lib/commerce/snsDraft";
 import { mockNotifier } from "@/lib/commerce/notifications";
 import type { Notifier } from "@/lib/commerce/notifications";
+import type { CustomerPortalRepository } from "./core/customerRepository";
+import {
+  createCustomerPortalService,
+  type CustomerPortalService,
+} from "@/lib/customer/customerPortalService";
+import { mockCustomerPortalRepository } from "./mock/mockCustomerPortalRepository";
+import { supabaseCustomerPortalRepository } from "./supabase/supabaseCustomerPortalRepository";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -82,7 +89,6 @@ export function getCommerceWriteRepository(): CommerceWriteRepository {
         "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
       );
     }
-    // 契約は確定済み。各メソッドは実装待ち（呼ぶと NotImplemented）。HANDOFF 参照。
     return supabaseCommerceWriteRepository;
   }
   return mockCommerceWriteRepository;
@@ -145,7 +151,7 @@ export function getPaymentService(): PaymentService {
   return createPaymentService(getPaymentRepository(), getNotifier());
 }
 
-/** 業務設定 repository factory。既定 mock。Supabase は実装待ち（スケルトン）。 */
+/** 業務設定 repository factory。既定 mock。Supabase は実クエリ実装済み（実 DB 検証待ち）。 */
 export function getSettingsRepository(): SettingsRepository {
   if (getDataBackend() === "supabase") {
     if (!isSupabaseConfigured()) {
@@ -162,7 +168,7 @@ export function getSettingsService(): SettingsService {
   return createSettingsService(getSettingsRepository());
 }
 
-/** 抹茶ロット repository factory。既定 mock。Supabase はスケルトン（実装待ち）。 */
+/** 抹茶ロット repository factory。既定 mock。Supabase は実クエリ実装済み（実 DB 検証待ち）。 */
 export function getMatchaLotRepository(): MatchaLotRepository {
   if (getDataBackend() === "supabase") {
     if (!isSupabaseConfigured()) {
@@ -179,7 +185,7 @@ export function getMatchaLotService(): MatchaLotService {
   return createMatchaLotService(getMatchaLotRepository());
 }
 
-/** 陶器個体 repository factory。既定 mock。Supabase はスケルトン（実装待ち）。 */
+/** 陶器個体 repository factory。既定 mock。Supabase は実クエリ実装済み（実 DB 検証待ち）。 */
 export function getCeramicUnitRepository(): CeramicUnitRepository {
   if (getDataBackend() === "supabase") {
     if (!isSupabaseConfigured()) {
@@ -196,7 +202,7 @@ export function getCeramicUnitService(): CeramicUnitService {
   return createCeramicUnitService(getCeramicUnitRepository());
 }
 
-/** 経費 repository factory。既定 mock。Supabase はスケルトン（実装待ち）。 */
+/** 経費 repository factory。既定 mock。Supabase は実クエリ実装済み（実 DB 検証待ち）。 */
 export function getExpenseRepository(): ExpenseRepository {
   if (getDataBackend() === "supabase") {
     if (!isSupabaseConfigured()) {
@@ -221,7 +227,7 @@ export function getAccountingExportService(): AccountingExportService {
   return createAccountingExportService(mockAccountingExporter);
 }
 
-/** メディア repository factory。既定 mock。Supabase はスケルトン（Storage 連携は実装待ち）。 */
+/** メディア repository factory。既定 mock。Supabase はメタデータ実クエリ実装済み（Storage 連携は実装待ち）。 */
 export function getMediaRepository(): MediaRepository {
   if (getDataBackend() === "supabase") {
     if (!isSupabaseConfigured()) {
@@ -249,4 +255,21 @@ export function getSnsDraftService(): SnsDraftService {
  */
 export function getNotifier(): Notifier {
   return mockNotifier;
+}
+
+/** 顧客マイページ repository factory。既定 mock。Supabase は customer_accounts + RLS で本人データに限定。 */
+export function getCustomerPortalRepository(): CustomerPortalRepository {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseCustomerPortalRepository;
+  }
+  return mockCustomerPortalRepository;
+}
+
+export function getCustomerPortalService(): CustomerPortalService {
+  return createCustomerPortalService(getCustomerPortalRepository());
 }
