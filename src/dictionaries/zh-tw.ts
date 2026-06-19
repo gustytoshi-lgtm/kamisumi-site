@@ -184,6 +184,28 @@ export const zhTw: Dictionary = {
       not_found: "找不到對象商品。",
     },
   },
+  shippingEstimate: {
+    heading: "配送地區與顯示貨幣（參考）",
+    countryLabel: "配送地區",
+    currencyLabel: "顯示貨幣",
+    apply: "套用",
+    zoneLabel: "配送區域",
+    zones: {
+      domestic_tw: "台灣本地",
+      east_asia: "東亞",
+      north_america: "北美",
+      rest_of_world: "其他地區",
+    },
+    guidance: {
+      domestic_tw: "台灣本地配送。陶器與茶道具會以防破損方式包裝。",
+      east_asia: "東亞地區國際配送。運費依重量與材積估算，破損品優先防護包裝。",
+      north_america: "北美國際配送。運送時間較長，需留意食品類進口規定。",
+      rest_of_world: "其他地區國際配送。運費與可寄送品項需個別確認。",
+    },
+    finalQuoteNote: "以上為參考資訊。正式運費會在確認庫存與包裝方式後另行通知。",
+    referenceConversion: "參考換算",
+    demoRateNote: "此換算使用開發用的參考匯率，並非實際匯率或實際請求金額。",
+  },
   pages: {
     home: {
       eyebrow: "Japanese Tea & Craft",

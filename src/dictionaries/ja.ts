@@ -185,6 +185,28 @@ export const ja: Dictionary = {
       not_found: "対象の商品が見つかりません。",
     },
   },
+  shippingEstimate: {
+    heading: "配送先と表示通貨（参考）",
+    countryLabel: "配送先",
+    currencyLabel: "表示通貨",
+    apply: "適用",
+    zoneLabel: "配送ゾーン",
+    zones: {
+      domestic_tw: "台湾内",
+      east_asia: "東アジア",
+      north_america: "北米",
+      rest_of_world: "その他の地域",
+    },
+    guidance: {
+      domestic_tw: "台湾内配送。陶器・茶道具は破損防止の梱包を優先します。",
+      east_asia: "東アジア向け国際配送。送料は重量・材積で概算、割れ物は保護梱包を優先します。",
+      north_america: "北米向け国際配送。配送日数が長く、食品類の輸入規則にご注意ください。",
+      rest_of_world: "その他地域向け国際配送。送料と発送可能品目は個別に確認します。",
+    },
+    finalQuoteNote: "上記は参考情報です。正式な送料は在庫と梱包方法の確認後に別途ご案内します。",
+    referenceConversion: "参考換算",
+    demoRateNote: "この換算は開発用の参考レートを使用しており、実レートでも実際の請求金額でもありません。",
+  },
   pages: {
     home: {
       eyebrow: "Japanese Tea & Craft",

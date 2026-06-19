@@ -2,6 +2,39 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (21) — Claude — 複数通貨 / 国別配送 UI（優先5）
+
+### 目的
+優先タスク5。cart の文脈に、配送先（国→ゾーン）案内と表示通貨の参考換算を追加する。**実送料・実為替は出さない**（自動計算しない方針／実レートでない）ことを明示する。
+
+### 設計判断
+- 実 FX レート・実送料を持たないため、捏造を避ける。送料は「ゾーン別の定性的な案内＋確定は確認後に通知」、為替は「開発用デモレートによる参考換算」と**明確にラベル**。実際の請求には使わない。
+- cart の文脈なので独立フラグを増やさず `CART_ENABLED` に同梱。
+
+### 実装
+- `src/config/shipping.ts`: 配送ゾーン（domestic_tw / east_asia / north_america / rest_of_world）、国→ゾーン表（12カ国）、`supportedDisplayCurrencies`(TWD/JPY/USD)、純関数 `convertMoneyDemo`（TWD 基準・整数最小単位・四捨五入。**デモレート**）、`zoneForCountry` / `isSupportedDisplayCurrency`。
+- cart page に「配送先と表示通貨（参考）」セクション: 国 select→ゾーン名＋定性案内＋確定通知注記、通貨 select→小計のデモ換算＋デモレート注記。cookie `kms_dest` / `kms_curr`。
+- actions: `setDestinationAction` / `setDisplayCurrencyAction`（flag 再確認・入力検証・revalidate）。
+- i18n: `Dictionary` 型に `shippingEstimate` + zh-tw / ja / en。
+- test: `tests/shippingConfig.test.ts`（zone 解決・通貨ガード・換算の整数性／往復）8 passed。
+
+### 確認
+- `typecheck` / `lint`: OK。`build`: `/[locale]/cart` ƒ(Dynamic)。
+- `npm.cmd run test -- shippingConfig`: 8 passed。
+- 手動 smoke（mock, `next dev`, CART_ENABLED）:
+  - flag ON: `/zh-tw/cart` `/en/cart` に配送先・通貨セレクタ描画を確認。
+  - 条件描画: `kms_dest=JP` で East Asia ゾーン案内が描画（出現回数 1→3 で確認）。換算ブロックは小計が無い時は非表示（cart に商品がある時のみ）＝正しい。
+- flag OFF（既定）の 404 / 公開サイト不変は優先4で確認済み（同一 `CART_ENABLED` ゲート）。
+
+### Phase 3 状況
+- Phase 3 の公開 UI 残（マイページ・cart/checkout・複数通貨/国別配送）はこれで mock 実装完了。残は実決済 provider・実ログイン（Supabase Auth）・実 DB 接続。
+
+### 残 / 次
+- 実 Supabase 接続検証（優先2、資格情報待ち）。
+- 商品ページからの「カートに追加」導線（SSG 設計）。
+
+---
+
 ## 2026-06-19 (20) — Claude — cart / checkout 公開 UI（優先4）
 
 ### 目的

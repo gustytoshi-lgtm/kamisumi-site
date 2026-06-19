@@ -163,6 +163,28 @@ export type Dictionary = {
       not_found: string;
     };
   };
+  shippingEstimate: {
+    heading: string;
+    countryLabel: string;
+    currencyLabel: string;
+    apply: string;
+    zoneLabel: string;
+    zones: {
+      domestic_tw: string;
+      east_asia: string;
+      north_america: string;
+      rest_of_world: string;
+    };
+    guidance: {
+      domestic_tw: string;
+      east_asia: string;
+      north_america: string;
+      rest_of_world: string;
+    };
+    finalQuoteNote: string;
+    referenceConversion: string;
+    demoRateNote: string;
+  };
   pages: {
     home: {
       eyebrow: string;

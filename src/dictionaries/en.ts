@@ -188,6 +188,28 @@ export const en: Dictionary = {
       not_found: "The requested product was not found.",
     },
   },
+  shippingEstimate: {
+    heading: "Destination & display currency (reference)",
+    countryLabel: "Destination",
+    currencyLabel: "Display currency",
+    apply: "Apply",
+    zoneLabel: "Shipping zone",
+    zones: {
+      domestic_tw: "Taiwan (domestic)",
+      east_asia: "East Asia",
+      north_america: "North America",
+      rest_of_world: "Rest of world",
+    },
+    guidance: {
+      domestic_tw: "Domestic Taiwan delivery. Ceramics and tea tools are packed to prevent breakage.",
+      east_asia: "International shipping within East Asia. Shipping is estimated by weight and volume; fragile items are protected first.",
+      north_america: "International shipping to North America. Longer transit times; please note food import rules.",
+      rest_of_world: "International shipping to other regions. Shipping cost and eligible items are confirmed individually.",
+    },
+    finalQuoteNote: "The above is reference information. The final shipping cost is confirmed after stock and packaging are checked.",
+    referenceConversion: "Reference conversion",
+    demoRateNote: "This conversion uses a development reference rate; it is not a real exchange rate or an actual charge.",
+  },
   pages: {
     home: {
       eyebrow: "Japanese Tea & Craft",

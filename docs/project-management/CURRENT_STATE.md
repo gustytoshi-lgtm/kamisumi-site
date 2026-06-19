@@ -18,7 +18,7 @@
 - Phase 1（公開サイト）: **Completed**。公開 URL / slug / 主要導線は維持対象。
 - Phase 2A（販売・運用管理基盤）: **Implementation Complete / Real Supabase Validation Pending**。管理基盤、書込レイヤ、管理 CRUD、mock/Supabase 認証切替、Supabase read/write repository 実クエリ、注文メモ永続化まで実装済み。実 DB 検証が残るため `v0.2.0-phase2a` タグは未付与。
 - Phase 2B（仕入・原価・在庫・採算）: **Implementation Complete / Real Supabase Validation Pending**。仕入先、仕入記録、原価配賦、配送、入金、抹茶ロット、陶器個体、経費、利益分析、会計 export、ダッシュボード、操作履歴ビューア、全ドメイン管理 UI、各 Supabase repo 実クエリを実装済み。残は実 DB 検証と操作履歴の検索/絞り込み強化。
-- Phase 3（販売機能拡張）: **Interface / Foundation In Progress**。cart/checkout interface + 手動振込 mock、通知 mock + 業務サービス配線、SNS 下書き + 人間承認、顧客マイページ基盤（migration 0016 + auth/repo/service）、**顧客マイページ公開 UI（`/[locale]/account`, flag `CUSTOMER_PORTAL_ENABLED` 既定 OFF, session 19）**、**cart/checkout 公開 UI（`/[locale]/cart`, flag `CART_ENABLED` 既定 OFF, 手動振込 mock, session 20）** を実装済み。残は複数通貨/国別配送 UI。
+- Phase 3（販売機能拡張）: **Interface / Foundation In Progress**。cart/checkout interface + 手動振込 mock、通知 mock + 業務サービス配線、SNS 下書き + 人間承認、顧客マイページ基盤（migration 0016 + auth/repo/service）、**顧客マイページ公開 UI（`/[locale]/account`, flag `CUSTOMER_PORTAL_ENABLED` 既定 OFF, session 19）**、**cart/checkout 公開 UI（`/[locale]/cart`, flag `CART_ENABLED` 既定 OFF, 手動振込 mock, session 20）**、**複数通貨/国別配送 参考 UI（cart 内, 配送ゾーン案内 + デモレート参考換算, session 21）** を実装済み。Phase 3 公開 UI 残はすべて mock 実装完了。残は実決済 provider / 実ログイン / 実 DB 接続。
 - Phase 4: **Not Started / Deferred**。本番決済・本番会計 adapter は契約前のため未実装。
 
 ## 実装済み内容
@@ -37,7 +37,7 @@
 
 - 実 Supabase project への migration 0001-0016 適用、seed、RLS、read 一致、contract test 実行。
 - 実ログイン導線（Supabase Auth）の公開接続。マイページ公開 UI 自体は実装済み（`/[locale]/account`, flag 既定 OFF, mock セッション）。
-- 複数通貨 / 国別配送 UI。
+- 複数通貨 / 国別配送 UI: 参考実装済み（cart 内, 配送ゾーン案内 + デモレート換算, session 21）。実 FX レート・実送料の確定値接続は未（本番方針確定後）。
 - cart/checkout の公開 UI: 実装済み（`/[locale]/cart`, flag 既定 OFF, 手動振込 mock, session 20）。本番決済は対象外（契約後 adapter 差し替え）。商品ページからの「カートに追加」導線は別途。
 - `matcha adjustQuantity` の DB function 原子化。
 - 操作履歴の全ドメイン集約・検索/絞り込み。
@@ -55,12 +55,12 @@
 
 ## テスト状態
 
-最新確認（2026-06-19）:
+最新確認（2026-06-19, session 21）:
 
 - `npm.cmd run verify:full`: 成功。
   - typecheck OK
   - lint OK
-  - test **237 passed / 9 skipped**
+  - test **245 passed / 9 skipped**（session 21 で shippingConfig 8 件追加）
   - `db:validate` **16 files OK**
   - build OK
 - `npm.cmd run verify:quick`: 成功。

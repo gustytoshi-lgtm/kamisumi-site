@@ -5,6 +5,13 @@ import { CartActionForm, type CartFormField } from "@/components/cart/CartAction
 import { Notice } from "@/components/ui/Notice";
 import { PageIntro } from "@/components/ui/PageIntro";
 import { isCartEnabled } from "@/config/features";
+import {
+  convertMoneyDemo,
+  isSupportedDisplayCurrency,
+  shippingCountries,
+  supportedDisplayCurrencies,
+  zoneForCountry,
+} from "@/config/shipping";
 import { getDictionary } from "@/dictionaries";
 import { formatMoney } from "@/lib/format";
 import { getLocalizedText } from "@/lib/localization";
@@ -18,9 +25,11 @@ import {
   checkoutAction,
   clearCartAction,
   removeItemAction,
+  setDestinationAction,
+  setDisplayCurrencyAction,
   updateQuantityAction,
 } from "./actions";
-import { CART_COOKIE, CHECKOUT_COOKIE } from "./cartCookies";
+import { CART_COOKIE, CHECKOUT_COOKIE, CURRENCY_COOKIE, DEST_COOKIE } from "./cartCookies";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +57,8 @@ export default async function CartPage({ params }: LocaleParams) {
   const store = await cookies();
   const cartId = store.get(CART_COOKIE)?.value ?? null;
   const checkoutId = store.get(CHECKOUT_COOKIE)?.value ?? null;
+  const destCountry = store.get(DEST_COOKIE)?.value ?? null;
+  const displayCurrency = store.get(CURRENCY_COOKIE)?.value ?? null;
 
   const cart = cartId ? await getCartRepository().getCart(cartId) : null;
   const checkout = checkoutId ? await getCheckoutAdapter().getCheckout(checkoutId) : null;
@@ -62,6 +73,12 @@ export default async function CartPage({ params }: LocaleParams) {
 
   const items = cart?.items ?? [];
   const subtotal = cart ? cartSubtotal(cart) : null;
+
+  const s = dictionary.shippingEstimate;
+  const selectedZone = destCountry ? zoneForCountry(destCountry) : null;
+  const displayCur =
+    displayCurrency && isSupportedDisplayCurrency(displayCurrency) ? displayCurrency : null;
+  const convertedSubtotal = subtotal && displayCur ? convertMoneyDemo(subtotal, displayCur) : null;
 
   const addFields: CartFormField[] = [
     { kind: "hidden", name: "locale", value: locale },
@@ -181,6 +198,61 @@ export default async function CartPage({ params }: LocaleParams) {
                 />
               </div>
             )}
+          </div>
+
+          <div>
+            <h2>{s.heading}</h2>
+            <div style={{ display: "grid", gap: "14px" }}>
+              <CartActionForm
+                action={setDestinationAction}
+                fields={[
+                  { kind: "hidden", name: "locale", value: locale },
+                  {
+                    kind: "select",
+                    name: "country",
+                    label: s.countryLabel,
+                    required: true,
+                    defaultValue: destCountry ?? undefined,
+                    options: shippingCountries.map((co) => ({ value: co.code, label: co.name })),
+                  },
+                ]}
+                notify={c.notify}
+                submitLabel={s.apply}
+              />
+              {selectedZone ? (
+                <div className="muted" style={{ display: "grid", gap: "4px" }}>
+                  <p style={{ margin: 0 }}>
+                    {s.zoneLabel}: {s.zones[selectedZone]}
+                  </p>
+                  <p style={{ margin: 0 }}>{s.guidance[selectedZone]}</p>
+                  <p style={{ margin: 0 }}>{s.finalQuoteNote}</p>
+                </div>
+              ) : null}
+              <CartActionForm
+                action={setDisplayCurrencyAction}
+                fields={[
+                  { kind: "hidden", name: "locale", value: locale },
+                  {
+                    kind: "select",
+                    name: "currency",
+                    label: s.currencyLabel,
+                    required: true,
+                    defaultValue: displayCurrency ?? undefined,
+                    options: supportedDisplayCurrencies.map((cur) => ({ value: cur, label: cur })),
+                  },
+                ]}
+                notify={c.notify}
+                submitLabel={s.apply}
+              />
+              {convertedSubtotal ? (
+                <div className="muted" style={{ display: "grid", gap: "4px" }}>
+                  <p style={{ margin: 0 }}>
+                    {s.referenceConversion}: {formatMoney(convertedSubtotal, locale)}
+                  </p>
+                  <p style={{ margin: 0 }}>{s.demoRateNote}</p>
+                </div>
+              ) : null}
+            </div>
           </div>
 
           {items.length > 0 ? (

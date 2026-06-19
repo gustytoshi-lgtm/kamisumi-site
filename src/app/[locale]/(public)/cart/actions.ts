@@ -13,9 +13,10 @@ import {
   removeItem,
   setItemQuantity,
 } from "@/lib/commerce/cart";
+import { isSupportedDisplayCurrency, zoneForCountry } from "@/config/shipping";
 import { getCartRepository, getCheckoutAdapter, getCommerceRepository } from "@/repositories";
 import type { ActionState } from "@/lib/admin/actionState";
-import { CART_COOKIE, CHECKOUT_COOKIE } from "./cartCookies";
+import { CART_COOKIE, CHECKOUT_COOKIE, CURRENCY_COOKIE, DEST_COOKIE } from "./cartCookies";
 
 function ok(): ActionState {
   return { ok: true };
@@ -167,4 +168,32 @@ export async function checkoutAction(_prev: ActionState, formData: FormData): Pr
   } catch {
     return fail("error");
   }
+}
+
+export async function setDestinationAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  if (!isCartEnabled()) return fail("forbidden");
+  const country = String(formData.get("country") ?? "").trim();
+  if (!country || !zoneForCountry(country)) return fail("validation");
+  const locale = String(formData.get("locale") ?? "zh-tw");
+
+  (await cookies()).set(DEST_COOKIE, country, { httpOnly: true, sameSite: "lax", path: "/" });
+  revalidatePath(`/${locale}/cart`);
+  return ok();
+}
+
+export async function setDisplayCurrencyAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  if (!isCartEnabled()) return fail("forbidden");
+  const currency = String(formData.get("currency") ?? "").trim();
+  if (!isSupportedDisplayCurrency(currency)) return fail("validation");
+  const locale = String(formData.get("locale") ?? "zh-tw");
+
+  (await cookies()).set(CURRENCY_COOKIE, currency, { httpOnly: true, sameSite: "lax", path: "/" });
+  revalidatePath(`/${locale}/cart`);
+  return ok();
 }
