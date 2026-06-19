@@ -62,6 +62,12 @@ import { mockCustomerPortalRepository } from "./mock/mockCustomerPortalRepositor
 import { supabaseCustomerPortalRepository } from "./supabase/supabaseCustomerPortalRepository";
 import { createMockCartRepository, type CartRepository } from "@/lib/commerce/cart";
 import { createMockManualTransferAdapter, type CheckoutAdapter } from "@/lib/commerce/checkout";
+import {
+  createManualTransferOrderService,
+  createMockManualTransferOrderRepository,
+  type ManualTransferOrderRepository,
+  type ManualTransferOrderService,
+} from "@/lib/commerce/checkoutOrder";
 
 /**
  * 公開 UI はこの factory 経由でのみデータを取得する（Supabase/Shopify 等を直接呼ばない）。
@@ -289,4 +295,17 @@ export function getCartRepository(): CartRepository {
 /** checkout adapter factory。手動振込 mock のみ。本番決済 provider は契約後に同 interface で差し替える。 */
 export function getCheckoutAdapter(): CheckoutAdapter {
   return mockManualTransferAdapter;
+}
+
+// 手動振込の注文台帳（mock シングルトン）。checkout 時に注文を記録し、owner が入金確認する。
+const mockManualTransferOrderRepository = createMockManualTransferOrderRepository();
+
+/** 手動振込の注文台帳 repository factory。現状 mock のみ。 */
+export function getManualTransferOrderRepository(): ManualTransferOrderRepository {
+  return mockManualTransferOrderRepository;
+}
+
+/** 手動振込の注文台帳 service factory。placeOrder は公開、確認/取消/一覧は owner 限定。 */
+export function getManualTransferOrderService(): ManualTransferOrderService {
+  return createManualTransferOrderService(getManualTransferOrderRepository());
 }

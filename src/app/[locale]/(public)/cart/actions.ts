@@ -18,7 +18,12 @@ import {
 } from "@/lib/commerce/cart";
 import { isSupportedDisplayCurrency, zoneForCountry } from "@/config/shipping";
 import { isPurchasableStatus } from "@/lib/status";
-import { getCartRepository, getCheckoutAdapter, getCommerceRepository } from "@/repositories";
+import {
+  getCartRepository,
+  getCheckoutAdapter,
+  getCommerceRepository,
+  getManualTransferOrderService,
+} from "@/repositories";
 import type { ActionState } from "@/lib/admin/actionState";
 import { CART_COOKIE, CHECKOUT_COOKIE, CURRENCY_COOKIE, DEST_COOKIE } from "./cartCookies";
 
@@ -167,6 +172,9 @@ export async function checkoutAction(_prev: ActionState, formData: FormData): Pr
     const subtotal = cartSubtotal(cart);
     const idempotencyKey = `${cartId}:${cartItemCount(cart)}:${subtotal.amountMinor}`;
     const result = await getCheckoutAdapter().startCheckout({ cart, idempotencyKey });
+
+    // 注文台帳に記録（reference で冪等）。記録できた後にカートをクリアする。
+    await getManualTransferOrderService().placeOrder({ cart, checkout: result });
 
     // 本番決済はしない。pending_payment の参照番号を cookie に保存し、確認パネルで表示する。
     store.set(CHECKOUT_COOKIE, result.checkoutId, {
