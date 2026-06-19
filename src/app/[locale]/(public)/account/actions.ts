@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { isCustomerPortalEnabled } from "@/config/features";
-import { isLocale } from "@/config/site";
+import { defaultLocale, isLocale } from "@/config/site";
 import { getCustomerSession, type CustomerSession } from "@/lib/customer/auth";
 import { getCustomerPortalService } from "@/repositories";
 import { CommerceError } from "@/repositories/core/writeModels";
@@ -37,6 +37,12 @@ function localeField(formData: FormData, name: string) {
   return value && isLocale(value) ? value : undefined;
 }
 
+/** revalidatePath 用に locale を検証する（不正値は既定ロケールに丸める）。 */
+function parseLocale(formData: FormData) {
+  const value = String(formData.get("locale") ?? "").trim();
+  return isLocale(value) ? value : defaultLocale;
+}
+
 export async function updateProfileAction(
   _prev: ActionState,
   formData: FormData,
@@ -44,7 +50,7 @@ export async function updateProfileAction(
   const session = await sessionOrNull();
   if (!session) return { ok: false, code: "forbidden" };
 
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
   const patch: CustomerProfileUpdateInput = {};
   const name = field(formData, "name");
   if (name !== undefined) patch.name = name;
@@ -96,7 +102,7 @@ export async function createAddressAction(
   const session = await sessionOrNull();
   if (!session) return { ok: false, code: "forbidden" };
 
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
   try {
     await getCustomerPortalService().createAddress(session, readAddress(formData));
     revalidatePath(`/${locale}/account`);
@@ -113,7 +119,7 @@ export async function updateAddressAction(
   const session = await sessionOrNull();
   if (!session) return { ok: false, code: "forbidden" };
 
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
   const addressId = String(formData.get("addressId") ?? "").trim();
   if (!addressId) return { ok: false, code: "validation" };
 

@@ -66,4 +66,27 @@ describe("customer portal service", () => {
   it("validates non-empty profile name", async () => {
     await expectErr(service.updateProfile(session, { name: "" }), "validation");
   });
+
+  it("rejects malformed email / country code / oversized fields on profile", async () => {
+    await expectErr(service.updateProfile(session, { email: "not-an-email" }), "validation");
+    await expectErr(service.updateProfile(session, { countryCode: "Taiwan" }), "validation");
+    await expectErr(service.updateProfile(session, { name: "x".repeat(200) }), "validation");
+  });
+
+  it("rejects invalid address input on create and update", async () => {
+    await expectErr(service.createAddress(session, { countryCode: "TWN" }), "validation");
+    const address = await service.createAddress(session, { countryCode: "TW", line1: "Taipei" });
+    await expectErr(
+      service.updateAddress(session, address.id, { line1: "x".repeat(500) }),
+      "validation",
+    );
+  });
+
+  it("checks session ownership before validating input", async () => {
+    // 本人不一致は validation より先に forbidden を返す（情報を漏らさない）。
+    await expectErr(
+      service.updateProfile({ ...session, customerId: "other" }, { email: "bad" }),
+      "forbidden",
+    );
+  });
 });

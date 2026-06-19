@@ -6,6 +6,7 @@ import type {
 import type { CustomerPortalRepository } from "@/repositories/core/customerRepository";
 import { CommerceError } from "@/repositories/core/writeModels";
 import type { CustomerSession } from "./auth";
+import { validateAddressInput, validateProfilePatch } from "./validation";
 
 function requireSession(session: CustomerSession | null): CustomerSession {
   if (!session) throw new CommerceError("forbidden", "customer login required");
@@ -28,6 +29,7 @@ export function createCustomerPortalService(repository: CustomerPortalRepository
       if (!account || account.customerId !== s.customerId) {
         throw new CommerceError("forbidden", "customer account mismatch");
       }
+      validateProfilePatch(patch);
       return repository.updateCustomerProfile(account, patch);
     },
     async createAddress(session: CustomerSession | null, input: CustomerAddressInput) {
@@ -36,6 +38,7 @@ export function createCustomerPortalService(repository: CustomerPortalRepository
       if (!account || account.customerId !== s.customerId) {
         throw new CommerceError("forbidden", "customer account mismatch");
       }
+      validateAddressInput(input);
       return repository.createAddress(account, input);
     },
     async updateAddress(session: CustomerSession | null, addressId: string, patch: CustomerAddressInput) {
@@ -44,6 +47,7 @@ export function createCustomerPortalService(repository: CustomerPortalRepository
       if (!account || account.customerId !== s.customerId) {
         throw new CommerceError("forbidden", "customer account mismatch");
       }
+      validateAddressInput(patch);
       return repository.updateAddress(account, addressId, patch);
     },
   };
