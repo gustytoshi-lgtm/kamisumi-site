@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-19 (handoff prep) / 更新者: Codex
+最終更新: 2026-06-19 (session 18) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -47,11 +47,11 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `f3c4571 docs(pm): finalize HANDOFF for Codex (session 17 state)`
+- 最新 commit: `95cf2a1 docs(pm): handoff-prep snapshot (session 17 → 18)`（session 18 で 4 コミット追加）
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`
 - tag: なし。
-- 作業ツリー: 未コミット変更あり。ドキュメント更新に加え、前セッションの Supabase contract test 基盤、customer portal 基盤、smoke script 改善が未コミット。
-- 注意: 現在の環境では `.git` の ACL により `git add` が `index.lock: Permission denied` で失敗することを確認済み。コミット/ push 前に `.git` 権限の復旧が必要。
+- 作業ツリー: クリーン（session 18 で全未コミット変更を機能単位コミット済み）。
+- I-022（`.git` ACL）: 現ユーザー `maomao-desk\tkats` では実害なし。Deny ACL は別 SID 対象で、`git add`/`commit` は成功。残る Deny エントリの整理は任意。
 
 ## テスト状態
 

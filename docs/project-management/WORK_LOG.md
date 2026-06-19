@@ -2,6 +2,34 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (18) — Claude — Git stage/commit 復旧 + 未コミット整理
+
+### 目的
+優先タスク1（Git stage/commit 可能化と未コミット変更の整理）。前セッションで `.git` ACL により commit 不能とされていた状態を確認し、機能単位でコミット/プッシュする。
+
+### 確認した内容
+- 正式パス `C:\dev\sites\kamisumi-site` で作業（OneDrive 旧フォルダは未参照）。
+- `.git` 直下の Deny ACL は**現在のユーザー `maomao-desk\tkats` ではなく別 SID**（解決不能 `S-1-5-21-...-1010570570`）が対象。`git add` 実テストで成功を確認 → I-022 は現ユーザーでは実害なし。
+- `index.lock` 残存なし。
+- `next-env.d.ts` の差分は LF→CRLF の行末ノイズのみ → `git checkout` で復元。
+- `.env.example` / `docs/SUPABASE_SETUP.md` は空プレースホルダ・`<owner-uid>` 等のみで実秘密なし。
+
+### コミット（機能単位、main）
+1. `b3fd010 feat(customer): customer portal foundation (migration 0016 + auth/repo/service)`
+2. `8ab7e97 test(supabase): contract test entrypoints for phase 2B repositories`
+3. `f855b2d chore(dev): stabilize verify smoke for Windows sequential dev servers`
+4. `95cf2a1 docs(pm): handoff-prep snapshot (session 17 → 18)`
+
+### 確認
+- `npm.cmd run verify:full`: 成功（exit 0。typecheck / lint / test 237 passed・9 skipped / db:validate 16 files / build）。コミットはツリー内容を変えていないため検証状態は維持。
+- コミット後 `git status --short`: クリーン。
+
+### 残
+- origin/main へ push。
+- 実 Supabase 接続検証（優先2）、顧客マイページ公開 UI（優先3）以降。
+
+---
+
 ## 2026-06-19 (handoff prep) — Codex — 引き継ぎ準備
 
 ### 目的
