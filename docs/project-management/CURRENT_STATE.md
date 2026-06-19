@@ -47,7 +47,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `feat(cart): cart/checkout public UI (/[locale]/cart)`（session 18-20 で追加。実 hash は git log 参照）
+- 最新 commit: `f4b9e34 feat(cart): multi-currency + country shipping reference UI`（session 18-21 で 9 コミット追加）
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`
 - tag: なし。
 - 作業ツリー: クリーン（session 18 で全未コミット変更を機能単位コミット済み）。
