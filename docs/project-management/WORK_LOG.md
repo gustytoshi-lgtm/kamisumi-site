@@ -2,6 +2,33 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (26) — Claude — カート注文台帳の owner 管理 UI（優先2 完成 / 優先5）
+
+### 目的
+session 24 の手動振込注文台帳（service のみ）を owner が観測・操作できる管理画面を追加し、優先2を end-to-end で観測可能にする。`ADMIN_ENABLED` 既定 OFF を維持し公開サイトは不変。
+
+### 実装
+- `adminNav.ts`: nav キー `checkoutOrders` を追加（権限 `purchase:manage` = owner 限定）。
+- admin dict（types/ja/zh-tw）: `nav.checkoutOrders` ラベル + `checkoutOrders` セクション（参照番号/点数/金額/注文状態/入金状態/受付日時/入金確認/取消/mock 注記）。
+- `(admin)/admin/layout.tsx`: `IMPLEMENTED_ROUTES.checkoutOrders = "/admin/checkout-orders"`。
+- page `/admin/checkout-orders`: owner 限定（`canAny(["purchase:manage"])`）。注文一覧（金額は `formatMoney`、状態は badge）。入金確認/取消は遷移可能なときのみ `AdminActionForm` で表示。
+- actions: `confirmCheckoutPaymentAction` / `cancelCheckoutOrderAction`。flag/セッション/権限を server 側で再確認し、service（owner 限定）へ委譲、`revalidatePath`。
+
+### 設計判断
+- 公開 checkout 由来の mock 注文台帳であり、スタッフ運用の `provisional_orders`（`/admin/orders`）とは別物として明確にラベル（`mockNote`）。実 DB / 統合は後続判断。
+- 注文/入金状態は raw コードを badge 表示（audit-log と同様）。状態 i18n の肥大化を避ける。
+
+### 確認
+- `typecheck` / `lint`: OK。`adminNav` テスト 4 passed（両ロケールに新 nav ラベルあり）。
+- `verify:full`: 成功。`verify:quick`: 成功（owner 管理画面 + 公開 smoke、`ADMIN_ENABLED` 既定 OFF で /admin 404）。
+- 手動 smoke（`ADMIN_ENABLED=true ADMIN_DEV_ROLE=owner CART_ENABLED=true`）: `/ja/admin/checkout-orders` 200、nav に導線表示。
+
+### 残 / 次
+- 注文台帳の実 DB 永続化（資格情報待ち）。
+- 優先7/9（検証基盤・セキュリティ確認項目）。
+
+---
+
 ## 2026-06-19 (25) — Claude — 公開サイト不変 + feature flag OFF 回帰ガード（優先4）
 
 ### 目的
