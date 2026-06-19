@@ -1,10 +1,10 @@
-// 短時間スモーク確認。別ポート(3100)で next dev を起動し、主要ルートを確認して
+// 短時間スモーク確認。別ポート(3100以降)で next dev を起動し、主要ルートを確認して
 // 人間に分かりやすい日本語サマリ(✅/⚠️/❌)を出力する。完全な gate は verify:full。
-import { startNextDev, waitForReady, killTree, portInUse, sleep, c } from "./_devutil.mjs";
+import { spawnSync } from "node:child_process";
+import { startNextDev, waitForReady, waitForPortFree, killTree, portInUse, c } from "./_devutil.mjs";
 
 const scope = process.argv[2] ?? "quick";
-const PORT = 3100;
-const BASE = `http://localhost:${PORT}`;
+const BASE_PORT = 3100;
 const SLUG = "kyoto-usucha-midori";
 
 // 各 boot: ラベル + env + チェック配列。チェックは status / contains / notContains。
@@ -62,21 +62,48 @@ const INVENTORY_BOOT = {
   ],
 };
 
-const SCOPES = {
-  public: [PUBLIC_BOOT],
-  admin: [OWNER_BOOT, INVENTORY_BOOT],
-  mock: [OWNER_BOOT],
-  quick: [PUBLIC_BOOT, OWNER_BOOT, INVENTORY_BOOT],
+const BOOTS = {
+  public: PUBLIC_BOOT,
+  owner: OWNER_BOOT,
+  inventory: INVENTORY_BOOT,
 };
 
-const boots = SCOPES[scope];
-if (!boots) {
+const SCOPES = {
+  public: ["public"],
+  admin: ["owner", "inventory"],
+  mock: ["owner"],
+  quick: ["public", "owner", "inventory"],
+};
+
+const singleBootKey = scope.startsWith("boot:") ? scope.slice("boot:".length) : null;
+const bootKeys = singleBootKey ? [singleBootKey] : SCOPES[scope];
+if (!bootKeys || bootKeys.some((key) => !BOOTS[key])) {
   console.log(c.red(`unknown scope: ${scope} (public|admin|mock|quick)`));
   process.exit(2);
 }
 
-async function fetchCheck(check) {
-  const url = `${BASE}${check.path}`;
+if (!singleBootKey && bootKeys.length > 1) {
+  console.log(c.bold(`KAMISUMI スモーク確認: ${scope}`));
+  let ok = true;
+  for (const key of bootKeys) {
+    const result = spawnSync(process.execPath, ["scripts/smoke.mjs", `boot:${key}`], {
+      cwd: process.cwd(),
+      env: process.env,
+      stdio: "inherit",
+    });
+    ok = result.status === 0 && ok;
+  }
+  console.log("");
+  if (ok) {
+    console.log(c.green(c.bold("✅ すべて正常です。")));
+    process.exit(0);
+  }
+  console.log(c.red(c.bold("❌ 一部に問題があります。上の ❌ 行を確認してください。")));
+  process.exit(1);
+}
+
+async function fetchCheck(base, check) {
+  const url = `${base}${check.path}`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 30000);
   try {
@@ -96,37 +123,39 @@ async function fetchCheck(check) {
   }
 }
 
-async function runBoot(boot) {
+async function runBoot(boot, index) {
+  const port = BASE_PORT + index;
+  const base = `http://localhost:${port}`;
   console.log(c.bold(`\n▶ ${boot.label}`));
-  if (await portInUse(PORT)) {
-    console.log(c.red(`  ポート ${PORT} が使用中です。先に確認用サーバーを停止してください。`));
+  if (await portInUse(port)) {
+    console.log(c.red(`  ポート ${port} が使用中です。先に確認用サーバーを停止してください。`));
     return false;
   }
-  const child = startNextDev({ port: PORT, env: boot.env, inherit: false });
+  const child = startNextDev({ port, env: boot.env, inherit: false });
   let allOk = true;
   try {
-    const ready = await waitForReady(`${BASE}/ja`, { timeoutMs: 90000 });
+    const ready = await waitForReady(`${base}/ja`, { timeoutMs: 90000 });
     if (!ready) {
       console.log(c.red("  ❌ サーバー起動がタイムアウト"));
       return false;
     }
     for (const check of boot.checks) {
-      const r = await fetchCheck(check);
+      const r = await fetchCheck(base, check);
       const mark = r.ok ? c.green("✅ 正常") : c.red("❌ エラー");
       console.log(`  ${mark}  ${check.name} ${c.gray(`(${r.detail})`)}`);
       allOk = allOk && r.ok;
     }
   } finally {
     await killTree(child.pid);
-    await sleep(1500);
+    await waitForPortFree(port);
   }
   return allOk;
 }
 
 console.log(c.bold(`KAMISUMI スモーク確認: ${scope}`));
 let ok = true;
-for (const boot of boots) {
-  ok = (await runBoot(boot)) && ok;
+for (let i = 0; i < bootKeys.length; i += 1) {
+  ok = (await runBoot(BOOTS[bootKeys[i]], i)) && ok;
 }
 console.log("");
 if (ok) {

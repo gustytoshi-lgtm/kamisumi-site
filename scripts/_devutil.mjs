@@ -21,13 +21,12 @@ export function portInUse(port, host = "127.0.0.1") {
 }
 
 /** `next dev` を子プロセスとして起動。stdio は継承（ログを見せる）。
- *  shell:true + 単一コマンド文字列で起動（port は数値のみ・インジェクション無し）。 */
+ *  shell を挟まず Node で Next CLI を直接起動し、停止時にプロセスツリーを捕まえやすくする。 */
 export function startNextDev({ port, env, inherit = true }) {
-  const command = `npx --no-install next dev -p ${Number(port)}`;
-  const child = spawn(command, {
+  const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "-p", String(Number(port))], {
     env: { ...process.env, ...env },
-    stdio: inherit ? "inherit" : "pipe",
-    shell: true,
+    stdio: inherit ? "inherit" : "ignore",
+    shell: false,
   });
   return child;
 }
@@ -45,6 +44,16 @@ export async function waitForReady(url, { timeoutMs = 60000, intervalMs = 800 } 
     await sleep(intervalMs);
   }
   return false;
+}
+
+/** サーバー停止後、OS がポートを解放するまで待つ。 */
+export async function waitForPortFree(port, { timeoutMs = 10000, intervalMs = 500 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!(await portInUse(port))) return true;
+    await sleep(intervalMs);
+  }
+  return !(await portInUse(port));
 }
 
 export function sleep(ms) {
