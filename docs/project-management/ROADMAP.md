@@ -30,7 +30,7 @@
 | ├ 利益分析 + 経営ダッシュボード | Completed | session 14。記録済みデータからの概算（profit:view=owner）。ダッシュボードはロール別指標 |
 | ├ 会計export永続化+UI | Completed | session 14。冪等 exporter + /admin/accounting（owner）。migration 0013 |
 | ├ 画像管理基盤 + Media UI | Completed | session 15。migration 0014。MIME/サイズ/寸法検証・パス正規化・private=owner。Supabase Storage 連携は実装待ち |
-| **Phase 3 販売機能拡張** | In Progress | cart/checkout(手動振込mock,sandbox skeleton)/通知(mock)+業務サービス配線/通知ビューア(dev)/SNS下書き+承認/顧客マイページ基盤(0016 customer_accounts + auth/repo/service mock/Supabase) 完了。本番決済/送信/自動投稿なし。残: マイページ公開UI・複数通貨/国別配送UI・cart/checkout 公開UI |
+| **Phase 3 販売機能拡張** | In Progress | cart/checkout(手動振込mock,sandbox skeleton)/通知(mock)+業務サービス配線/通知ビューア(dev)/SNS下書き+承認/顧客マイページ基盤(0016 customer_accounts + auth/repo/service mock/Supabase)/**顧客マイページ公開UI(`/[locale]/account`, flag既定OFF, session19)** 完了。本番決済/送信/自動投稿なし。残: 複数通貨/国別配送UI・cart/checkout 公開UI |
 | **管理画面強化** | In Progress | 操作履歴(監査ログ)ビューア `/admin/audit-logs`(owner, session17)。管理画面 全16。残: 監査の全ドメイン集約・検索/絞り込み |
 | ├ 各 Supabase repo 実クエリ実装（matcha/ceramic/expense/media/settings） | Completed | session 16。全 repo 実装済み（実 DB 検証は I-002/I-020 で残）。migration 0015(setting_history) |
 | **Phase 4 KAGURAKOJI Commerce Core** | Not Started | 複数ブランド/ストア、accounting export interface |

@@ -18,7 +18,7 @@
 - Phase 1（公開サイト）: **Completed**。公開 URL / slug / 主要導線は維持対象。
 - Phase 2A（販売・運用管理基盤）: **Implementation Complete / Real Supabase Validation Pending**。管理基盤、書込レイヤ、管理 CRUD、mock/Supabase 認証切替、Supabase read/write repository 実クエリ、注文メモ永続化まで実装済み。実 DB 検証が残るため `v0.2.0-phase2a` タグは未付与。
 - Phase 2B（仕入・原価・在庫・採算）: **Implementation Complete / Real Supabase Validation Pending**。仕入先、仕入記録、原価配賦、配送、入金、抹茶ロット、陶器個体、経費、利益分析、会計 export、ダッシュボード、操作履歴ビューア、全ドメイン管理 UI、各 Supabase repo 実クエリを実装済み。残は実 DB 検証と操作履歴の検索/絞り込み強化。
-- Phase 3（販売機能拡張）: **Interface / Foundation In Progress**。cart/checkout interface + 手動振込 mock、通知 mock + 業務サービス配線、SNS 下書き + 人間承認、顧客マイページ基盤（migration 0016 + auth/repo/service）を実装済み。残は顧客マイページ公開 UI、複数通貨/国別配送 UI、cart/checkout 公開 UI。
+- Phase 3（販売機能拡張）: **Interface / Foundation In Progress**。cart/checkout interface + 手動振込 mock、通知 mock + 業務サービス配線、SNS 下書き + 人間承認、顧客マイページ基盤（migration 0016 + auth/repo/service）、**顧客マイページ公開 UI（`/[locale]/account`, flag `CUSTOMER_PORTAL_ENABLED` 既定 OFF, session 19）** を実装済み。残は複数通貨/国別配送 UI、cart/checkout 公開 UI。
 - Phase 4: **Not Started / Deferred**。本番決済・本番会計 adapter は契約前のため未実装。
 
 ## 実装済み内容
@@ -36,7 +36,7 @@
 ## 未実装 / 未検証
 
 - 実 Supabase project への migration 0001-0016 適用、seed、RLS、read 一致、contract test 実行。
-- 顧客マイページ公開 UI（`/[locale]/account` 等）とログイン/住所編集導線。
+- 実ログイン導線（Supabase Auth）の公開接続。マイページ公開 UI 自体は実装済み（`/[locale]/account`, flag 既定 OFF, mock セッション）。
 - 複数通貨 / 国別配送 UI。
 - cart/checkout の公開 UI。本番決済は対象外。
 - `matcha adjustQuantity` の DB function 原子化。
@@ -47,7 +47,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: `95cf2a1 docs(pm): handoff-prep snapshot (session 17 → 18)`（session 18 で 4 コミット追加）
+- 最新 commit: `774a34d feat(account): customer my-page public UI (/[locale]/account)`（session 18-19 で追加）
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`
 - tag: なし。
 - 作業ツリー: クリーン（session 18 で全未コミット変更を機能単位コミット済み）。

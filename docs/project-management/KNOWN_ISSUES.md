@@ -23,7 +23,7 @@
 | I-017 | Low | 業務設定（§8）管理UIは実装済だが公開サイト未反映 | `/admin/settings` | 設定値は mock/Supabase repository に保存・編集/履歴可だが、公開サイト（site.ts）へは未反映 | mock で編集・確認可 | 設定値を公開サイト読取へ接続 | 2B/運用 | UI/repo実装済・公開反映残 |
 | I-018 | Low | 画像管理は mock 実装済・Supabase Storage 連携が残 | `/admin/media` | メタデータ管理は可（mock）。実ファイル保管（Storage）と商品画像への紐付けは未 | mock でメタ管理 | supabaseMediaRepository + Storage(public/private, 署名付きURL) を実装 | 2B/運用 | UI実装済・Storage残 |
 | I-020b | Low | Phase 3 は interface+mock のみ（本番決済/送信/自動投稿なし） | cart/checkout/通知/SNS | 本番連携は未（設計上の境界） | mock/sandbox で開発・確認 | 本番契約後に adapter 実装 | 3 | Open(by design) |
-| I-021 | Low | 顧客マイページは基盤のみで公開UI未実装 | `/account` 等 | customer_accounts/auth/repo/service はあるが、人間が使う公開画面はまだ無い | mock/service テストで確認 | `/[locale]/account` の公開UIとログイン/住所編集導線を追加 | 3 | Open |
+| I-021 | Low | 顧客マイページは基盤のみで公開UI未実装 | `/account` 等 | customer_accounts/auth/repo/service はあるが、人間が使う公開画面はまだ無い | mock/service テストで確認 | `/[locale]/account` の公開UIとプロフィール/住所編集導線を追加（flag `CUSTOMER_PORTAL_ENABLED` 既定OFF=真404）。残は実ログイン導線（Supabase Auth） | 3 | **Resolved**（公開UI実装, session 19。実ログインは実DB接続後） |
 | I-022 | High | `.git` ACL により stage/commit/push ができない | `git add ...` | `fatal: Unable to create 'C:/dev/sites/kamisumi-site/.git/index.lock': Permission denied` でドキュメント更新や実装変更をコミットできない | 作業内容は作業ツリーに保持。Git操作前に状態を再確認 | Deny ACL は現ユーザー `maomao-desk\tkats` ではなく別 SID(`S-1-5-21-...-1010570570`) 対象と判明。session 18 で `git add`/`commit` 成功を確認し 4 コミット作成 | 運用 | **Resolved**（現ユーザーで commit 可能, session 18） |
 | I-019 | Low | 在ブラウザのロール切替は未実装（役割別ランチャーで代替） | 管理画面 | ロール変更は .cmd 再起動が必要 | START_KAMISUMI_{OWNER,FRONT_STAFF,INVENTORY}.cmd | 任意で cookie ベースの dev 専用ロール切替（PM-016） | 運用 | Open(by design) |
 

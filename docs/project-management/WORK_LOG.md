@@ -2,6 +2,37 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-19 (19) — Claude — 顧客マイページ公開 UI（優先3）
+
+### 目的
+優先タスク3。顧客マイページ基盤（service/repo/auth）の上に公開 UI を実装する。Phase 1 公開サイトの導線・SEO を変えないこと、本人以外のデータ（原価/利益/全顧客 CSV/内部メモ）を出さないことを前提とする。
+
+### 実装
+- feature flag `isCustomerPortalEnabled()`（`CUSTOMER_PORTAL_ENABLED`、既定 OFF）。
+- `proxy.ts`: 無効時 `/[locale]/account` を**真の 404**（admin と同じガード）。
+- page `src/app/[locale]/(public)/account/page.tsx`: server component。`getCustomerSession()` で未ログイン時はログイン要求ビュー、ログイン時は `customerPortalService.getSnapshot()` の profile + addresses を表示。`robots: noindex`、`force-dynamic`。
+- actions `account/actions.ts`: `updateProfile` / `createAddress` / `updateAddress`。flag + セッションを server 側で再確認、空文字は無視（既存値の空上書き防止）、`revalidatePath`。
+- `AccountActionForm`（client, useActionState + i18n notify）。
+- i18n: `Dictionary` 型に `account` セクション追加 + zh-tw / ja / en。
+- `.env.example`: `CUSTOMER_PORTAL_ENABLED` 追記。
+
+### 確認
+- `npm.cmd run typecheck` / `lint` / `db:validate`(16 files): OK。
+- `npm.cmd run verify:full`: 成功（exit 0、build 含む）。テスト件数は不変（新規 UI に対する service/auth テストは既存の 8 件でカバー）。
+- 手動 smoke（mock, `next dev`）:
+  - flag ON: `/zh-tw/account` `/ja/account` = HTTP 200。profile（KAMISUMI Guest）/ 基本資料 / 收件地址 を確認。
+  - flag OFF（既定）: `/zh-tw/account` `/ja/account` = **404**、`/zh-tw`（公開トップ）= 200（公開サイト不変）。
+
+### コミット / push
+- `774a34d feat(account): customer my-page public UI (/[locale]/account)` を main に push 済み。
+
+### 残
+- 実ログイン導線（Supabase Auth）は実 DB 接続後。現状 mock セッションで表示。
+- グローバルナビへの導線追加は未（既定で公開ヘッダを変えないため見送り）。
+- 次: 優先4 cart/checkout 公開 UI、優先5 複数通貨/国別配送 UI。
+
+---
+
 ## 2026-06-19 (18) — Claude — Git stage/commit 復旧 + 未コミット整理
 
 ### 目的
