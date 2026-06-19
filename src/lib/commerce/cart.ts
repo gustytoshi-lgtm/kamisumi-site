@@ -20,27 +20,34 @@ export type Cart = {
   items: CartItem[];
 };
 
+export const MIN_CART_QUANTITY = 1;
+export const MAX_CART_QUANTITY = 99;
+
 export function emptyCart(id: string, currency: CurrencyCode): Cart {
   return { id, currency, items: [] };
 }
 
-function assertPositiveInt(quantity: number): void {
-  if (!Number.isInteger(quantity) || quantity <= 0) {
-    throw new Error(`quantity must be a positive integer (got ${quantity})`);
+function assertCartQuantity(quantity: number): void {
+  if (!Number.isInteger(quantity) || quantity < MIN_CART_QUANTITY || quantity > MAX_CART_QUANTITY) {
+    throw new Error(
+      `quantity must be an integer between ${MIN_CART_QUANTITY} and ${MAX_CART_QUANTITY} (got ${quantity})`,
+    );
   }
 }
 
 /** 同一 productId は数量を合算（unitPrice は最新で上書き）。新しい Cart を返す（不変）。 */
 export function addItem(cart: Cart, item: CartItem): Cart {
-  assertPositiveInt(item.quantity);
+  assertCartQuantity(item.quantity);
   if (item.unitPrice.currency !== cart.currency) {
     throw new Error(`item currency ${item.unitPrice.currency} != cart ${cart.currency}`);
   }
   const existing = cart.items.find((i) => i.productId === item.productId);
+  const mergedQuantity = existing ? existing.quantity + item.quantity : item.quantity;
+  assertCartQuantity(mergedQuantity);
   const items = existing
     ? cart.items.map((i) =>
         i.productId === item.productId
-          ? { ...i, quantity: i.quantity + item.quantity, unitPrice: item.unitPrice }
+          ? { ...i, quantity: mergedQuantity, unitPrice: item.unitPrice }
           : i,
       )
     : [...cart.items, item];
@@ -49,7 +56,7 @@ export function addItem(cart: Cart, item: CartItem): Cart {
 
 export function setItemQuantity(cart: Cart, productId: string, quantity: number): Cart {
   if (quantity === 0) return removeItem(cart, productId);
-  assertPositiveInt(quantity);
+  assertCartQuantity(quantity);
   return {
     ...cart,
     items: cart.items.map((i) => (i.productId === productId ? { ...i, quantity } : i)),

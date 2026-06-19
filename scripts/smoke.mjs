@@ -21,6 +21,7 @@ const PUBLIC_BOOT = {
     { name: "商品一覧 /ja/shop", path: "/ja/shop", status: 200 },
     { name: "商品詳細 /ja/products", path: `/ja/products/${SLUG}`, status: 200 },
     { name: "OG画像 /api/og", path: "/api/og", status: 200 },
+    { name: "カートは無効(404)", path: "/ja/cart", status: 404 },
     { name: "管理画面は無効(404)", path: "/ja/admin", status: 404 },
   ],
 };

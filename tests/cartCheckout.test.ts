@@ -6,6 +6,7 @@ import {
   clearCart,
   createMockCartRepository,
   emptyCart,
+  MAX_CART_QUANTITY,
   removeItem,
   setItemQuantity,
 } from "@/lib/commerce/cart";
@@ -31,6 +32,17 @@ describe("cart pure operations", () => {
     const cart = emptyCart("c1", "TWD");
     expect(() => addItem(cart, { productId: "p", quantity: 1, unitPrice: { currency: "JPY", amountMinor: 1 } })).toThrow();
     expect(() => addItem(cart, { productId: "p", quantity: 0, unitPrice: twd(1) })).toThrow();
+  });
+
+  it("rejects quantities above the cart item limit", () => {
+    const cart = emptyCart("c1", "TWD");
+    expect(() =>
+      addItem(cart, { productId: "p", quantity: MAX_CART_QUANTITY + 1, unitPrice: twd(1) }),
+    ).toThrow();
+
+    const full = addItem(cart, { productId: "p", quantity: MAX_CART_QUANTITY, unitPrice: twd(1) });
+    expect(() => addItem(full, { productId: "p", quantity: 1, unitPrice: twd(1) })).toThrow();
+    expect(() => setItemQuantity(full, "p", MAX_CART_QUANTITY + 1)).toThrow();
   });
 
   it("updates and removes items; setItemQuantity 0 removes", () => {

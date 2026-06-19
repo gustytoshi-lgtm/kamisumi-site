@@ -17,8 +17,9 @@ import { formatMoney } from "@/lib/format";
 import { getLocalizedText } from "@/lib/localization";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { buildMetadata } from "@/lib/seo";
-import { cartSubtotal } from "@/lib/commerce/cart";
+import { cartSubtotal, MAX_CART_QUANTITY } from "@/lib/commerce/cart";
 import { multiplyMoney } from "@/lib/commerce/money";
+import { isPurchasableStatus } from "@/lib/status";
 import { getCartRepository, getCheckoutAdapter, getCommerceRepository } from "@/repositories";
 import {
   addToCartAction,
@@ -63,7 +64,9 @@ export default async function CartPage({ params }: LocaleParams) {
   const cart = cartId ? await getCartRepository().getCart(cartId) : null;
   const checkout = checkoutId ? await getCheckoutAdapter().getCheckout(checkoutId) : null;
 
-  const products = await getCommerceRepository().listProducts();
+  const products = (await getCommerceRepository().listProducts()).filter((product) =>
+    isPurchasableStatus(product.publicStatus),
+  );
   const productBySlug = new Map(products.map((p) => [p.slug, p] as const));
 
   const productOptions = products.map((p) => ({
@@ -89,7 +92,15 @@ export default async function CartPage({ params }: LocaleParams) {
       required: true,
       options: productOptions,
     },
-    { kind: "number", name: "quantity", label: c.quantityLabel, defaultValue: "1", min: 1, required: true },
+    {
+      kind: "number",
+      name: "quantity",
+      label: c.quantityLabel,
+      defaultValue: "1",
+      min: 1,
+      max: MAX_CART_QUANTITY,
+      required: true,
+    },
   ];
 
   return (
@@ -168,6 +179,7 @@ export default async function CartPage({ params }: LocaleParams) {
                               label: c.quantityLabel,
                               defaultValue: String(item.quantity),
                               min: 0,
+                              max: MAX_CART_QUANTITY,
                               required: true,
                             },
                           ]}

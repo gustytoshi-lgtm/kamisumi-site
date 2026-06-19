@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PriceDisplay } from "@/components/product/PriceDisplay";
+import { ProductCartGate } from "@/components/product/ProductCartGate";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductStatusBadge } from "@/components/product/ProductStatusBadge";
@@ -15,7 +16,7 @@ import { getLocalizedList, getLocalizedText } from "@/lib/localization";
 import { getLocaleFromParams, type LocaleSlugParams } from "@/lib/params";
 import { journalPath, localizePath } from "@/lib/routes";
 import { absoluteUrl, breadcrumbJsonLd, buildMetadata, productJsonLd } from "@/lib/seo";
-import { getProductStatusPresentation } from "@/lib/status";
+import { getProductStatusPresentation, isPurchasableStatus } from "@/lib/status";
 import { getCommerceRepository } from "@/repositories";
 
 // すべてのslugは generateStaticParams（モックデータ由来）で出力されるため、
@@ -111,6 +112,9 @@ export default async function ProductDetailPage({ params }: LocaleSlugParams) {
               />
               <p>{getLocalizedText(product.description, locale)}</p>
               <p className="muted">{dictionary.common.shippingAfterConfirm}</p>
+              {isPurchasableStatus(product.publicStatus) ? (
+                <ProductCartGate cart={dictionary.cart} locale={locale} slug={product.slug} />
+              ) : null}
               <ButtonLink href={ctaHref}>{status.cta}</ButtonLink>
             </div>
           </div>

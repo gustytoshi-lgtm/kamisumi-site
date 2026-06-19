@@ -12,6 +12,7 @@ export type CartFormField =
       label: string;
       defaultValue?: string;
       min?: number;
+      max?: number;
       required?: boolean;
     }
   | {
@@ -83,6 +84,7 @@ export function CartActionForm({ action, fields, submitLabel, notify, layout = "
             {labelEl}
             <input
               defaultValue={field.defaultValue}
+              max={field.max}
               min={field.min}
               name={field.name}
               required={field.required}

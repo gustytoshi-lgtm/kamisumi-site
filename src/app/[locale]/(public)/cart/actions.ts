@@ -3,6 +3,8 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { defaultLocale, isLocale, type Locale } from "@/config/site";
 import { isCartEnabled } from "@/config/features";
 import {
   addItem,
@@ -10,10 +12,12 @@ import {
   cartSubtotal,
   clearCart,
   emptyCart,
+  MAX_CART_QUANTITY,
   removeItem,
   setItemQuantity,
 } from "@/lib/commerce/cart";
 import { isSupportedDisplayCurrency, zoneForCountry } from "@/config/shipping";
+import { isPurchasableStatus } from "@/lib/status";
 import { getCartRepository, getCheckoutAdapter, getCommerceRepository } from "@/repositories";
 import type { ActionState } from "@/lib/admin/actionState";
 import { CART_COOKIE, CHECKOUT_COOKIE, CURRENCY_COOKIE, DEST_COOKIE } from "./cartCookies";
@@ -38,20 +42,27 @@ async function clearCheckoutCookie(): Promise<void> {
   (await cookies()).delete(CHECKOUT_COOKIE);
 }
 
-function parseInteger(formData: FormData, name: string, min: number): number | null {
+function parseLocale(formData: FormData): Locale {
+  const value = String(formData.get("locale") ?? "").trim();
+  return isLocale(value) ? value : defaultLocale;
+}
+
+function parseInteger(formData: FormData, name: string, min: number, max: number): number | null {
   const value = Number(String(formData.get(name) ?? "").trim());
-  return Number.isInteger(value) && value >= min ? value : null;
+  return Number.isInteger(value) && value >= min && value <= max ? value : null;
 }
 
 export async function addToCartAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   if (!isCartEnabled()) return fail("forbidden");
   const slug = String(formData.get("slug") ?? "").trim();
-  const quantity = parseInteger(formData, "quantity", 1);
+  const quantity = parseInteger(formData, "quantity", 1, MAX_CART_QUANTITY);
   if (!slug || quantity === null) return fail("validation");
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
+  const shouldRedirectToCart = String(formData.get("redirectToCart") ?? "") === "true";
 
   const product = await getCommerceRepository().getProductBySlug(slug);
   if (!product) return fail("not_found");
+  if (!isPurchasableStatus(product.publicStatus)) return fail("validation");
 
   try {
     const cartId = await ensureCartId();
@@ -63,10 +74,11 @@ export async function addToCartAction(_prev: ActionState, formData: FormData): P
     );
     await clearCheckoutCookie();
     revalidatePath(`/${locale}/cart`);
-    return ok();
   } catch {
     return fail("error");
   }
+  if (shouldRedirectToCart) redirect(`/${locale}/cart`);
+  return ok();
 }
 
 export async function updateQuantityAction(
@@ -75,9 +87,9 @@ export async function updateQuantityAction(
 ): Promise<ActionState> {
   if (!isCartEnabled()) return fail("forbidden");
   const slug = String(formData.get("slug") ?? "").trim();
-  const quantity = parseInteger(formData, "quantity", 0);
+  const quantity = parseInteger(formData, "quantity", 0, MAX_CART_QUANTITY);
   if (!slug || quantity === null) return fail("validation");
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
 
   const store = await cookies();
   const cartId = store.get(CART_COOKIE)?.value;
@@ -122,7 +134,7 @@ export async function removeItemAction(
 
 export async function clearCartAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   if (!isCartEnabled()) return fail("forbidden");
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
   const store = await cookies();
   const cartId = store.get(CART_COOKIE)?.value;
   if (!cartId) return ok();
@@ -141,7 +153,7 @@ export async function clearCartAction(_prev: ActionState, formData: FormData): P
 
 export async function checkoutAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   if (!isCartEnabled()) return fail("forbidden");
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
   const store = await cookies();
   const cartId = store.get(CART_COOKIE)?.value;
   if (!cartId) return fail("validation");
@@ -177,7 +189,7 @@ export async function setDestinationAction(
   if (!isCartEnabled()) return fail("forbidden");
   const country = String(formData.get("country") ?? "").trim();
   if (!country || !zoneForCountry(country)) return fail("validation");
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
 
   (await cookies()).set(DEST_COOKIE, country, { httpOnly: true, sameSite: "lax", path: "/" });
   revalidatePath(`/${locale}/cart`);
@@ -191,7 +203,7 @@ export async function setDisplayCurrencyAction(
   if (!isCartEnabled()) return fail("forbidden");
   const currency = String(formData.get("currency") ?? "").trim();
   if (!isSupportedDisplayCurrency(currency)) return fail("validation");
-  const locale = String(formData.get("locale") ?? "zh-tw");
+  const locale = parseLocale(formData);
 
   (await cookies()).set(CURRENCY_COOKIE, currency, { httpOnly: true, sameSite: "lax", path: "/" });
   revalidatePath(`/${locale}/cart`);
