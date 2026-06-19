@@ -194,6 +194,21 @@ export type AdminDictionary = {
     empty: string;
     boundaryNote: string;
   };
+  /** 手動振込 注文台帳（公開 checkout 由来の mock 注文）画面のラベル。 */
+  checkoutOrders: {
+    title: string;
+    intro: string;
+    reference: string;
+    items: string;
+    amount: string;
+    orderStatus: string;
+    paymentStatus: string;
+    placedAt: string;
+    confirmPayment: string;
+    cancelOrder: string;
+    empty: string;
+    mockNote: string;
+  };
   /** 操作履歴（監査ログ）画面のラベル。 */
   auditLog: {
     title: string;
