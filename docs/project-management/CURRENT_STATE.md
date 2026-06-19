@@ -47,11 +47,11 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: 作業開始時 `389a8e1 docs(pm): update latest-commit pointer (session 21)`。session 22 の commit は `git log -1` を参照。
-- remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`
+- 最新 commit: `7fe8e16 docs: add pre-launch security checklist (session 27)`（session 23-27 の commit は `git log --oneline -20` を参照。実 hash は更新ごとに変わる）。
+- remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
-- 作業ツリー: session 22 作業中。実装・テスト・文書更新済みだが、この Codex 実行ユーザーでは `.git/index.lock` 作成が permission denied になり `git add` 不可。
-- I-022（`.git` ACL）: `maomao-desk\tkats` では解決済みと引き継ぎあり。ただし現セッションの `maomao-desk\codexsandboxonline` では `git add` が失敗。commit/push は人間側または権限復旧後に実施。
+- 作業ツリー: クリーン（session 23-27 の実装・テスト・文書を機能単位で commit/push 済み）。
+- I-022（`.git` ACL）: `maomao-desk\tkats`（オーナー）では git add/commit/push 正常。Codex サンドボックスユーザー `codexsandboxonline` のみ環境制約で書込不可（repo 側問題ではない）。KNOWN_ISSUES 参照。
 
 ## テスト状態
 
