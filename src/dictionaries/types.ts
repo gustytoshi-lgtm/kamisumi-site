@@ -97,6 +97,43 @@ export type Dictionary = {
     emailError: string;
     requiredError: string;
   };
+  account: {
+    title: string;
+    description: string;
+    loginRequired: string;
+    loginRequiredHint: string;
+    signedInAs: string;
+    demoNote: string;
+    profileHeading: string;
+    addressesHeading: string;
+    noAddresses: string;
+    addAddressHeading: string;
+    editAddressHeading: string;
+    saveProfile: string;
+    saveAddress: string;
+    addAddress: string;
+    fields: {
+      name: string;
+      email: string;
+      contactHandle: string;
+      country: string;
+      phone: string;
+      preferredLocale: string;
+      recipientName: string;
+      postalCode: string;
+      line1: string;
+      line2: string;
+      city: string;
+      region: string;
+    };
+    notify: {
+      success: string;
+      error: string;
+      forbidden: string;
+      validation: string;
+      not_found: string;
+    };
+  };
   pages: {
     home: {
       eyebrow: string;
