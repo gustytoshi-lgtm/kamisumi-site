@@ -2,6 +2,41 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (29) — Claude — 操作履歴の全ドメイン集約 + 検索/絞り込み（優先2）
+
+### 目的
+owner 限定の操作履歴（監査ログ）ビューアが commerce write ドメインしか表示していなかったため、
+配送・入金・調達を含む全ドメインを横断集約し、さらに actor/操作/対象/キーワード/期間での
+絞り込みを追加する。実 DB 不要で進められる優先2タスク（実 Supabase 接続検証は資格情報待ちで継続ブロック）。
+
+### 実施内容
+1. `src/repositories/index.ts` に `collectAuditLogs()` を追加。
+   - supabase: 全ドメインが単一 `audit_logs` テーブルへ書込むため commerce write の `listAuditLogs()` が全件を返す。
+   - mock: 各ドメインが独立 audit ストアを持つため commerce write + fulfillment + payment + procurement を横断マージ。
+2. `src/lib/commerce/auditLog.ts`（純粋関数）を新規追加。
+   - `filterAuditEntries`（actor/action/entityType 完全一致 + キーワード部分一致 + 期間 [両端含む]、AND 結合、入力不変）。
+   - `auditFilterFacets`（ドロップダウン用の重複なし昇順値）/ `sortAuditEntriesDesc`（createdAt 降順・安定）/ `hasActiveAuditFilter`。
+3. `audit-logs/page.tsx` を再構成。`collectAuditLogs()` を整列 → ファセット生成 → searchParams で絞り込み。
+   GET フィルタフォーム（actor/操作/対象 select、キーワード search、開始/終了 date、適用、リセット）。
+   「表示件数: filtered / all」と、絞り込み有無で empty/noMatch を出し分け。
+4. 辞書 `ja` / `zh-tw` / `types` に `auditLog` のフィルタ用ラベルを追加。intro を全ドメイン表記に更新。
+
+### 変更ファイル
+- 新規: `src/lib/commerce/auditLog.ts`, `tests/auditLog.test.ts`
+- 変更: `src/repositories/index.ts`, `src/app/[locale]/(admin)/admin/audit-logs/page.tsx`,
+  `src/dictionaries/admin/{ja,zh-tw,types}.ts`
+
+### 確認
+- `typecheck` / `lint`: OK。
+- `verify:full`: 成功（test **295 passed / 10 files skipped**、+14 = audit フィルタ）。`db:validate` OK、build OK。
+- `verify:quick`: 成功（owner 全16管理画面 200、操作履歴 200、inventory 権限制限、CART/ADMIN OFF で 404）。
+
+### 残課題
+- 操作履歴の per-actor 監査 export（CSV）は未着手。実 Supabase 接続検証（優先1）は資格情報待ち。
+
+### commit hash
+- `7c880ac` feat(audit): cross-domain audit log aggregation + search/filter viewer
+
 ## 2026-06-19 (28) — Claude — 注文台帳の Supabase 永続化（実DB対応, 優先2-5）
 
 ### 目的
