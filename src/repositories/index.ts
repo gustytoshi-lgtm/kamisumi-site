@@ -1,5 +1,6 @@
 import type { CommerceRepository } from "./core/commerceRepository";
 import type { CommerceWriteRepository } from "./core/commerceWriteRepository";
+import type { AuditEntry } from "./core/writeModels";
 import type { ProcurementRepository } from "./core/procurementRepository";
 import type { FulfillmentRepository } from "./core/fulfillmentRepository";
 import type { PaymentRepository } from "./core/paymentRepository";
@@ -105,6 +106,32 @@ export function getCommerceWriteRepository(): CommerceWriteRepository {
 
 export function getCommerceService(): CommerceService {
   return createCommerceService(getCommerceWriteRepository(), getNotifier());
+}
+
+/**
+ * 操作履歴（監査ログ）の全ドメイン横断集約。owner 限定の操作履歴ビューア用。
+ *
+ * Supabase は全ドメインが単一の `audit_logs` テーブルへ書込むため、commerce write の
+ * `listAuditLogs()` が全件を返す。mock は各ドメインが独立した audit ストアを持つので、
+ * 商品/在庫/注文/買付/読み物（commerce write）に加え、配送・入金・調達を横断マージする。
+ * 並び順は呼び出し側（`sortAuditEntriesDesc`）で確定するためここでは整列しない。
+ */
+export async function collectAuditLogs(): Promise<AuditEntry[]> {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseCommerceWriteRepository.listAuditLogs();
+  }
+  const commerce = await mockCommerceWriteRepository.listAuditLogs();
+  return [
+    ...commerce,
+    ...mockFulfillmentRepository.listAuditLogs(),
+    ...mockPaymentRepository.listAuditLogs(),
+    ...mockProcurementRepository.listAuditLogs(),
+  ];
 }
 
 /**

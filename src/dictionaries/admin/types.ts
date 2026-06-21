@@ -219,6 +219,16 @@ export type AdminDictionary = {
     summary: string;
     at: string;
     empty: string;
+    filters: string;
+    all: string;
+    queryLabel: string;
+    queryPlaceholder: string;
+    from: string;
+    to: string;
+    apply: string;
+    reset: string;
+    showing: string;
+    noMatch: string;
   };
   /** ダッシュボード指標ラベル。 */
   dashboard: {
