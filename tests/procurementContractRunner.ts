@@ -2,13 +2,19 @@ import { describe, expect, it } from "vitest";
 import type { ProcurementRepository } from "@/repositories/core/procurementRepository";
 import { type ActorContext } from "@/repositories/core/writeModels";
 
-const ctx: ActorContext = { userId: "contract", role: "owner" };
+/** 実在しない有効 UUID（not_found 検証用。実 DB の uuid 列でも型エラーにならない）。 */
+const MISSING_ID = "99999999-9999-9999-9999-999999999999";
 
 /**
  * 調達 repository 契約テスト本体（mock / Supabase 共通）。永続レベルの不変条件を検証する。
  * vitest の収集対象外（`.test` ではない）。各テストファイルから import して使う。
+ * actor は呼び出し側が渡す（mock は任意文字列、Supabase は実 profiles.id UUID）。
  */
-export function runProcurementContract(name: string, makeRepo: () => ProcurementRepository) {
+export function runProcurementContract(
+  name: string,
+  makeRepo: () => ProcurementRepository,
+  ctx: ActorContext,
+) {
   describe(`procurement repository contract: ${name}`, () => {
     it("creates, reads and lists suppliers", async () => {
       const repo = makeRepo();
@@ -65,7 +71,7 @@ export function runProcurementContract(name: string, makeRepo: () => Procurement
 
     it("rejects an unknown supplier id", async () => {
       const repo = makeRepo();
-      await expect(repo.updateSupplier("does-not-exist", { name: "x" }, ctx)).rejects.toMatchObject({
+      await expect(repo.updateSupplier(MISSING_ID, { name: "x" }, ctx)).rejects.toMatchObject({
         code: "not_found",
       });
     });

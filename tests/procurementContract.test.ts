@@ -1,5 +1,6 @@
 import { createMockProcurementRepository } from "@/repositories/mock/mockProcurementRepository";
 import { runProcurementContract } from "./procurementContractRunner";
+import { mockContractActor } from "./repositoryContractFixtures";
 
 /**
  * mock 調達 repository の契約テスト。Supabase 実装は procurementContract.supabase.test.ts
@@ -7,7 +8,4 @@ import { runProcurementContract } from "./procurementContractRunner";
  */
 export { runProcurementContract };
 
-runProcurementContract("mock", () => {
-  const repo = createMockProcurementRepository();
-  return repo;
-});
+runProcurementContract("mock", () => createMockProcurementRepository(), mockContractActor());

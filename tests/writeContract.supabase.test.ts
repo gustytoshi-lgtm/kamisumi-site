@@ -1,5 +1,12 @@
 import { describe } from "vitest";
 import { runWriteContract } from "./writeContractRunner";
+import {
+  CONTRACT_BRAND_ID,
+  CONTRACT_MATCHA_PRODUCT_ID,
+  CONTRACT_STORE_ID,
+  shouldRunSupabaseContract,
+  supabaseContractActor,
+} from "./repositoryContractFixtures";
 import { supabaseCommerceWriteRepository } from "@/repositories/supabase/supabaseCommerceWriteRepository";
 
 /**
@@ -20,17 +27,16 @@ import { supabaseCommerceWriteRepository } from "@/repositories/supabase/supabas
  *       （TODO: seed の固定 UUID を使う supabase 専用 contract に拡張）。
  *       現段階ではこのファイルは「実行手順の記録」と describe.skip の枠を提供する。
  */
-const SHOULD_RUN =
-  process.env.RUN_SUPABASE_CONTRACT === "1" &&
-  Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-  Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
-
-if (SHOULD_RUN) {
-  // 実 DB 接続時のみ。runWriteContract は seed 済み UUID を前提に拡張予定（上記 TODO）。
-  runWriteContract("supabase", () => supabaseCommerceWriteRepository);
+if (shouldRunSupabaseContract()) {
+  // seed 済みの brand/store/product UUID と実 profiles.id（SUPABASE_CONTRACT_ACTOR_ID）を使う。
+  runWriteContract("supabase", () => supabaseCommerceWriteRepository, supabaseContractActor(), {
+    productId: CONTRACT_MATCHA_PRODUCT_ID,
+    brandId: CONTRACT_BRAND_ID,
+    storeId: CONTRACT_STORE_ID,
+  });
 } else {
   describe.skip("write repository contract: supabase (requires live DB)", () => {
-    // SKIP 理由: 実 Supabase project / env / seed が未設定。
-    // 設定後 RUN_SUPABASE_CONTRACT=1 で有効化（docs/SUPABASE_SETUP.md §9-2）。
+    // SKIP 理由: 実 Supabase project / env / contract actor が未設定。
+    // 設定後 RUN_SUPABASE_CONTRACT=1 + SUPABASE_CONTRACT_ACTOR_ID で有効化（docs/SUPABASE_SETUP.md §9-2）。
   });
 }
