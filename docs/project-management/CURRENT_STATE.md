@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-22 (session 29) / 更新者: Claude
+最終更新: 2026-06-22 (session 30) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -47,22 +47,22 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: session 29 で操作履歴の全ドメイン集約 + 検索/絞り込みを追加（`7c880ac`）。実 hash は `git log --oneline -20` を参照。
+- 最新 commit: session 30 で業務設定の公開反映（I-017, `8140b8b`）。session 29 は操作履歴の集約+検索/絞り込み（`7c880ac`）。実 hash は `git log --oneline -20` を参照。
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
-- 作業ツリー: クリーン（session 23-29 の実装・テスト・文書を機能単位で commit/push 済み）。
+- 作業ツリー: クリーン（session 23-30 の実装・テスト・文書を機能単位で commit/push 済み）。
 - I-022（`.git` ACL）: `maomao-desk\tkats`（オーナー）では git add/commit/push 正常。Codex サンドボックスユーザー `codexsandboxonline` のみ環境制約で書込不可（repo 側問題ではない）。KNOWN_ISSUES 参照。
 
 ## テスト状態
 
-最新確認（2026-06-22, session 29）:
+最新確認（2026-06-22, session 30）:
 
 - `npm.cmd run verify:full`: 成功。
   - typecheck OK
   - lint OK
-  - test **295 passed / 10 files skipped**（session 29: 操作履歴フィルタ純粋関数 +14。Supabase 契約は skip、計 17 migrations）
+  - test **301 passed / 10 files skipped**（session 30: publicSettings +6。session 29: 操作履歴フィルタ +14。Supabase 契約は skip、計 17 migrations）
   - `db:validate` **17 files OK**
-  - build OK
+  - build OK（153 static、contact のみ dynamic）
 - `npm.cmd run verify:quick`: 成功。
   - public smoke OK
   - `CART_ENABLED` 既定OFFで `/ja/cart` 404

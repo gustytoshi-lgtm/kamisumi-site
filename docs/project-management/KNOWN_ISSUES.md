@@ -20,7 +20,7 @@
 | I-020 | Medium | Phase 2B/顧客基盤/注文台帳の Supabase repo は実装済だが実 DB 未検証 | `DATA_BACKEND=supabase` で呼出 | 実クエリ実装済（matcha/ceramic/expense/media/settings/customer portal/checkout order）だが実 DB 接続での動作未確認 | mock mode で開発 | 実 DB へ migration 0001-0017 適用 + 各 *.supabase.test.ts contract test で mock と同挙動を確認 | 2B/3 | 実装済・検証待ち |
 | I-016 | Low | `shipments` に status 列がない | Phase 2B 配送 | 配送状態を DB に永続化できない（純ロジックは実装済） | 状態機械 shipmentStatus.ts は列なしで検証可 | 配送 repository 実装時に status 列の追加 migration（0008+, PM-023） | 2B | **Resolved**（migration 0008 で status 列 + shipment_status_events 追加） |
 
-| I-017 | Low | 業務設定（§8）管理UIは実装済だが公開サイト未反映 | `/admin/settings` | 設定値は mock/Supabase repository に保存・編集/履歴可だが、公開サイト（site.ts）へは未反映 | mock で編集・確認可 | 設定値を公開サイト読取へ接続 | 2B/運用 | UI/repo実装済・公開反映残 |
+| I-017 | Low | 業務設定（§8）管理UIは実装済だが公開サイト未反映 | `/admin/settings` | 設定値は mock/Supabase repository に保存・編集/履歴可だが、公開サイト（site.ts）へは未反映 | mock で編集・確認可 | 設定値を公開サイト読取へ接続 | 2B/運用 | **Resolved**（session 30: `getPublicSettings()` + contact ページ反映 `8140b8b`。残: footer 等への展開・order_accepting の order/cart 反映は任意） |
 | I-018 | Low | 画像管理は mock 実装済・Supabase Storage 連携が残 | `/admin/media` | メタデータ管理は可（mock）。実ファイル保管（Storage）と商品画像への紐付けは未 | mock でメタ管理 | supabaseMediaRepository + Storage(public/private, 署名付きURL) を実装 | 2B/運用 | UI実装済・Storage残 |
 | I-020b | Low | Phase 3 は interface+mock のみ（本番決済/送信/自動投稿なし） | cart/checkout/通知/SNS | 本番連携は未（設計上の境界） | mock/sandbox で開発・確認 | 本番契約後に adapter 実装 | 3 | Open(by design) |
 | I-021 | Low | 顧客マイページは基盤のみで公開UI未実装 | `/account` 等 | customer_accounts/auth/repo/service はあるが、人間が使う公開画面はまだ無い | mock/service テストで確認 | `/[locale]/account` の公開UIとプロフィール/住所編集導線を追加（flag `CUSTOMER_PORTAL_ENABLED` 既定OFF=真404）。残は実ログイン導線（Supabase Auth） | 3 | **Resolved**（公開UI実装, session 19。実ログインは実DB接続後） |

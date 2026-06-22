@@ -2,6 +2,39 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (30) — Claude — 業務設定の公開サイト反映（I-017）
+
+### 目的
+owner が管理画面で編集した業務設定（連絡先メール・SNS）が公開サイトに反映されていなかった
+（I-017）。設定リポジトリの値を公開読取へ接続し、contact ページに実反映する。実 DB 不要で完結する自動可能タスク。
+
+### 実施内容
+1. `src/lib/settings/publicSettings.ts` を新規追加。
+   - `getPublicSettings()`: `getSettingsRepository().listSettings()` から owner 編集値を読み、
+     `siteConfig` 既定値へフォールバック（contact_email / social_threads / social_instagram / order_accepting / hold_hours）。
+   - `hasPublicContactEmail()`（空・デモ用 `hello@example.com` を非表示）/ `isPublicUrl()`（http(s) のみリンク）/ `hold_hours` の整数防御。
+2. `contact/page.tsx` を `force-dynamic` 化し「お問い合わせ先」セクションを追加。
+   確定メールは `mailto:`、Threads/Instagram は確定 URL のみ別タブリンク、未確定時は準備中表示。
+   SSG 影響は contact ページのみに限定（他ルートは静的のまま）。
+3. 辞書 `ja` / `zh-tw` / `en` に `contactInfo`、`globals.css` に `.contact-details` を追加。
+
+### 変更ファイル
+- 新規: `src/lib/settings/publicSettings.ts`, `tests/publicSettings.test.ts`
+- 変更: `src/app/[locale]/(public)/contact/page.tsx`, `src/dictionaries/{ja,zh-tw,en,types}.ts`, `src/styles/globals.css`
+
+### 確認
+- `typecheck` / `lint`: OK。
+- `verify:full`: 成功（test **301 passed / 10 files skipped**、+6 = publicSettings）。`db:validate` 17 files OK、build OK（153 static、contact のみ dynamic）。
+- `verify:quick`: 成功（公開全ページ 200、owner 全16管理画面 200、CART/ADMIN OFF で 404）。
+- owner 編集 → 公開読取の反映は publicSettings の unit test で直接検証（mock singleton）。
+
+### 残課題
+- footer 等 他面への展開、`order_accepting` の order/cart 導線反映は任意（未着手）。
+- 実 Supabase では公開向け設定キーに anon read ポリシーが必要（実 DB 検証時に確認）。
+
+### commit hash
+- `8140b8b` feat(public): reflect owner-edited business settings on contact page (I-017)
+
 ## 2026-06-22 (29) — Claude — 操作履歴の全ドメイン集約 + 検索/絞り込み（優先2）
 
 ### 目的
