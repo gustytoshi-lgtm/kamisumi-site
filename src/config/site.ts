@@ -38,6 +38,9 @@ export const siteConfig = {
   },
   organization: {
     id: "org-kagurakoji",
+    // 実 DB（organizations.code）と一致させる正規コード。id は mock 用スラッグで UUID ではないため、
+    // Supabase 層はこの code から実 UUID を解決する（supabaseSettingsRepository 参照）。
+    code: "kagurakoji",
     name: "KAGURAKOJI",
     displayName: "神楽小路 / KAGURAKOJI",
   },

@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/site";
 import type { SettingsRepository } from "@/repositories/core/settingsRepository";
 import type { SettingHistoryEntry, SettingRecord } from "@/repositories/core/settingsModels";
-import type { ActorContext } from "@/repositories/core/writeModels";
+import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { throwCommerce } from "@/lib/supabase/errors";
 
@@ -9,11 +9,29 @@ import { throwCommerce } from "@/lib/supabase/errors";
  * Supabase 業務設定 repository（site_settings 現在値 = 0002 / setting_history 履歴 = 0015）。
  * 値は site_settings.value(jsonb) に文字列として保持する。RBAC/編集可否は settingsService（owner）が担う。
  */
-const ORG = siteConfig.organization.id;
-
 type Db = ReturnType<typeof getSupabaseAdminClient>;
 function db(): Db {
   return getSupabaseAdminClient();
+}
+
+/**
+ * 単一テナントの組織 UUID を実 DB から解決して memoize する。
+ * siteConfig.organization.id は mock 用スラッグ（UUID ではない）なので、organizations.code 経由で実 UUID を得る。
+ */
+let cachedOrgId: string | null = null;
+async function resolveOrgId(client: Db): Promise<string> {
+  if (cachedOrgId) return cachedOrgId;
+  const { data, error } = await client
+    .from("organizations")
+    .select("id")
+    .eq("code", siteConfig.organization.code)
+    .maybeSingle();
+  if (error) throwCommerce(error);
+  if (!data) {
+    throw new CommerceError("not_found", `organization '${siteConfig.organization.code}' not found`);
+  }
+  cachedOrgId = (data as { id: string }).id;
+  return cachedOrgId;
 }
 
 function asString(value: unknown): string {
@@ -32,19 +50,21 @@ function mapSetting(row: Record<string, unknown>): SettingRecord {
 export const supabaseSettingsRepository: SettingsRepository = {
   async listSettings() {
     const client = db();
+    const org = await resolveOrgId(client);
     const { data, error } = await client
       .from("site_settings")
       .select("key, value, updated_by, updated_at")
-      .eq("organization_id", ORG);
+      .eq("organization_id", org);
     if (error) throwCommerce(error);
     return (data ?? []).map((r) => mapSetting(r as Record<string, unknown>));
   },
   async getSetting(key) {
     const client = db();
+    const org = await resolveOrgId(client);
     const { data, error } = await client
       .from("site_settings")
       .select("key, value, updated_by, updated_at")
-      .eq("organization_id", ORG)
+      .eq("organization_id", org)
       .eq("key", key)
       .maybeSingle();
     if (error) throwCommerce(error);
@@ -52,13 +72,14 @@ export const supabaseSettingsRepository: SettingsRepository = {
   },
   async updateSetting(key, value, ctx: ActorContext) {
     const client = db();
+    const org = await resolveOrgId(client);
     // 変更前値（履歴用）
     const prev = await this.getSetting(key);
     const { data, error } = await client
       .from("site_settings")
       .upsert(
         {
-          organization_id: ORG,
+          organization_id: org,
           key,
           value,
           updated_by: ctx.userId,
@@ -70,7 +91,7 @@ export const supabaseSettingsRepository: SettingsRepository = {
       .single();
     if (error) throwCommerce(error);
     const { error: histError } = await client.from("setting_history").insert({
-      organization_id: ORG,
+      organization_id: org,
       key,
       old_value: prev?.value ?? null,
       new_value: value,
@@ -81,10 +102,11 @@ export const supabaseSettingsRepository: SettingsRepository = {
   },
   async listHistory(key) {
     const client = db();
+    const org = await resolveOrgId(client);
     let query = client
       .from("setting_history")
       .select("*")
-      .eq("organization_id", ORG)
+      .eq("organization_id", org)
       .order("changed_at", { ascending: false });
     if (key) query = query.eq("key", key);
     const { data, error } = await query;
