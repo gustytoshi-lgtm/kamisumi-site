@@ -2,6 +2,35 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (32) — Claude — I-023 修正（org スラッグフォールバックの実 DB 救済）
+
+### 目的
+session 31 で発見した I-023（expense/matcha/media/procurement の service が org 未指定時に
+`siteConfig.organization.id`=slug へフォールバックし、実 DB の uuid 列で失敗する潜在バグ）を修正する。
+
+### 実施内容
+1. `src/lib/supabase/org.ts` を新規追加。
+   - `isUuid()` / `resolveDefaultOrgId(client)`（organizations.code→UUID を memoize）/
+     `resolveOrgId(client, maybeOrgId)`（実 UUID は素通し、slug・未指定は既定 org へ解決）/ `resetDefaultOrgIdCache()`。
+2. `supabaseSettingsRepository` の重複ロジックを共通 `resolveDefaultOrgId` へ置換。
+3. `supabaseExpenseRepository` / `supabaseMediaRepository` / `supabaseProcurementRepository`（createSupplier /
+   createPurchase の insert と writeAudit）の `organization_id: input.organizationId` を
+   `await resolveOrgId(client, input.organizationId)` に統一。
+   - matcha は `matcha_lots` に org 列が無く products 経由のため対象外。
+4. テスト追加: `tests/supabaseOrg.test.ts`（4 unit。UUID 判定・素通し・slug/未指定の解決、フェイク client）、
+   `tests/orgFallback.supabase.test.ts`（実 DB 必須・既定 skip。slug を渡して実 UUID 永続化を確認）。
+
+### 確認
+- `typecheck`/`lint`/`verify:full`: 成功（test **305 passed / 11 skipped**、+4 unit、build OK、mock 回帰なし）。
+- 実 DB（`.env.local` source + `RUN_SUPABASE_CONTRACT=1`）: `orgFallback.supabase` **pass**（I-023 修正を実 DB で確認）。
+  既存 contract も回帰なし（10 file pass / 3 は I-024 のダミーID）。
+
+### 残課題
+- I-024（write/procurement/fulfillment runner のダミーID）は未着手。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (31) — Claude — 実 Supabase 接続検証（優先1・資格情報入手）
 
 ### 目的
