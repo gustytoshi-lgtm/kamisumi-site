@@ -12,8 +12,8 @@ import { throwCommerce } from "@/lib/supabase/errors";
  * Supabase 抹茶ロット repository（matcha_lots, 0001 + 0010）。
  * matcha_lots に organization_id 列はないため、organizationId は products との埋め込み結合で取得する
  * （RLS も products.organization_id 経由, 0004）。
- * 注: adjustQuantity は read-modify-write（非原子）。厳密な原子性が必要なら apply_inventory_movement
- * 同様の DB function 化を検討（現状は管理画面の単独操作前提）。
+ * 注: adjustQuantity は DB function `adjust_matcha_lot_quantity`（migration 0019）経由で原子化済み
+ * （FOR UPDATE 行ロック + 非負/予約ガード）。同時更新でもロスト・アップデートしない。
  */
 type Db = ReturnType<typeof getSupabaseAdminClient>;
 function db(): Db {
@@ -103,17 +103,22 @@ export const supabaseMatchaLotRepository: MatchaLotRepository = {
   },
   async adjustQuantity(id, delta, _ctx) {
     void _ctx;
-    const current = await getOrThrow(id);
-    const nextQuantity = current.quantity + delta;
-    if (nextQuantity < 0) {
-      throw new CommerceError("negative_stock", "lot quantity would go negative", { id });
-    }
-    if (nextQuantity - current.reserved < 0) {
-      throw new CommerceError("insufficient_stock", "lot available would go negative", { id });
-    }
+    // 原子的に増減（FOR UPDATE 行ロック + 非負ガードを DB function に閉じ込める。migration 0019）。
     const client = db();
-    const { error } = await client.from("matcha_lots").update({ quantity: nextQuantity }).eq("id", id);
-    if (error) throwCommerce(error);
+    const { error } = await client.rpc("adjust_matcha_lot_quantity", { p_lot_id: id, p_delta: delta });
+    if (error) {
+      const message = error.message ?? "";
+      if (message.includes("matcha_lot_not_found")) {
+        throw new CommerceError("not_found", `matcha lot ${id} not found`, { id });
+      }
+      if (message.includes("matcha_lot_negative_stock")) {
+        throw new CommerceError("negative_stock", "lot quantity would go negative", { id });
+      }
+      if (message.includes("matcha_lot_insufficient_stock")) {
+        throw new CommerceError("insufficient_stock", "lot available would go negative", { id });
+      }
+      throwCommerce(error);
+    }
     return getOrThrow(id);
   },
   async softDeleteLot(id, _ctx) {
