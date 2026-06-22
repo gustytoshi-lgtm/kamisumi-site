@@ -112,6 +112,7 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0015_settings_history.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0016_customer_accounts.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0017_checkout_orders.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0018_rls_security_definer.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0019_matcha_adjust_quantity_fn.sql
 ```
 
 適用前に静的検証:

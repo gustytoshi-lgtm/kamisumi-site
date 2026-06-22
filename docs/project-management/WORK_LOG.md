@@ -2,6 +2,27 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (37) — Claude — matcha adjustQuantity の DB function 原子化（優先3）
+
+### 目的
+ROADMAP 優先3。supabaseMatchaLotRepository.adjustQuantity は read-modify-write（非原子）で、
+同時更新時にロスト・アップデートの恐れがあった。apply_inventory_movement 同様に DB function で原子化する。
+
+### 実施内容
+1. migration **0019_matcha_adjust_quantity_fn.sql**: `adjust_matcha_lot_quantity(p_lot_id, p_delta)` を追加。
+   FOR UPDATE 行ロック + 非負ガード（quantity>=0 / quantity-reserved_count>=0）を 1 関数に閉じ込め、
+   `matcha_lot_not_found` / `matcha_lot_negative_stock` / `matcha_lot_insufficient_stock` を raise。
+2. supabaseMatchaLotRepository.adjustQuantity を `rpc("adjust_matcha_lot_quantity")` に置換し、
+   raise メッセージを CommerceError（not_found / negative_stock / insufficient_stock）へマップ。mock は変更なし。
+
+### 確認
+- `db:validate` 19 files OK、`typecheck`/`lint`/`verify:full`: 成功（test 305 passed、build OK、mock 回帰なし）。
+- 実 DB で matcha.supabase contract pass（+2→5 / -99→negative_stock の RPC 経由動作）。
+- **原子性の実証**: 同一ロットへ 25 並列の +1 → 最終値ちょうど 25・RPC 失敗 0（read-modify-write なら欠損するところ）。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (36) — Claude — 顧客マイページ サインイン導線（Supabase Auth）
 
 ### 目的

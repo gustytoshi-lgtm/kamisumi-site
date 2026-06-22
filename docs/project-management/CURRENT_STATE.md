@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-22 (session 36) / 更新者: Claude
+最終更新: 2026-06-22 (session 37) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -26,7 +26,7 @@
 - 公開サイト: zh-tw / ja の全15ルート、en 隠し scaffold、SEO/JSON-LD/sitemap/robots、OG PNG（`/api/og`）、favicon、soft-404 対応。
 - Commerce Core: `src/lib/commerce/` の money / orderStatus / inventoryStatus / rbac / sourcingAcceptance / adminNav / costAllocation / matchaLot / profit / paymentStatus / shipmentStatus / accountingExport。
 - データ切替: `DATA_BACKEND` 未設定時は mock。Supabase は env + `DATA_BACKEND=supabase` の時のみ。
-- migration: `supabase/migrations` 0001-0018 作成済み（0017=checkout_orders, 0018=RLS ヘルパー security definer 化）。実 Supabase 開発 DB に適用・検証済み（session 31-34）。
+- migration: `supabase/migrations` 0001-0019 作成済み（0017=checkout_orders, 0018=RLS security definer, 0019=matcha 数量原子化 function）。実 Supabase 開発 DB に適用・検証済み（session 31-37）。
 - 管理 UI: 全16画面。業務設定、商品、在庫、注文、買付、仕入先、仕入記録、入金、配送、抹茶ロット、陶器個体、経費、利益分析、会計 export、メディア、SNS 下書き、通知ビューア(dev)、操作履歴ビューアを実装済み。
 - 管理 UI ガード: `ADMIN_ENABLED` 既定 OFF、公開影響なし。`front_staff` に原価/利益/口座/権限管理/全顧客 CSV/秘密設定を見せない方針を維持。
 - dev 専用機能: dev-check、通知ビューア、mock reset、開発バー、役割別ランチャー。本番では `isDevToolsEnabled()` で無効化。
@@ -39,7 +39,7 @@
 - 実ログイン導線（Supabase Auth）の公開接続。マイページ公開 UI 自体は実装済み（`/[locale]/account`, flag 既定 OFF, mock セッション）。
 - 複数通貨 / 国別配送 UI: 参考実装済み（cart 内, 配送ゾーン案内 + デモレート換算, session 21）。実 FX レート・実送料の確定値接続は未（本番方針確定後）。
 - cart/checkout の公開 UI: 実装済み（`/[locale]/cart`, flag 既定 OFF, 手動振込 mock, session 20）。本番決済は対象外（契約後 adapter 差し替え）。商品ページからの「カートに追加」導線も実装済み（session 22）。商品ページはSSGのまま、runtime APIで `CART_ENABLED` を確認してON時のみフォームを表示。
-- `matcha adjustQuantity` の DB function 原子化。
+- `matcha adjustQuantity` の DB function 原子化: 完了（migration 0019, session 37。実DBで 25 並列の原子性を実証）。
 - 操作履歴: 全ドメイン集約 + 検索/絞り込みは実装済み（session 29）。残は監査 export（CSV）。
 - Supabase Storage とメディア実ファイル連携。
 - Playwright E2E の `C:\dev` 移設後再評価。
@@ -47,7 +47,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: session 36 で顧客マイページ サインイン導線。session 35 は管理画面サインイン、31-34 は実 Supabase 検証 + I-023/I-024/I-025。実 hash は `git log --oneline -20` を参照。
+- 最新 commit: session 37 で matcha 数量調整の DB function 原子化（migration 0019）。session 35-36 はサインイン導線、31-34 は実 Supabase 検証。実 hash は `git log --oneline -20` を参照。
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
 - 作業ツリー: クリーン（session 23-31 の実装・テスト・文書を機能単位で commit/push 済み）。`.env.local`（gitignore）に検証用 Supabase 資格情報あり・コミットしない。
@@ -61,7 +61,7 @@
   - typecheck OK
   - lint OK
   - test **305 passed / 11 files skipped**（session 32: supabaseOrg +4。通常 `npm test` では Supabase 契約は skip）
-  - `db:validate` **18 files OK**
+  - `db:validate` **19 files OK**
   - build OK（153 static、contact のみ dynamic）
 - 実 DB contract（`.env.local` を source + `RUN_SUPABASE_CONTRACT=1` + actor/customer fixture）: **全 13 file / 50 test pass**（write/procurement/fulfillment 含む。I-024 解決）。
 - 実 DB RLS 検証（`node --env-file=.env.local scripts/verify-rls.mjs`）: **5/5 pass**（anon/front_staff は expenses 遮断、owner は可、anon は公開 products 可。migration 0018 適用後）。
