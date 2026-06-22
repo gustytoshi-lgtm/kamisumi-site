@@ -2,6 +2,30 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (35) — Claude — 管理画面サインイン導線（Supabase Auth）
+
+### 目的
+`getSupabaseAdminSession`（supabase 認証モードのログイン後処理）は実装済みで、role 解決も実 DB で検証済み
+（session 34, verify-rls 8/8）だったが、**サインインUI（フロントドア）が無かった**ため、その実装で実ログイン導線を完成させる。
+
+### 実施内容
+1. `scripts/verify-rls.mjs` に user_roles 自己読取の検証を追加（owner→owner / front_staff→自分のみ / anon→不可。getSupabaseAdminSession のデータ経路）。実 DB 8/8 pass。
+2. `authActions.ts`（server action）: `signInAction`（supabase モードのみ。signInWithPassword で Cookie セッションを張り /admin へ。失敗詳細はログのみ、UI は汎用コード）、`signOutAction`（signOut → /admin）。
+3. `SignInForm.tsx`（client, useActionState）: email/password + i18n エラー表示。
+4. admin `layout.tsx`: 無セッション時、supabase モードならサインインフォーム、mock モードは従来の dev ヒント。サインイン中は supabase モードでサインアウトボタンを表示。
+5. admin 辞書（ja/zh-tw/types）に `auth` ブロックを追加。
+
+### 確認
+- `typecheck`/`lint`/`verify:full`: 成功（test 305 passed、build OK、mock 回帰なし）。`verify:quick`: 成功（全16管理画面 200）。
+- 実 DB + `ADMIN_AUTH_MODE=supabase` で dev 起動 → `/ja/admin`（無セッション）が**サインインフォームを描画**することを確認。
+- signInWithPassword / role 解決は verify-rls で実 DB 動作確認済み。**ブラウザでの Cookie ログイン往復の最終確認は人間側で実施推奨**（server action の Cookie 設定は @supabase/ssr の標準経路）。
+
+### 残課題
+- ブラウザ実ログインの目視確認。customer portal 側の実ログイン導線（同パターンで横展開可能）。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (34) — Claude — RLS 実 DB 検証 + 無限再帰バグ修正（I-025, migration 0018）
 
 ### 目的

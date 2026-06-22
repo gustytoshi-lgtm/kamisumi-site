@@ -85,6 +85,22 @@ const ownerProd = await count(owner, "products");
 assert("anon は公開 products を読める", (anonProd.n ?? 0) > 0, `count=${anonProd.n} err=${anonProd.err ?? "-"}`);
 assert("owner も products を読める", (ownerProd.n ?? 0) > 0, `count=${ownerProd.n} err=${ownerProd.err ?? "-"}`);
 
+// 管理ログイン経路: getSupabaseAdminSession と同じ user_roles 自己読取で role を解決できるか。
+async function selfRoles(client) {
+  const { data, error } = await client.from("user_roles").select("role").eq("organization_id", ORG);
+  return { roles: (data ?? []).map((r) => String(r.role)), err: error?.message };
+}
+const ownerRoles = await selfRoles(owner);
+const staffRoles = await selfRoles(staff);
+const anonRoles = await selfRoles(anon);
+assert("owner は自分の role を解決できる（owner）", ownerRoles.roles.includes("owner"), `roles=${JSON.stringify(ownerRoles.roles)}`);
+assert(
+  "front_staff は自分の role のみ解決（他人の role は見えない）",
+  staffRoles.roles.length === 1 && staffRoles.roles[0] === "front_staff",
+  `roles=${JSON.stringify(staffRoles.roles)}`,
+);
+assert("anon は user_roles を読めない", anonRoles.roles.length === 0, `roles=${JSON.stringify(anonRoles.roles)}`);
+
 const failed = checks.filter((c) => !c.ok);
 console.log(`\n結果: ${checks.length - failed.length}/${checks.length} pass`);
 process.exit(failed.length === 0 ? 0 : 1);
