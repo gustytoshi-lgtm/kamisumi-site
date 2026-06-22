@@ -2,6 +2,38 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (33) — Claude — I-024 解消（write/procurement/fulfillment contract の実 DB 対応）
+
+### 目的
+session 31 で残った I-024（write/procurement/fulfillment の contract runner が mock 流のダミー非UUID ID を
+使い実 DB で失敗）を解消し、実 Supabase で全 repository contract を pass させる。
+
+### 根本原因
+3 runner が `ctx={userId:"contract"}`（actor）や `"org-test"/"o1"/"p1"/"b"/"s"`（org/order/product/brand/store）、
+`"does-not-exist"`（not_found 検証）、固定冪等キー `"k1"` を直書きしていた。fixture 化済みランナー（expense 等）は
+actor と seed UUID を引数で受ける設計だったのに対し、これらは未適応だった（org は session 32 の resolveOrgId で既に救済済）。
+
+### 実施内容
+1. `repositoryContractFixtures.ts` に `CONTRACT_BRAND_ID`(…b1) / `CONTRACT_STORE_ID`(…d1) を追加。
+2. **procurement**: runner に `ctx` 引数を追加、`"does-not-exist"` を有効 UUID へ。mock=`mockContractActor()`、
+   supabase=`supabaseContractActor()`（org は resolveOrgId が `"org-test"`→既定 org に解決）。
+3. **writeContract**: runner に `ctx` + `WriteContractFixtures{productId,brandId,storeId}` を追加。
+   supabase は seed UUID、冪等キーを per-run ユニーク化（共有 DB 再実行の衝突回避）。
+4. **fulfillment**: runner に `ctx` + `{organizationId, nextOrderId}` を追加。
+   shipments.order_id は provisional_orders への FK のため、supabase は呼出毎に実 order を作成して UUID を渡す。
+5. 3 つの `*.supabase.test.ts` を `shouldRunSupabaseContract()` + `supabaseContractActor()` へ統一。
+
+### 確認
+- `typecheck`/`verify:full`: 成功（test **305 passed / 11 skipped**、build OK、mock 回帰なし）。
+- 実 DB（`.env.local` source + `RUN_SUPABASE_CONTRACT=1` + actor/customer fixture）:
+  **全 supabase contract が pass（13 file / 50 test、0 fail）**。I-024 / I-012 / I-020 解決。
+
+### 残課題
+- RLS / 認可差（owner vs front_staff・anon）の実 DB 確認、実ログイン導線（Supabase Auth）。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (32) — Claude — I-023 修正（org スラッグフォールバックの実 DB 救済）
 
 ### 目的

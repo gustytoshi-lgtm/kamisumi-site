@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-22 (session 32) / 更新者: Claude
+最終更新: 2026-06-22 (session 33) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -35,7 +35,7 @@
 
 ## 未実装 / 未検証
 
-- 実 Supabase 接続検証（session 31-32 で一部完了）: PostgreSQL 17.6 へ migration 0001-0017 + seed 適用成功（I-002 解決）、contract test 8/11 file pass、org slug フォールバック修正（I-023 解決, session 32）。残: write/procurement/fulfillment runner のダミーID適応（I-024）、RLS/認可差の実DB確認、実ログイン導線。
+- 実 Supabase 接続検証（session 31-33）: PostgreSQL 17.6 へ migration 0001-0017 + seed 適用成功（I-002 解決）、**全 repository contract が実DBで pass（13 file/50 test, I-012/I-020/I-024 解決）**、org slug フォールバック修正（I-023 解決）。残: RLS/認可差の実DB確認、実ログイン導線（Supabase Auth）。
 - 実ログイン導線（Supabase Auth）の公開接続。マイページ公開 UI 自体は実装済み（`/[locale]/account`, flag 既定 OFF, mock セッション）。
 - 複数通貨 / 国別配送 UI: 参考実装済み（cart 内, 配送ゾーン案内 + デモレート換算, session 21）。実 FX レート・実送料の確定値接続は未（本番方針確定後）。
 - cart/checkout の公開 UI: 実装済み（`/[locale]/cart`, flag 既定 OFF, 手動振込 mock, session 20）。本番決済は対象外（契約後 adapter 差し替え）。商品ページからの「カートに追加」導線も実装済み（session 22）。商品ページはSSGのまま、runtime APIで `CART_ENABLED` を確認してON時のみフォームを表示。
@@ -47,7 +47,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: session 32 で I-023 修正（org スラッグ解決を共通化）。session 31 は実 Supabase 検証（migration 適用 + settings バグ修正 + applier）。実 hash は `git log --oneline -20` を参照。
+- 最新 commit: session 33 で I-024 解消（write/procurement/fulfillment contract の実DB対応）。session 31-32 は実 Supabase 検証 + I-023。実 hash は `git log --oneline -20` を参照。
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
 - 作業ツリー: クリーン（session 23-31 の実装・テスト・文書を機能単位で commit/push 済み）。`.env.local`（gitignore）に検証用 Supabase 資格情報あり・コミットしない。
@@ -63,7 +63,7 @@
   - test **305 passed / 11 files skipped**（session 32: supabaseOrg +4。通常 `npm test` では Supabase 契約は skip）
   - `db:validate` **17 files OK**
   - build OK（153 static、contact のみ dynamic）
-- 実 DB contract（`.env.local` を source + `RUN_SUPABASE_CONTRACT=1`）: settings/expense/media/matcha/ceramic/customer portal/checkout order/**orgFallback(I-023)** pass。残 3（write/procurement/fulfillment）は runner ダミーID（I-024）。
+- 実 DB contract（`.env.local` を source + `RUN_SUPABASE_CONTRACT=1` + actor/customer fixture）: **全 13 file / 50 test pass**（write/procurement/fulfillment 含む。I-024 解決）。
 - `npm.cmd run verify:quick`: 成功。
   - public smoke OK
   - `CART_ENABLED` 既定OFFで `/ja/cart` 404
