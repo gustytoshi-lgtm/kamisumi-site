@@ -2,6 +2,36 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (34) — Claude — RLS 実 DB 検証 + 無限再帰バグ修正（I-025, migration 0018）
+
+### 目的
+Phase 2A/2B タグ付けの最後の条件である「RLS の実 DB 確認（owner / front_staff / anon の可視性）」を、
+実 Auth ユーザーを作って anon key 経由のサインインで検証する。
+
+### 実施内容
+1. `scripts/verify-rls.mjs` を追加。service_role で owner/front_staff の実 Auth ユーザーを作成し
+   profiles/user_roles を紐付け、anon key でサインイン → role 別に SELECT 可視性を検証。
+2. 初回実行で **member/owner 系テーブル（expenses/suppliers/site_settings）が authenticated から
+   status 500（空メッセージ）** を返すのを発見。
+3. 原因特定: `has_org_role`/`is_org_member`/`is_customer_self` が security definer でないため、
+   関数内の user_roles/customer_accounts SELECT に RLS が再適用され、
+   `user_roles_owner_manage`(has_org_role を呼ぶ) 等で**無限再帰 42P17 → 500**（I-025）。
+4. 修正 migration **0018_rls_security_definer.sql** を追加（適用済み 0004/0016 は不変、新番号で 3 関数を
+   security definer + `set search_path = public` で再定義）。実 DB に適用。
+
+### 確認
+- `db:validate`: **18 files OK**。`verify:full`: 成功（test 305 passed、build OK、mock 回帰なし）。
+- 実 DB RLS 検証 **5/5 pass**:
+  - anon は expenses 0 件 / front_staff は expenses 0 件（原価遮断）/ owner は expenses 可（16 件）
+  - anon は公開 products 可（2 件）/ owner も products 可
+- 実 DB contract（session 33 まで）と合わせ、Supabase の実装＋RLS 検証が一通り完了。
+
+### 残課題
+- 実ログイン導線（Supabase Auth）の公開 UI 接続。Phase 2A/2B 完了タグは人間判断で付与。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (33) — Claude — I-024 解消（write/procurement/fulfillment contract の実 DB 対応）
 
 ### 目的

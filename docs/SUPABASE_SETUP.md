@@ -12,7 +12,9 @@ Supabase バックエンドへ切り替えられる。**秘密情報・実キー
 - ✅ migration 0001-0017 + seed を適用成功（54 テーブル生成）。**I-002 解決**。
   - supabase CLI / psql が無い環境向けに **`scripts/apply-migrations.mjs`**（Node + `pg`、`SUPABASE_DB_URL` 接続）を追加。
     `node --env-file=.env.local scripts/apply-migrations.mjs --check`（接続のみ）/ `--seed`（適用+seed）。
-- ✅ contract test 8/11 file が実 DB で pass（matcha / ceramic / expense / media / settings / customer portal / checkout order）。
+- ✅ contract test が実 DB で全 pass（session 33: write/procurement/fulfillment 含む 13 file / 50 test。I-024 解決）。
+- ✅ RLS 実 DB 検証 5/5 pass（session 34, `scripts/verify-rls.mjs`）: anon/front_staff は expenses（原価=機微）0 件、owner は可、anon は公開 products 可。
+- 🐛 **実 DB で発見・修正（重要）**: RLS ヘルパー（has_org_role/is_org_member/is_customer_self）が security definer でなく無限再帰 42P17 → member/owner 系テーブルが authenticated から 500。migration **0018** で security definer 化（I-025）。
 - 🐛 **実 DB で発見・修正**: `supabaseSettingsRepository` が org に slug `org-kagurakoji` を使い uuid 型で失敗 → `organizations.code` から実 UUID を解決する方式へ修正（`siteConfig.organization.code` 追加）。
 - ⚠️ 未検証: write / procurement / fulfillment の contract runner はダミー非UUID ID を使うため実 DB では失敗（**I-024**。repo 実装の問題ではない）。services の org slug フォールバックも要修正（**I-023**）。
 
@@ -109,6 +111,7 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0014_media_assets_meta.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0015_settings_history.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0016_customer_accounts.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0017_checkout_orders.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0018_rls_security_definer.sql
 ```
 
 適用前に静的検証:
