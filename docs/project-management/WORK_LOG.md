@@ -2,6 +2,33 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (36) — Claude — 顧客マイページ サインイン導線（Supabase Auth）
+
+### 目的
+session 35 の管理画面サインインと同じパターンを customer portal（`/[locale]/account`）へ横展開する。
+`getCustomerSession`（supabase モードの cookie セッション読取）は実装・I-025 修正で機能する状態だが、
+サインインUIが無かった。
+
+### 実施内容
+1. `account/authActions.ts`: `customerSignInAction`（flag + supabase モードのみ。signInWithPassword で
+   cookie セッションを張り /account へ。失敗は汎用コード）/ `customerSignOutAction`。
+2. `components/account/CustomerSignInForm.tsx`（client, useActionState）: email/password + i18n エラー。
+   再利用可能な `SignInLabels` 型を export。
+3. 公開辞書（ja/zh-tw/en/types）の `account` に `auth` ブロックを追加。
+4. `account/page.tsx`: 無セッション時、supabase モードならサインインフォーム（mock は従来の login-required 表示）、
+   サインイン中は supabase モードでサインアウトボタン。
+
+### 確認
+- `typecheck`/`lint`/`verify:full`: 成功（test 305 passed、build OK、mock 回帰なし）。
+- 実 DB + `CUSTOMER_AUTH_MODE=supabase` で dev 起動 → `/ja/account`（無セッション）が**サインインフォームを描画**することを確認。
+- signInWithPassword / cookie セッションは admin（session 35）と同一経路。ブラウザ実ログイン往復は人間側で最終確認推奨。
+
+### 残課題
+- ブラウザ実ログインの目視確認（admin / customer 両方）。SignInForm と CustomerSignInForm の重複は将来 simplify で共通化可。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (35) — Claude — 管理画面サインイン導線（Supabase Auth）
 
 ### 目的

@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-22 (session 35) / 更新者: Claude
+最終更新: 2026-06-22 (session 36) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -35,7 +35,7 @@
 
 ## 未実装 / 未検証
 
-- 実 Supabase 接続検証（session 31-34）: PostgreSQL 17.6 へ migration 0001-0018 + seed 適用成功（I-002 解決）、**全 repository contract が実DBで pass（13 file/50 test, I-012/I-020/I-024 解決）**、org slug フォールバック修正（I-023 解決）、**RLS 実DB検証 5/5 pass + 無限再帰バグ修正（I-025, migration 0018）**、**管理画面サインイン導線（Supabase Auth, session 35）**。残: ブラウザ実ログインの目視確認、customer portal の実ログイン横展開。
+- 実 Supabase 接続検証（session 31-34）: PostgreSQL 17.6 へ migration 0001-0018 + seed 適用成功（I-002 解決）、**全 repository contract が実DBで pass（13 file/50 test, I-012/I-020/I-024 解決）**、org slug フォールバック修正（I-023 解決）、**RLS 実DB検証 5/5 pass + 無限再帰バグ修正（I-025, migration 0018）**、**管理画面サインイン導線（Supabase Auth, session 35）**、**顧客マイページ サインイン導線（session 36）**。残: ブラウザ実ログインの目視確認（admin/customer）。
 - 実ログイン導線（Supabase Auth）の公開接続。マイページ公開 UI 自体は実装済み（`/[locale]/account`, flag 既定 OFF, mock セッション）。
 - 複数通貨 / 国別配送 UI: 参考実装済み（cart 内, 配送ゾーン案内 + デモレート換算, session 21）。実 FX レート・実送料の確定値接続は未（本番方針確定後）。
 - cart/checkout の公開 UI: 実装済み（`/[locale]/cart`, flag 既定 OFF, 手動振込 mock, session 20）。本番決済は対象外（契約後 adapter 差し替え）。商品ページからの「カートに追加」導線も実装済み（session 22）。商品ページはSSGのまま、runtime APIで `CART_ENABLED` を確認してON時のみフォームを表示。
@@ -47,7 +47,7 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: session 35 で管理画面サインイン導線（Supabase Auth）。session 31-34 は実 Supabase 検証 + I-023/I-024/I-025。実 hash は `git log --oneline -20` を参照。
+- 最新 commit: session 36 で顧客マイページ サインイン導線。session 35 は管理画面サインイン、31-34 は実 Supabase 検証 + I-023/I-024/I-025。実 hash は `git log --oneline -20` を参照。
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
 - 作業ツリー: クリーン（session 23-31 の実装・テスト・文書を機能単位で commit/push 済み）。`.env.local`（gitignore）に検証用 Supabase 資格情報あり・コミットしない。
