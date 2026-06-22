@@ -2,6 +2,44 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (31) — Claude — 実 Supabase 接続検証（優先1・資格情報入手）
+
+### 目的
+人間から開発用 Supabase project の資格情報を入手し、これまで未検証だった実 DB 接続を検証する
+（I-002 / I-012 / I-020）。migration 適用・seed・contract test を実 DB で実行する。
+
+### 環境準備
+- `.env.local`（gitignore 済み）に URL / anon / service_role / `SUPABASE_DB_URL` を設定（使い捨て検証 project）。
+- supabase CLI / psql とも未導入のため、**`scripts/apply-migrations.mjs`**（Node + `pg`、`SUPABASE_DB_URL` 直結・SSL）と
+  **`scripts/db-query.mjs`**（fixture 投入/検査用）を追加。`pg` を devDependency に追加。
+
+### 実施・結果
+1. ✅ 接続成功（PostgreSQL 17.6・直結・SSL）。
+2. ✅ **migration 0001-0017 + seed 適用成功**（54 テーブル）。**I-002 解決**。
+3. contract fixture 投入（owner: `1111...`、customer: `2222...`/`3333...`）。
+4. `RUN_SUPABASE_CONTRACT=1` で `*.supabase` 実行 → **8/11 file pass**
+   （matcha/ceramic/expense/media/settings/customer portal/checkout order + 非DB 1）。
+5. 🐛 **実 DB で本物のバグ発見・修正**: `supabaseSettingsRepository` が org に
+   `siteConfig.organization.id`（slug `org-kagurakoji`）を使い uuid 型で 22P02 失敗。
+   → `siteConfig.organization.code='kagurakoji'` を追加し、`organizations.code` から実 UUID を
+   memoize 解決する方式へ修正。settings contract が pass に。
+6. ⚠️ write/procurement/fulfillment は runner がダミー非UUID ID（"p1"/"org-test"/"o1"）を使うため
+   実 DB で失敗（**I-024**。repo の問題ではない）。services の org slug フォールバックも潜在バグ（**I-023**）。
+
+### 変更ファイル
+- 修正: `src/config/site.ts`（organization.code 追加）、`src/repositories/supabase/supabaseSettingsRepository.ts`（org UUID 解決）
+- 新規: `scripts/apply-migrations.mjs`, `scripts/db-query.mjs`, `package.json`/`package-lock.json`（pg）
+- docs: `SUPABASE_SETUP.md`（検証状況/Node applier/fixture SQL）、`KNOWN_ISSUES.md`（I-002 解決・I-012/I-020 一部検証・I-023/I-024 追加）
+
+### 確認
+- `typecheck`/`lint`/`verify:full`: 成功（test **301 passed / 10 skipped**、build OK）。実 DB contract は env を source した時のみ有効化（通常 `npm test` では skip）。
+
+### セキュリティ
+- 秘密値は `.env.local`（gitignore）のみ。commit/push しない。検証 project は使い捨て（後でパスワードリセット/削除推奨）。
+
+### commit hash
+- 後続コミット参照（fix / scripts / docs）。
+
 ## 2026-06-22 (30) — Claude — 業務設定の公開サイト反映（I-017）
 
 ### 目的

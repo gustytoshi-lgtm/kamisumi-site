@@ -3,8 +3,38 @@
 実 Supabase project が用意できた段階で、本書の順に作業すると公開サイト（mock）から
 Supabase バックエンドへ切り替えられる。**秘密情報・実キー・実口座・顧客実データはコミットしない。**
 
-> 現状: project 未作成。公開サイトは `DATA_BACKEND` 未設定（= mock）で動作中。
 > 本書のコマンド中の `<...>` は人間が実値に置き換える。値は `.env.local`（gitignore 済み）にのみ置く。
+
+## 検証状況（2026-06-22 / session 31）
+
+開発用 Supabase project（PostgreSQL 17.6）で実接続検証を実施:
+
+- ✅ migration 0001-0017 + seed を適用成功（54 テーブル生成）。**I-002 解決**。
+  - supabase CLI / psql が無い環境向けに **`scripts/apply-migrations.mjs`**（Node + `pg`、`SUPABASE_DB_URL` 接続）を追加。
+    `node --env-file=.env.local scripts/apply-migrations.mjs --check`（接続のみ）/ `--seed`（適用+seed）。
+- ✅ contract test 8/11 file が実 DB で pass（matcha / ceramic / expense / media / settings / customer portal / checkout order）。
+- 🐛 **実 DB で発見・修正**: `supabaseSettingsRepository` が org に slug `org-kagurakoji` を使い uuid 型で失敗 → `organizations.code` から実 UUID を解決する方式へ修正（`siteConfig.organization.code` 追加）。
+- ⚠️ 未検証: write / procurement / fulfillment の contract runner はダミー非UUID ID を使うため実 DB では失敗（**I-024**。repo 実装の問題ではない）。services の org slug フォールバックも要修正（**I-023**）。
+
+### contract test 用 fixture（実 DB に投入する SQL）
+
+`*.supabase.test.ts` は seed 固定 UUID と以下の actor/customer を前提とする。`SUPABASE_DB_URL` 接続で投入:
+
+```sql
+-- owner actor（SUPABASE_CONTRACT_ACTOR_ID）
+insert into profiles (id, display_name, admin_locale)
+  values ('11111111-1111-1111-1111-111111111111','Contract Owner','ja') on conflict (id) do nothing;
+insert into user_roles (user_id, organization_id, role)
+  values ('11111111-1111-1111-1111-111111111111','00000000-0000-0000-0000-0000000000a1','owner') on conflict do nothing;
+
+-- customer（SUPABASE_CUSTOMER_CONTRACT_USER_ID）
+insert into profiles (id, display_name)
+  values ('22222222-2222-2222-2222-222222222222','Contract Customer') on conflict (id) do nothing;
+insert into customers (id, organization_id, name, email)
+  values ('33333333-3333-3333-3333-333333333333','00000000-0000-0000-0000-0000000000a1','Contract Customer','customer@contract.test') on conflict (id) do nothing;
+insert into customer_accounts (user_id, organization_id, customer_id)
+  values ('22222222-2222-2222-2222-222222222222','00000000-0000-0000-0000-0000000000a1','33333333-3333-3333-3333-333333333333') on conflict (user_id) do nothing;
+```
 
 ---
 

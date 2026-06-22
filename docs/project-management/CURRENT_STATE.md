@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-22 (session 30) / 更新者: Claude
+最終更新: 2026-06-22 (session 31) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -35,7 +35,7 @@
 
 ## 未実装 / 未検証
 
-- 実 Supabase project への migration 0001-0017 適用、seed、RLS、read 一致、contract test 実行（注文台帳 0017 含む。資格情報待ち）。
+- 実 Supabase 接続検証（session 31 で一部完了）: PostgreSQL 17.6 へ migration 0001-0017 + seed 適用成功（I-002 解決）、contract test 8/11 file pass。残: write/procurement/fulfillment runner のダミーID適応（I-024）、services の org slug フォールバック修正（I-023）、RLS/認可差の実DB確認、実ログイン導線。
 - 実ログイン導線（Supabase Auth）の公開接続。マイページ公開 UI 自体は実装済み（`/[locale]/account`, flag 既定 OFF, mock セッション）。
 - 複数通貨 / 国別配送 UI: 参考実装済み（cart 内, 配送ゾーン案内 + デモレート換算, session 21）。実 FX レート・実送料の確定値接続は未（本番方針確定後）。
 - cart/checkout の公開 UI: 実装済み（`/[locale]/cart`, flag 既定 OFF, 手動振込 mock, session 20）。本番決済は対象外（契約後 adapter 差し替え）。商品ページからの「カートに追加」導線も実装済み（session 22）。商品ページはSSGのまま、runtime APIで `CART_ENABLED` を確認してON時のみフォームを表示。
@@ -47,22 +47,23 @@
 ## Git
 
 - branch: `main`
-- 最新 commit: session 30 で業務設定の公開反映（I-017, `8140b8b`）。session 29 は操作履歴の集約+検索/絞り込み（`7c880ac`）。実 hash は `git log --oneline -20` を参照。
+- 最新 commit: session 31 で実 Supabase 検証（settings org UUID 解決バグ修正 + migration applier 追加）。session 30 は I-017。実 hash は `git log --oneline -20` を参照。
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
-- 作業ツリー: クリーン（session 23-30 の実装・テスト・文書を機能単位で commit/push 済み）。
+- 作業ツリー: クリーン（session 23-31 の実装・テスト・文書を機能単位で commit/push 済み）。`.env.local`（gitignore）に検証用 Supabase 資格情報あり・コミットしない。
 - I-022（`.git` ACL）: `maomao-desk\tkats`（オーナー）では git add/commit/push 正常。Codex サンドボックスユーザー `codexsandboxonline` のみ環境制約で書込不可（repo 側問題ではない）。KNOWN_ISSUES 参照。
 
 ## テスト状態
 
-最新確認（2026-06-22, session 30）:
+最新確認（2026-06-22, session 31）:
 
-- `npm.cmd run verify:full`: 成功。
+- `npm.cmd run verify:full`: 成功（settings 修正後も mock スイート不変）。
   - typecheck OK
   - lint OK
-  - test **301 passed / 10 files skipped**（session 30: publicSettings +6。session 29: 操作履歴フィルタ +14。Supabase 契約は skip、計 17 migrations）
+  - test **301 passed / 10 files skipped**（通常 `npm test` では Supabase 契約は skip）
   - `db:validate` **17 files OK**
   - build OK（153 static、contact のみ dynamic）
+- 実 DB contract（`.env.local` を source + `RUN_SUPABASE_CONTRACT=1`）: **8/11 file pass**。残 3（write/procurement/fulfillment）は runner ダミーID（I-024）。
 - `npm.cmd run verify:quick`: 成功。
   - public smoke OK
   - `CART_ENABLED` 既定OFFで `/ja/cart` 404
