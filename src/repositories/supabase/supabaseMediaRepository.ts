@@ -12,6 +12,7 @@ import {
 import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { throwCommerce } from "@/lib/supabase/errors";
+import { resolveOrgId } from "@/lib/supabase/org";
 
 /**
  * Supabase メディア repository（media_assets, 0002 + 0014）。メタデータのみを扱い、
@@ -75,10 +76,11 @@ export const supabaseMediaRepository: MediaRepository = {
     const validationError = validateMedia({ ...input, bucket, path });
     if (validationError) throw new CommerceError("validation", validationError, { reason: validationError });
     const client = db();
+    const org = await resolveOrgId(client, input.organizationId);
     const { data, error } = await client
       .from("media_assets")
       .insert({
-        organization_id: input.organizationId,
+        organization_id: org,
         bucket,
         path,
         kind: input.kind,

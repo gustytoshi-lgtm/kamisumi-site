@@ -14,6 +14,7 @@ import type { CurrencyCode } from "@/types/commerce";
 import { allocateCost, toDbMethod, type AllocationBasis } from "@/lib/commerce/costAllocation";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { throwCommerce } from "@/lib/supabase/errors";
+import { resolveOrgId } from "@/lib/supabase/org";
 
 /**
  * Supabase 調達 repository（service role / RLS バイパス）。契約は mock と同一。
@@ -120,10 +121,11 @@ function mapSupplier(row: Record<string, unknown>): SupplierRecord {
 export const supabaseProcurementRepository: ProcurementRepository = {
   async createSupplier(input, ctx) {
     const client = db();
+    const org = await resolveOrgId(client, input.organizationId);
     const { data, error } = await client
       .from("suppliers")
       .insert({
-        organization_id: input.organizationId,
+        organization_id: org,
         name: input.name,
         region: input.region,
         public_level: input.publicLevel ?? "private",
@@ -226,10 +228,11 @@ export const supabaseProcurementRepository: ProcurementRepository = {
 
   async createPurchase(input, ctx) {
     const client = db();
+    const org = await resolveOrgId(client, input.organizationId);
     const { data, error } = await client
       .from("purchases")
       .insert({
-        organization_id: input.organizationId,
+        organization_id: org,
         supplier_id: input.supplierId,
         schedule_id: input.scheduleId,
         purchased_on: input.purchasedOn,
@@ -262,7 +265,7 @@ export const supabaseProcurementRepository: ProcurementRepository = {
       if (itemsError) throwCommerce(itemsError);
     }
 
-    await writeAudit(client, ctx, input.organizationId as string, "create", purchaseId, input.supplierId, "purchase");
+    await writeAudit(client, ctx, org, "create", purchaseId, input.supplierId, "purchase");
     const created = await this.getPurchase(purchaseId);
     if (!created) throw new CommerceError("not_found", `purchase ${purchaseId} not found after create`);
     return created;

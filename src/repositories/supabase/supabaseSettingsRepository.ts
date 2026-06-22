@@ -1,37 +1,22 @@
-import { siteConfig } from "@/config/site";
 import type { SettingsRepository } from "@/repositories/core/settingsRepository";
 import type { SettingHistoryEntry, SettingRecord } from "@/repositories/core/settingsModels";
-import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
+import type { ActorContext } from "@/repositories/core/writeModels";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { throwCommerce } from "@/lib/supabase/errors";
+import { resolveDefaultOrgId } from "@/lib/supabase/org";
 
 /**
  * Supabase 業務設定 repository（site_settings 現在値 = 0002 / setting_history 履歴 = 0015）。
  * 値は site_settings.value(jsonb) に文字列として保持する。RBAC/編集可否は settingsService（owner）が担う。
+ * org は単一テナントの既定組織を実 UUID で解決する（settings は org 入力を持たないため）。
  */
 type Db = ReturnType<typeof getSupabaseAdminClient>;
 function db(): Db {
   return getSupabaseAdminClient();
 }
 
-/**
- * 単一テナントの組織 UUID を実 DB から解決して memoize する。
- * siteConfig.organization.id は mock 用スラッグ（UUID ではない）なので、organizations.code 経由で実 UUID を得る。
- */
-let cachedOrgId: string | null = null;
-async function resolveOrgId(client: Db): Promise<string> {
-  if (cachedOrgId) return cachedOrgId;
-  const { data, error } = await client
-    .from("organizations")
-    .select("id")
-    .eq("code", siteConfig.organization.code)
-    .maybeSingle();
-  if (error) throwCommerce(error);
-  if (!data) {
-    throw new CommerceError("not_found", `organization '${siteConfig.organization.code}' not found`);
-  }
-  cachedOrgId = (data as { id: string }).id;
-  return cachedOrgId;
+function resolveOrgId(client: Db): Promise<string> {
+  return resolveDefaultOrgId(client);
 }
 
 function asString(value: unknown): string {

@@ -9,6 +9,7 @@ import type { CurrencyCode } from "@/types/commerce";
 import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
 import { getSupabaseAdminClient } from "@/lib/supabase/server";
 import { throwCommerce } from "@/lib/supabase/errors";
+import { resolveOrgId } from "@/lib/supabase/org";
 
 /**
  * Supabase 経費 repository（expenses, 0012, owner RLS）。service role 経由。
@@ -63,10 +64,11 @@ export const supabaseExpenseRepository: ExpenseRepository = {
   },
   async createExpense(input: ExpenseCreateInput, ctx: ActorContext) {
     const client = db();
+    const org = await resolveOrgId(client, input.organizationId);
     const { data, error } = await client
       .from("expenses")
       .insert({
-        organization_id: input.organizationId,
+        organization_id: org,
         expense_date: input.expenseDate,
         category: input.category,
         currency: input.currency,
