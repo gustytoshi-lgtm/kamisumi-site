@@ -44,6 +44,7 @@
     "eslint": "latest",
     "eslint-config-next": "latest",
     "jsdom": "latest",
+    "pg": "^8.22.0",
     "prettier": "latest",
     "typescript": "latest",
     "vitest": "latest"
