@@ -5,6 +5,8 @@ import { isAdminEnabled } from "@/config/features";
 import { isDevToolsEnabled } from "@/config/devtools";
 import { getDataBackend } from "@/config/dataBackend";
 import { DevModeBar } from "@/components/admin/DevModeBar";
+import { SignInForm } from "@/components/admin/SignInForm";
+import { signInAction, signOutAction } from "./authActions";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminAuthMode, getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
 import { visibleAdminNav, type AdminNavKey } from "@/lib/commerce/adminNav";
@@ -49,15 +51,26 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   const dictionary = getAdminDictionary(adminLocale);
 
   if (!session) {
+    const supabaseAuth = getAdminAuthMode() === "supabase";
     return (
       <main className="page-main" id="main-content">
         <section className="page-section">
           <div className={`content-shell ${styles.signin}`}>
-            <h1>KAMISUMI Admin</h1>
-            <p className="muted">{dictionary.common.noPermission}</p>
-            <p className="muted">
-              (mock auth) ADMIN_DEV_ROLE=owner|front_staff|inventory_staff|editor
-            </p>
+            <h1>{dictionary.auth.signInTitle}</h1>
+            {supabaseAuth ? (
+              <>
+                <p className="muted">{dictionary.auth.intro}</p>
+                <SignInForm action={signInAction} d={dictionary.auth} locale={locale} />
+              </>
+            ) : (
+              <>
+                <p className="muted">{dictionary.common.noPermission}</p>
+                <p className="muted">{dictionary.auth.mockNote}</p>
+                <p className="muted">
+                  (mock auth) ADMIN_DEV_ROLE=owner|front_staff|inventory_staff|editor
+                </p>
+              </>
+            )}
           </div>
         </section>
       </main>
@@ -83,6 +96,14 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
             <span className={styles.badge}>
               {dictionary.common.signedInAs}: {session.role}
             </span>
+            {getAdminAuthMode() === "supabase" ? (
+              <form action={signOutAction}>
+                <input name="locale" type="hidden" value={locale} />
+                <button className={styles.navLink} type="submit">
+                  {dictionary.auth.signOut}
+                </button>
+              </form>
+            ) : null}
             {navKeys.map((key) => {
               const route = IMPLEMENTED_ROUTES[key];
               return route ? (

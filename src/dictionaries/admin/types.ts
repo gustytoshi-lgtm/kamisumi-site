@@ -35,6 +35,19 @@ export type AdminDictionary = {
     viewHistory: string;
     reopen: string;
   };
+  /** 管理画面サインイン（Supabase 認証モード）。 */
+  auth: {
+    signInTitle: string;
+    intro: string;
+    email: string;
+    password: string;
+    signIn: string;
+    signOut: string;
+    invalidCredentials: string;
+    missingFields: string;
+    mockNote: string;
+    goToAdmin: string;
+  };
   /** 業務設定（§8）画面のラベル。 */
   settings: {
     title: string;

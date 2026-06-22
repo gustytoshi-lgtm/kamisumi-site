@@ -57,6 +57,18 @@ export const adminJa: AdminDictionary = {
     viewHistory: "履歴",
     reopen: "再開",
   },
+  auth: {
+    signInTitle: "管理画面サインイン",
+    intro: "登録済みのメールアドレスとパスワードでサインインしてください。",
+    email: "メールアドレス",
+    password: "パスワード",
+    signIn: "サインイン",
+    signOut: "サインアウト",
+    invalidCredentials: "メールアドレスまたはパスワードが正しくありません。",
+    missingFields: "メールアドレスとパスワードを入力してください。",
+    mockNote: "開発モード（mock 認証）です。ADMIN_DEV_ROLE で認証されるため、サインインは不要です。",
+    goToAdmin: "管理画面へ",
+  },
   settings: {
     title: "業務設定",
     intro: "店舗運営で変わりやすい項目を編集します。API鍵・口座・システム設定はここからは変更できません。",

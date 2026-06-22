@@ -57,6 +57,18 @@ export const adminZhTw: AdminDictionary = {
     viewHistory: "歷史紀錄",
     reopen: "重啟",
   },
+  auth: {
+    signInTitle: "管理後台登入",
+    intro: "請以註冊的電子郵件與密碼登入。",
+    email: "電子郵件",
+    password: "密碼",
+    signIn: "登入",
+    signOut: "登出",
+    invalidCredentials: "電子郵件或密碼不正確。",
+    missingFields: "請輸入電子郵件與密碼。",
+    mockNote: "開發模式（mock 認證）。以 ADMIN_DEV_ROLE 認證，無需登入。",
+    goToAdmin: "前往管理後台",
+  },
   settings: {
     title: "營運設定",
     intro: "編輯店鋪營運中常變動的項目。API金鑰・帳戶・系統設定無法從此處變更。",
