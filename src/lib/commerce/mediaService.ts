@@ -9,7 +9,11 @@ import {
   type MediaUpdateInput,
 } from "@/repositories/core/mediaModels";
 import { CommerceError, type ActorContext } from "@/repositories/core/writeModels";
+import { mockMediaStorage, type MediaStorage, type MediaUploadBody } from "./mediaStorage";
 import { can, type Permission } from "./rbac";
+
+/** private 署名 URL の既定有効期間（秒）。 */
+const SIGNED_URL_TTL_SECONDS = 600;
 
 /**
  * メディアサービス。公開メディア（product/journal/brand）の管理は media:manage（owner/editor）。
@@ -24,7 +28,7 @@ function assertCan(ctx: ActorContext, permission: Permission): void {
   }
 }
 
-export function createMediaService(repo: MediaRepository) {
+export function createMediaService(repo: MediaRepository, storage: MediaStorage = mockMediaStorage) {
   return {
     async listMedia(
       ctx: ActorContext,
@@ -61,6 +65,38 @@ export function createMediaService(repo: MediaRepository) {
         { ...input, bucket, organizationId: input.organizationId ?? siteConfig.organization.id },
         ctx,
       );
+    },
+    /** 実ファイルを Storage に保管してからメタデータを作成する（upload + createMedia）。 */
+    async uploadMedia(
+      ctx: ActorContext,
+      input: Omit<MediaCreateInput, "organizationId"> & { organizationId?: string },
+      body: MediaUploadBody,
+    ) {
+      assertCan(ctx, MANAGE);
+      if (!isMediaKind(input.kind)) {
+        throw new CommerceError("validation", `invalid media kind: ${input.kind}`);
+      }
+      const bucket = input.bucket ?? bucketForKind(input.kind);
+      if (bucket === "private" && !can(ctx.role, "secrets:view")) {
+        throw new CommerceError("forbidden", "creating private media requires secrets:view");
+      }
+      await storage.upload(bucket, input.path, body, input.mimeType ?? "application/octet-stream");
+      return repo.createMedia(
+        { ...input, bucket, organizationId: input.organizationId ?? siteConfig.organization.id },
+        ctx,
+      );
+    },
+    /** 配信 URL を返す（public=公開 URL / private=期限付き署名 URL, owner 限定）。 */
+    async getMediaUrl(ctx: ActorContext, id: string, expiresInSeconds = SIGNED_URL_TTL_SECONDS) {
+      assertCan(ctx, MANAGE);
+      const media = await repo.getMedia(id);
+      if (!media) throw new CommerceError("not_found", `media ${id} not found`);
+      if (media.bucket === "private" && !can(ctx.role, "secrets:view")) {
+        throw new CommerceError("forbidden", "private media requires secrets:view");
+      }
+      return media.bucket === "public"
+        ? storage.publicUrl("public", media.path)
+        : storage.signedUrl("private", media.path, expiresInSeconds);
     },
     async updateMedia(ctx: ActorContext, id: string, patch: MediaUpdateInput) {
       assertCan(ctx, MANAGE);

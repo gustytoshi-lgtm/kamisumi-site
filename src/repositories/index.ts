@@ -50,6 +50,8 @@ import type { MediaRepository } from "./core/mediaRepository";
 import { createMediaService, type MediaService } from "@/lib/commerce/mediaService";
 import { mockMediaRepository } from "./mock/mockMediaRepository";
 import { supabaseMediaRepository } from "./supabase/supabaseMediaRepository";
+import { mockMediaStorage, type MediaStorage } from "@/lib/commerce/mediaStorage";
+import { supabaseMediaStorage } from "./supabase/supabaseMediaStorage";
 import { createSnsDraftService, type SnsDraftService } from "@/lib/commerce/snsDraftService";
 import { mockSnsDraftRepository } from "@/lib/commerce/snsDraft";
 import { mockNotifier } from "@/lib/commerce/notifications";
@@ -263,7 +265,7 @@ export function getAccountingExportService(): AccountingExportService {
   return createAccountingExportService(mockAccountingExporter);
 }
 
-/** メディア repository factory。既定 mock。Supabase はメタデータ実クエリ実装済み（Storage 連携は実装待ち）。 */
+/** メディア repository factory。既定 mock。Supabase はメタデータ実クエリ + Storage 連携実装済み。 */
 export function getMediaRepository(): MediaRepository {
   if (getDataBackend() === "supabase") {
     if (!isSupabaseConfigured()) {
@@ -276,8 +278,21 @@ export function getMediaRepository(): MediaRepository {
   return mockMediaRepository;
 }
 
+/** メディア実ファイル Storage factory。既定 mock（in-memory）。Supabase は public/private バケット。 */
+export function getMediaStorage(): MediaStorage {
+  if (getDataBackend() === "supabase") {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "DATA_BACKEND=supabase but Supabase env is missing. Unset DATA_BACKEND to use mock.",
+      );
+    }
+    return supabaseMediaStorage;
+  }
+  return mockMediaStorage;
+}
+
 export function getMediaService(): MediaService {
-  return createMediaService(getMediaRepository());
+  return createMediaService(getMediaRepository(), getMediaStorage());
 }
 
 /** SNS 下書きサービス（Phase 3・dev mock。承認しても自動公開しない）。 */
