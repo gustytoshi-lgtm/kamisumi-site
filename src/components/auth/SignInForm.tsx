@@ -2,42 +2,52 @@
 
 import { useActionState } from "react";
 import type { ActionState } from "@/lib/admin/actionState";
-import type { AdminDictionary } from "@/dictionaries/admin";
+
+/** サインインフォームに必要な表示文字列（admin 辞書 / 公開辞書のどちらからでも渡せる構造）。 */
+export type SignInLabels = {
+  email: string;
+  password: string;
+  signIn: string;
+  invalidCredentials: string;
+  missingFields: string;
+};
 
 type Props = {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   locale: string;
-  d: AdminDictionary["auth"];
+  labels: SignInLabels;
 };
 
 const initialState: ActionState = { ok: false };
-
 const labelStyle: React.CSSProperties = { fontSize: "0.8rem", color: "#615d53" };
 
-/** 管理画面サインインフォーム（Supabase 認証モード）。server action + i18n エラー表示。 */
-export function SignInForm({ action, locale, d }: Props) {
+/**
+ * 管理画面・顧客マイページ共通のサインインフォーム（Supabase 認証モード）。
+ * server action（useActionState）+ i18n エラー表示。失敗詳細はサーバー側でログのみ。
+ */
+export function SignInForm({ action, locale, labels }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const message = state.ok
     ? ""
     : state.code === "missingFields"
-      ? d.missingFields
+      ? labels.missingFields
       : state.code
-        ? d.invalidCredentials
+        ? labels.invalidCredentials
         : "";
 
   return (
     <form action={formAction} style={{ display: "grid", gap: "10px", maxWidth: "360px" }}>
       <input name="locale" type="hidden" value={locale} />
       <label style={{ display: "grid", gap: "2px" }}>
-        <span style={labelStyle}>{d.email}</span>
+        <span style={labelStyle}>{labels.email}</span>
         <input autoComplete="username" name="email" required type="email" />
       </label>
       <label style={{ display: "grid", gap: "2px" }}>
-        <span style={labelStyle}>{d.password}</span>
+        <span style={labelStyle}>{labels.password}</span>
         <input autoComplete="current-password" name="password" required type="password" />
       </label>
       <button disabled={pending} style={{ justifySelf: "start" }} type="submit">
-        {d.signIn}
+        {labels.signIn}
       </button>
       {message ? (
         <span className="muted" role="alert">

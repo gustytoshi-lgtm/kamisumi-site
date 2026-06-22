@@ -5,7 +5,7 @@ import { isAdminEnabled } from "@/config/features";
 import { isDevToolsEnabled } from "@/config/devtools";
 import { getDataBackend } from "@/config/dataBackend";
 import { DevModeBar } from "@/components/admin/DevModeBar";
-import { SignInForm } from "@/components/admin/SignInForm";
+import { SignInForm } from "@/components/auth/SignInForm";
 import { signInAction, signOutAction } from "./authActions";
 import { getAdminDictionary } from "@/dictionaries/admin";
 import { getAdminAuthMode, getAdminSession, resolveAdminLocale } from "@/lib/admin/auth";
@@ -60,7 +60,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
             {supabaseAuth ? (
               <>
                 <p className="muted">{dictionary.auth.intro}</p>
-                <SignInForm action={signInAction} d={dictionary.auth} locale={locale} />
+                <SignInForm action={signInAction} labels={dictionary.auth} locale={locale} />
               </>
             ) : (
               <>

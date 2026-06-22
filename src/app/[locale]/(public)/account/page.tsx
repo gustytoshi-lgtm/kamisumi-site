@@ -11,7 +11,7 @@ import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { buildMetadata } from "@/lib/seo";
 import { getCustomerPortalService } from "@/repositories";
 import type { CustomerAddressRecord } from "@/repositories/core/customerModels";
-import { CustomerSignInForm } from "@/components/account/CustomerSignInForm";
+import { SignInForm } from "@/components/auth/SignInForm";
 import { createAddressAction, updateAddressAction, updateProfileAction } from "./actions";
 import { customerSignInAction, customerSignOutAction } from "./authActions";
 
@@ -74,7 +74,7 @@ export default async function AccountPage({ params }: LocaleParams) {
             {supabaseAuth ? (
               <>
                 <p className="muted">{a.auth.intro}</p>
-                <CustomerSignInForm
+                <SignInForm
                   action={customerSignInAction}
                   labels={{
                     email: a.fields.email,
