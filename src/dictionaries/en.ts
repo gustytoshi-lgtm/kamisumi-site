@@ -43,6 +43,12 @@ export const en: Dictionary = {
     commerceCoreNote:
       "KAGURAKOJI Commerce Core is the future shared commerce foundation. Phase 1 uses public mock data only.",
   },
+  contactInfo: {
+    heading: "Get in touch",
+    emailLabel: "Email",
+    followLabel: "Follow",
+    pending: "Public contact details are being prepared.",
+  },
   productFields: {
     brand: "Brand",
     region: "Region",

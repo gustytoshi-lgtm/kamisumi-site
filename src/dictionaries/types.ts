@@ -53,6 +53,12 @@ export type Dictionary = {
     shippingAfterConfirm: string;
     commerceCoreNote: string;
   };
+  contactInfo: {
+    heading: string;
+    emailLabel: string;
+    followLabel: string;
+    pending: string;
+  };
   productFields: {
     brand: string;
     region: string;

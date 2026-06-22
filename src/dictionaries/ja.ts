@@ -43,6 +43,12 @@ export const ja: Dictionary = {
     commerceCoreNote:
       "KAGURAKOJI Commerce Core は将来の共通コマース基盤です。Phase 1では公開用モックデータのみを使用しています。",
   },
+  contactInfo: {
+    heading: "お問い合わせ先",
+    emailLabel: "メール",
+    followLabel: "フォロー",
+    pending: "公開用の連絡先は準備中です。",
+  },
   productFields: {
     brand: "ブランド",
     region: "地域",

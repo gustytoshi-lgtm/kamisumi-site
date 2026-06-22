@@ -43,6 +43,12 @@ export const zhTw: Dictionary = {
     commerceCoreNote:
       "KAGURAKOJI Commerce Core 是未來共用的商務基礎。Phase 1 僅使用公開用 mock data。",
   },
+  contactInfo: {
+    heading: "聯絡方式",
+    emailLabel: "電子郵件",
+    followLabel: "追蹤",
+    pending: "公開聯絡方式準備中。",
+  },
   productFields: {
     brand: "品牌",
     region: "地區",
