@@ -2,6 +2,36 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (38) — Claude — バックログ一括（I-007 / SignInForm 共通化 / 監査CSV / I-018 Storage）
+
+「できること全部進めて」の指示で、残バックログの実装可能項目を順に処理した。
+
+### 1. I-007 OG タイトル重複（`04604bf`）
+- `seo.ts`: title がブランド名と同じ/空のとき "KAMISUMI | KAMISUMI" になっていたのを是正（<title>/og:title/twitter/og:image:alt）。
+
+### 2. SignInForm 共通化（`8f3b06c`）
+- session 35/36 の admin/customer 重複を `components/auth/SignInForm.tsx`（labels: SignInLabels）へ集約、重複 2 件削除。
+
+### 3. 監査ログ CSV エクスポート（`76765ea`）
+- `auditEntriesToCsv`（RFC4180 + CRLF）+ 3 tests、route `/admin/audit-logs/export`（owner 限定・BOM 付与・フィルタ引継ぎ）、ページにリンク + 辞書。
+- owner 起動で 200 / text/csv / attachment を確認。
+
+### 4. I-018 Supabase Storage 連携（後続コミット）
+- `lib/commerce/mediaStorage.ts`: `MediaStorage` 抽象（upload/remove/publicUrl/signedUrl）+ in-memory mock。
+- `supabaseMediaStorage`: public=getPublicUrl / private=createSignedUrl。インフラ失敗は plain Error。
+- `mediaService`: `uploadMedia`（upload+createMedia）/ `getMediaUrl`（public=公開URL / private=署名URL, owner 限定）。storage は任意第2引数（既定 mock、後方互換）。
+- `index.ts`: `getMediaStorage()` factory + getMediaService 配線。
+- `scripts/verify-storage.mjs`: public/private バケット作成 + upload→URL→fetch。**実 Storage で 5/5 pass**
+  （public 公開URL 200 / private 署名URL 200 / private は公開URL 400 で遮断）。
+- 残: admin メディア UI のファイルピッカー接続（現状 path 文字列入力のメタデータ管理）。
+
+### 確認
+- `typecheck`/`lint`/`verify:full`: 成功（test **311 passed**、build OK、mock 回帰なし）。
+- スキップ: `order_accepting` の公開反映は order ページの dynamic 化コストに見合わず見送り（任意）。
+
+### commit hash
+- `04604bf` seo / `8f3b06c` signinform / `76765ea` audit csv / Storage は後続。
+
 ## 2026-06-22 (37) — Claude — matcha adjustQuantity の DB function 原子化（優先3）
 
 ### 目的

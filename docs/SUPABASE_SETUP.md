@@ -207,6 +207,10 @@ on conflict do nothing;
 
 `private` は RLS/policy で組織メンバー（`is_org_member`）に限定する。公開画像のみ `public`。
 
+> バケット作成と公開URL/署名URL/アクセス制御の検証は `node --env-file=.env.local scripts/verify-storage.mjs`
+> で一括実施できる（service role で public/private を作成し upload→URL→fetch を確認。session 38 で 5/5 pass）。
+> アプリ側は `getMediaStorage()` / `mediaService.uploadMedia` / `mediaService.getMediaUrl` を使う。
+
 ---
 
 ## 8. RLS 検証

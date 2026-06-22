@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-最終更新: 2026-06-22 (session 37) / 更新者: Claude
+最終更新: 2026-06-22 (session 38) / 更新者: Claude
 
 > このディレクトリ `docs/project-management/` が正規プロジェクト管理文書。
 > ルート直下の旧管理文書と差異が出た場合は、本ディレクトリを優先する。
@@ -41,13 +41,13 @@
 - cart/checkout の公開 UI: 実装済み（`/[locale]/cart`, flag 既定 OFF, 手動振込 mock, session 20）。本番決済は対象外（契約後 adapter 差し替え）。商品ページからの「カートに追加」導線も実装済み（session 22）。商品ページはSSGのまま、runtime APIで `CART_ENABLED` を確認してON時のみフォームを表示。
 - `matcha adjustQuantity` の DB function 原子化: 完了（migration 0019, session 37。実DBで 25 並列の原子性を実証）。
 - 操作履歴: 全ドメイン集約 + 検索/絞り込みは実装済み（session 29）。残は監査 export（CSV）。
-- Supabase Storage とメディア実ファイル連携。
+- Supabase Storage とメディア実ファイル連携: Storage 層（upload/public/署名URL）実装・実検証済み（session 38, I-018 ほぼ解決）。残は admin UI のファイルピッカー接続。
 - Playwright E2E の `C:\dev` 移設後再評価。
 
 ## Git
 
 - branch: `main`
-- 最新 commit: session 37 で matcha 数量調整の DB function 原子化（migration 0019）。session 35-36 はサインイン導線、31-34 は実 Supabase 検証。実 hash は `git log --oneline -20` を参照。
+- 最新 commit: session 38 でバックログ一括（I-007 / SignInForm 共通化 / 監査CSV / I-018 Storage）。session 37 は matcha 原子化、35-36 はサインイン導線。実 hash は `git log --oneline -20` を参照。
 - remote: `origin https://github.com/gustytoshi-lgtm/kamisumi-site.git`。`main` と `origin/main` は同期済み。
 - tag: なし。
 - 作業ツリー: クリーン（session 23-31 の実装・テスト・文書を機能単位で commit/push 済み）。`.env.local`（gitignore）に検証用 Supabase 資格情報あり・コミットしない。
