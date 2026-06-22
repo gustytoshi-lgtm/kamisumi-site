@@ -68,6 +68,15 @@ export default async function AdminAuditLogsPage({ params, searchParams }: Audit
   const recent = filtered.slice(0, 200);
   const isFiltered = hasActiveAuditFilter(filter);
 
+  // CSV エクスポートは現在のフィルタ条件を引き継ぐ。
+  const exportParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (typeof value === "string" && value.trim() !== "") exportParams.set(key, value);
+  }
+  const exportHref = `/${locale}/admin/audit-logs/export${
+    exportParams.toString() ? `?${exportParams.toString()}` : ""
+  }`;
+
   return (
     <>
       <h1>{d.auditLog.title}</h1>
@@ -141,6 +150,8 @@ export default async function AdminAuditLogsPage({ params, searchParams }: Audit
 
       <p className="muted">
         {d.auditLog.showing}: {filtered.length} / {all.length}
+        {" · "}
+        <a href={exportHref}>{d.auditLog.exportCsv}</a>
       </p>
 
       {recent.length === 0 ? (

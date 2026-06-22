@@ -242,6 +242,7 @@ export type AdminDictionary = {
     reset: string;
     showing: string;
     noMatch: string;
+    exportCsv: string;
   };
   /** ダッシュボード指標ラベル。 */
   dashboard: {

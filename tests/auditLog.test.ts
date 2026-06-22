@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  auditEntriesToCsv,
   auditFilterFacets,
   filterAuditEntries,
   hasActiveAuditFilter,
@@ -96,6 +97,29 @@ describe("audit log sorting", () => {
     const copy = [...sample];
     sortAuditEntriesDesc(sample);
     expect(sample).toEqual(copy);
+  });
+});
+
+describe("auditEntriesToCsv", () => {
+  it("emits a header and one CRLF-separated row per entry", () => {
+    const csv = auditEntriesToCsv([
+      entry({ id: "a", actorId: "owner-1", action: "create", entityType: "product", entityId: "p1", summary: "MATCHA" }),
+    ]);
+    const lines = csv.split("\r\n");
+    expect(lines[0]).toBe('"createdAt","actorId","action","entityType","entityId","summary"');
+    expect(lines[1]).toBe('"2026-06-20T10:00:00.000Z","owner-1","create","product","p1","MATCHA"');
+  });
+
+  it("escapes quotes/commas/newlines per RFC4180", () => {
+    const csv = auditEntriesToCsv([
+      entry({ id: "x", summary: 'has "quote", comma\nand newline', entityId: "e1" }),
+    ]);
+    expect(csv.split("\r\n")[1]).toContain('"has ""quote"", comma\nand newline"');
+  });
+
+  it("renders missing summary as an empty quoted cell", () => {
+    const csv = auditEntriesToCsv([entry({ id: "y", summary: undefined })]);
+    expect(csv.split("\r\n")[1].endsWith(',""')).toBe(true);
   });
 });
 

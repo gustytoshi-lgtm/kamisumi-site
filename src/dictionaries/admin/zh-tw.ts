@@ -252,6 +252,7 @@ export const adminZhTw: AdminDictionary = {
     reset: "重設",
     showing: "顯示筆數",
     noMatch: "沒有符合條件的操作紀錄。",
+    exportCsv: "匯出 CSV",
   },
   dashboard: {
     bestBeforeAlerts: "賞味期限警示",

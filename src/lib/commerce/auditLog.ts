@@ -93,3 +93,22 @@ function normalize(value: string | undefined): string | undefined {
   const trimmed = value.trim();
   return trimmed === "" ? undefined : trimmed;
 }
+
+/** RFC4180 のセル: ダブルクォートで囲み内部の " を "" にエスケープ（カンマ/改行/引用符を安全化）。 */
+function csvCell(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+/** 監査ログを CSV 文字列へ変換する（owner の記録出力用。ヘッダ + CRLF 区切り）。 */
+export function auditEntriesToCsv(entries: AuditEntry[]): string {
+  const header = ["createdAt", "actorId", "action", "entityType", "entityId", "summary"];
+  const lines = [header.map(csvCell).join(",")];
+  for (const entry of entries) {
+    lines.push(
+      [entry.createdAt, entry.actorId, entry.action, entry.entityType, entry.entityId, entry.summary ?? ""]
+        .map(csvCell)
+        .join(","),
+    );
+  }
+  return lines.join("\r\n");
+}

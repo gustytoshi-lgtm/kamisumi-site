@@ -252,6 +252,7 @@ export const adminJa: AdminDictionary = {
     reset: "リセット",
     showing: "表示件数",
     noMatch: "条件に一致する操作履歴はありません。",
+    exportCsv: "CSVエクスポート",
   },
   dashboard: {
     bestBeforeAlerts: "賞味期限の警告",
