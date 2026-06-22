@@ -161,6 +161,14 @@ export const ja: Dictionary = {
       validation: "入力内容をご確認ください。",
       not_found: "対象のデータが見つかりません。",
     },
+    auth: {
+      intro: "登録済みのメールアドレスとパスワードでサインインしてください。",
+      password: "パスワード",
+      signIn: "サインイン",
+      signOut: "サインアウト",
+      invalidCredentials: "メールアドレスまたはパスワードが正しくありません。",
+      missingFields: "メールアドレスとパスワードを入力してください。",
+    },
   },
   cart: {
     title: "カート",

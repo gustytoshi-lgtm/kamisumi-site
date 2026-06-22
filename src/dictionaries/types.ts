@@ -139,6 +139,14 @@ export type Dictionary = {
       validation: string;
       not_found: string;
     };
+    auth: {
+      intro: string;
+      password: string;
+      signIn: string;
+      signOut: string;
+      invalidCredentials: string;
+      missingFields: string;
+    };
   };
   cart: {
     title: string;

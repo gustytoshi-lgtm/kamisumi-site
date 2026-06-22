@@ -162,6 +162,14 @@ export const en: Dictionary = {
       validation: "Please check your input.",
       not_found: "The requested data was not found.",
     },
+    auth: {
+      intro: "Sign in with your registered email and password.",
+      password: "Password",
+      signIn: "Sign in",
+      signOut: "Sign out",
+      invalidCredentials: "Incorrect email or password.",
+      missingFields: "Enter your email and password.",
+    },
   },
   cart: {
     title: "Cart",

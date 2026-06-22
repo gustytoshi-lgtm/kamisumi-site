@@ -6,12 +6,14 @@ import { PageIntro } from "@/components/ui/PageIntro";
 import { isCustomerPortalEnabled } from "@/config/features";
 import { localeNames, supportedLocales } from "@/config/site";
 import { getDictionary } from "@/dictionaries";
-import { getCustomerSession } from "@/lib/customer/auth";
+import { getCustomerAuthMode, getCustomerSession } from "@/lib/customer/auth";
 import { getLocaleFromParams, type LocaleParams } from "@/lib/params";
 import { buildMetadata } from "@/lib/seo";
 import { getCustomerPortalService } from "@/repositories";
 import type { CustomerAddressRecord } from "@/repositories/core/customerModels";
+import { CustomerSignInForm } from "@/components/account/CustomerSignInForm";
 import { createAddressAction, updateAddressAction, updateProfileAction } from "./actions";
+import { customerSignInAction, customerSignOutAction } from "./authActions";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +63,7 @@ export default async function AccountPage({ params }: LocaleParams) {
   const session = await getCustomerSession();
 
   if (!session) {
+    const supabaseAuth = getCustomerAuthMode() === "supabase";
     return (
       <>
         <PageIntro description={a.description} title={a.title} />
@@ -68,6 +71,22 @@ export default async function AccountPage({ params }: LocaleParams) {
           <div className="content-shell">
             <Notice>{a.loginRequiredHint}</Notice>
             <h2>{a.loginRequired}</h2>
+            {supabaseAuth ? (
+              <>
+                <p className="muted">{a.auth.intro}</p>
+                <CustomerSignInForm
+                  action={customerSignInAction}
+                  labels={{
+                    email: a.fields.email,
+                    password: a.auth.password,
+                    signIn: a.auth.signIn,
+                    invalidCredentials: a.auth.invalidCredentials,
+                    missingFields: a.auth.missingFields,
+                  }}
+                  locale={locale}
+                />
+              </>
+            ) : null}
             <p>
               <a href={`/${locale}`}>{dictionary.common.backToHome}</a>
             </p>
@@ -104,6 +123,12 @@ export default async function AccountPage({ params }: LocaleParams) {
             <p className="muted">
               {a.signedInAs}: {profile.name}
             </p>
+            {getCustomerAuthMode() === "supabase" ? (
+              <form action={customerSignOutAction} style={{ margin: "0 0 12px" }}>
+                <input name="locale" type="hidden" value={locale} />
+                <button type="submit">{a.auth.signOut}</button>
+              </form>
+            ) : null}
             <AccountActionForm
               action={updateProfileAction}
               fields={profileFields}

@@ -160,6 +160,14 @@ export const zhTw: Dictionary = {
       validation: "請確認輸入內容。",
       not_found: "找不到對象資料。",
     },
+    auth: {
+      intro: "請以註冊的電子郵件與密碼登入。",
+      password: "密碼",
+      signIn: "登入",
+      signOut: "登出",
+      invalidCredentials: "電子郵件或密碼不正確。",
+      missingFields: "請輸入電子郵件與密碼。",
+    },
   },
   cart: {
     title: "購物車",
