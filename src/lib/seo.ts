@@ -24,7 +24,9 @@ export function buildMetadata({
   description,
   image = "/api/og",
 }: MetadataInput): Metadata {
-  const localizedTitle = `${title} | ${siteConfig.brand.name}`;
+  // title がブランド名と同じ（Home 等）または空なら "KAMISUMI | KAMISUMI" の重複を避け、ブランド名のみにする（I-007）。
+  const brand = siteConfig.brand.name;
+  const localizedTitle = title && title !== brand ? `${title} | ${brand}` : brand;
   const imageUrl = new URL(image, siteConfig.siteUrl).toString();
 
   return {
