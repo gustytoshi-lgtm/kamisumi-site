@@ -2,6 +2,37 @@
 
 過去記録は削除せず追記する。新しい記録を上に追加。
 
+## 2026-06-22 (39) — Claude — Threads DM 導線（実運用＝問い合わせ→DM→手動振込に合わせる）
+
+### 目的
+実運用は嫁が Threads の DM で受注対応している。サイトの問い合わせフォームはデモ（送信内容を保存しない）で
+実際には届かないため、お客様を Threads DM へ誘導する導線を主導線として実装する。
+
+### 実施内容
+1. `GET /api/contact`: `getPublicSettings()` の social_threads（owner が業務設定で編集可）を返す runtime API
+   （商品ページを SSG のまま保つ。/api/features/cart と同方式）。
+2. `components/product/ProductThreadsCta.tsx`（client）: /api/contact を読み、Threads URL があれば
+   「Threadsで相談・注文」ボタンを表示（未設定なら非表示）。
+3. 商品ページ: 価格直下に Threads CTA を**主導線（primary）**として追加。既存「在庫を確認」は secondary に降格。
+4. contact ページ: 先頭に「ご注文・ご相談（Threads DM）」セクションを prominent に追加。デモフォームは
+   その下に明記コメント付きで残置（送信内容は保存されない旨）。
+5. 公開辞書（ja/zh-tw/en/types）の contactInfo に dmHeading/dmLead/dmButton を追加。
+
+### 運用
+- owner が 管理画面 → 業務設定 → social_threads に Threads URL を入れると、商品/問い合わせページの
+  DM ボタンが即時に有効化される（コード変更・再デプロイ不要）。
+
+### 確認
+- `typecheck`/`lint`/`verify:full`: 成功（test 311 passed、build OK）。
+- 実機: 一時的に Threads URL を設定して dev 起動 → `/api/contact` が URL を返し、contact ページに
+  「ご注文・ご相談」+「Threadsで相談・注文」ボタンが表示されることを確認（その後 URL は空に戻した）。
+
+### 残課題
+- ネット公開（デプロイ）、実商品データ/写真。デモ問い合わせフォーム自体の扱い（将来 DB 保存化 or 撤去）。
+
+### commit hash
+- 後続コミット参照。
+
 ## 2026-06-22 (38) — Claude — バックログ一括（I-007 / SignInForm 共通化 / 監査CSV / I-018 Storage）
 
 「できること全部進めて」の指示で、残バックログの実装可能項目を順に処理した。
