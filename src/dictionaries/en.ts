@@ -48,6 +48,9 @@ export const en: Dictionary = {
     emailLabel: "Email",
     followLabel: "Follow",
     pending: "Public contact details are being prepared.",
+    dmHeading: "Orders & inquiries",
+    dmLead: "For orders and stock inquiries, message us anytime via Threads DM.",
+    dmButton: "Ask / order on Threads",
   },
   productFields: {
     brand: "Brand",

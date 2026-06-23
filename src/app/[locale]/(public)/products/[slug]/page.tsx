@@ -4,6 +4,7 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { PriceDisplay } from "@/components/product/PriceDisplay";
 import { ProductCartGate } from "@/components/product/ProductCartGate";
+import { ProductThreadsCta } from "@/components/product/ProductThreadsCta";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { ProductStatusBadge } from "@/components/product/ProductStatusBadge";
@@ -112,10 +113,14 @@ export default async function ProductDetailPage({ params }: LocaleSlugParams) {
               />
               <p>{getLocalizedText(product.description, locale)}</p>
               <p className="muted">{dictionary.common.shippingAfterConfirm}</p>
+              {/* 主導線: Threads の DM で相談・注文（owner が設定で URL を入れている時のみ表示）。 */}
+              <ProductThreadsCta label={dictionary.contactInfo.dmButton} />
               {isPurchasableStatus(product.publicStatus) ? (
                 <ProductCartGate cart={dictionary.cart} locale={locale} slug={product.slug} />
               ) : null}
-              <ButtonLink href={ctaHref}>{status.cta}</ButtonLink>
+              <ButtonLink href={ctaHref} variant="secondary">
+                {status.cta}
+              </ButtonLink>
             </div>
           </div>
         </div>

@@ -48,6 +48,9 @@ export const ja: Dictionary = {
     emailLabel: "メール",
     followLabel: "フォロー",
     pending: "公開用の連絡先は準備中です。",
+    dmHeading: "ご注文・ご相談",
+    dmLead: "ご注文・在庫のご相談は、Threads のダイレクトメッセージ（DM）で承っています。お気軽にメッセージください。",
+    dmButton: "Threadsで相談・注文",
   },
   productFields: {
     brand: "ブランド",

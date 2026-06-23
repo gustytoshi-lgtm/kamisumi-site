@@ -10,6 +10,7 @@ import {
   hasPublicContactEmail,
   isPublicUrl,
 } from "@/lib/settings/publicSettings";
+import uiStyles from "@/components/ui/UI.module.css";
 
 // owner が業務設定（連絡先・SNS）を更新したら反映されるよう、ビルド時固定ではなく都度読取にする。
 export const dynamic = "force-dynamic";
@@ -43,6 +44,24 @@ export default async function ContactPage({ params }: LocaleParams) {
         kicker={dictionary.nav.contact}
         title={dictionary.pages.contact.title}
       />
+      {threads ? (
+        <section className="page-section compact">
+          <div className="content-shell" style={{ display: "grid", gap: "12px" }}>
+            <h2>{dictionary.contactInfo.dmHeading}</h2>
+            <p>{dictionary.contactInfo.dmLead}</p>
+            <a
+              className={`${uiStyles.button} ${uiStyles.primary}`}
+              href={threads}
+              rel="noopener noreferrer"
+              style={{ justifySelf: "start" }}
+              target="_blank"
+            >
+              {dictionary.contactInfo.dmButton}
+            </a>
+          </div>
+        </section>
+      ) : null}
+      {/* 下記フォームはデモ（送信内容は保存されません）。実際のご相談・ご注文は上の Threads DM へ。 */}
       <section className="page-section compact">
         <div className="content-shell two-column">
           <Notice>{dictionary.common.demoNotice}</Notice>

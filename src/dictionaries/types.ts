@@ -58,6 +58,9 @@ export type Dictionary = {
     emailLabel: string;
     followLabel: string;
     pending: string;
+    dmHeading: string;
+    dmLead: string;
+    dmButton: string;
   };
   productFields: {
     brand: string;

@@ -48,6 +48,9 @@ export const zhTw: Dictionary = {
     emailLabel: "電子郵件",
     followLabel: "追蹤",
     pending: "公開聯絡方式準備中。",
+    dmHeading: "訂購・諮詢",
+    dmLead: "訂購與庫存諮詢，歡迎透過 Threads 的私訊（DM）與我們聯繫。",
+    dmButton: "用 Threads 諮詢・訂購",
   },
   productFields: {
     brand: "品牌",
