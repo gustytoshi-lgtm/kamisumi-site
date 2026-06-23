@@ -9,7 +9,8 @@ test("Traditional Chinese home page renders core sections", async ({ page }) => 
   await page.goto("/zh-tw");
 
   await expect(page.getByRole("heading", { name: "從日本尋找、挑選，送往世界。" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "查看商品" })).toBeVisible();
+  // ホームはカテゴリごとに「查看商品」リンクを複数描画するため first() で 1 つの可視性を確認する。
+  await expect(page.getByRole("link", { name: "查看商品" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "目前可詢問商品" })).toBeVisible();
   expect(errors).toEqual([]);
 });

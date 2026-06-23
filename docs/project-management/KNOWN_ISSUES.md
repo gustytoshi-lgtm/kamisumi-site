@@ -2,7 +2,7 @@
 
 | ID | 深刻度 | 内容 | 再現方法 | 影響 | 暫定回避 | 恒久案 | 対応Phase | 状態 |
 |---|---|---|---|---|---|---|---|---|
-| I-001 | Medium | E2E（playwright）が timeout | `npm run test:e2e` | E2E自動検証が回らない | 主要動作は手動 curl/起動で確認済み | **`C:\dev` へ移設済（OneDrive 遅延要因は解消）→ 再実行で評価可**。残るは webServer起動待ち調整 | 2A | 移設で改善・要再評価 |
+| I-001 | Medium | E2E（playwright）が timeout | `npm run test:e2e` | E2E自動検証が回らない | 主要動作は手動 curl/起動で確認済み | `C:\dev` 移設で webServer タイムアウト解消。`npx playwright install chromium` でブラウザ導入後に再実行 | 2A | **Resolved**（session 38: E2E 4/4 pass。webServer は移設で正常起動、要 `playwright install`、smoke の strict-mode バグ（複数「查看商品」リンク）を first() で修正） |
 | I-002 | Medium | migration の実SQL妥当性が未検証 | 実 Postgres なし | スキーマ誤りが本番適用まで発見されない可能性 | `npm run db:validate`(静的) を実施 | Supabase/psql で `db reset`・`db lint` | 2A | **Resolved**（session 31: 実 Supabase PostgreSQL 17.6 へ 0001-0017 + seed を `scripts/apply-migrations.mjs` で適用成功・54テーブル生成） |
 | I-003 | Medium | OneDrive が `.next` をロックし build が EPERM | （旧）OneDrive同期中の `npm run build` | ビルド失敗（断続的） | `.next` 削除→再ビルド | **解消: session 17 で `C:\dev\sites\kamisumi-site` へ移設（OneDrive 配下から除外）** | 全般 | **Resolved**（移設） |
 | I-004 | Low | `npm audit` moderate 2件（postcss、Next.js経由） | `npm audit --audit-level=low` | 既知脆弱性。No fix available | `fix --force` は禁止のため未実行 | Next.js 更新時に再監査 | 全般 | Open |
