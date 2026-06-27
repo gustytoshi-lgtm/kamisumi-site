@@ -64,7 +64,8 @@ export const siteConfig = {
     email: "hello@example.com",
   },
   socials: {
-    threads: "",
+    // KAMISUMI 公式 Threads（DM 受注の導線。owner は業務設定 social_threads で上書き可）。
+    threads: "https://www.threads.com/@kamisumi_",
     instagram: "",
   },
 } as const;
